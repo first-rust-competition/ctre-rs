@@ -160,18 +160,18 @@ pub enum ParamEnum {
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ControlFrame {
-    Control_3_General = 262272,
-    Control_4_Advanced = 262336,
-    Control_6_MotProfAddTrajPoint = 262464,
+    C3_General = 262272,
+    C4_Advanced = 262336,
+    C6_MotProfAddTrajPoint = 262464,
 }
 #[allow(non_camel_case_types)]
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ControlFrameEnhanced {
-    Control_3_General = 262272,
-    Control_4_Advanced = 262336,
-    Control_5_FeedbackOutputOverride = 262400,
-    Control_6_MotProfAddTrajPoint = 262464,
+    C3_General = 262272,
+    C4_Advanced = 262336,
+    C5_FeedbackOutputOverride = 262400,
+    C6_MotProfAddTrajPoint = 262464,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -300,36 +300,36 @@ pub enum SensorTerm {
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum StatusFrameEnhanced {
-    Status_1_General = 5120,
-    Status_2_Feedback0 = 5184,
-    Status_4_AinTempVbat = 5312,
-    Status_6_Misc = 5440,
-    Status_7_CommStatus = 5504,
-    Status_9_MotProfBuffer = 5632,
-    Status_10_Targets = 5696,
-    Status_12_Feedback1 = 5824,
-    Status_13_Base_PIDF0 = 5888,
-    Status_14_Turn_PIDF1 = 5952,
-    Status_15_FirmareApiStatus = 6016,
-    Status_3_Quadrature = 5248,
-    Status_8_PulseWidth = 5568,
-    Status_11_UartGadgeteer = 5760,
+    S1_General = 5120,
+    S2_Feedback0 = 5184,
+    S4_AinTempVbat = 5312,
+    S6_Misc = 5440,
+    S7_CommStatus = 5504,
+    S9_MotProfBuffer = 5632,
+    S10_Targets = 5696,
+    S12_Feedback1 = 5824,
+    S13_Base_PIDF0 = 5888,
+    S14_Turn_PIDF1 = 5952,
+    S15_FirmareApiStatus = 6016,
+    S3_Quadrature = 5248,
+    S8_PulseWidth = 5568,
+    S11_UartGadgeteer = 5760,
 }
 #[allow(non_camel_case_types)]
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum StatusFrame {
-    Status_1_General = 5120,
-    Status_2_Feedback0 = 5184,
-    Status_4_AinTempVbat = 5312,
-    Status_6_Misc = 5440,
-    Status_7_CommStatus = 5504,
-    Status_9_MotProfBuffer = 5632,
-    Status_10_Targets = 5696,
-    Status_12_Feedback1 = 5824,
-    Status_13_Base_PIDF0 = 5888,
-    Status_14_Turn_PIDF1 = 5952,
-    Status_15_FirmareApiStatus = 6016,
+    S1_General = 5120,
+    S2_Feedback0 = 5184,
+    S4_AinTempVbat = 5312,
+    S6_Misc = 5440,
+    S7_CommStatus = 5504,
+    S9_MotProfBuffer = 5632,
+    S10_Targets = 5696,
+    S12_Feedback1 = 5824,
+    S13_Base_PIDF0 = 5888,
+    S14_Turn_PIDF1 = 5952,
+    S15_FirmareApiStatus = 6016,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
