@@ -21,22 +21,22 @@ pub enum ErrorCode {
     OK = 0,
     CAN_MSG_STALE = 1,
     TxFailed = -1,
-    /// !< Caller passed an invalid param
+    /// Caller passed an invalid param
     InvalidParamValue = -2,
-    /// !< CAN frame has not been received within specified period of time.
+    /// CAN frame has not been received within specified period of time.
     RxTimeout = -3,
-    /// !< Not used.
+    /// Not used.
     TxTimeout = -4,
-    /// !< Specified CAN Id is invalid.
+    /// Specified CAN Id is invalid.
     UnexpectedArbId = -5,
-    /// !< Caller attempted to insert data into a buffer that is full.
+    /// Caller attempted to insert data into a buffer that is full.
     BufferFull = 6,
     CAN_OVERFLOW = -6,
-    /// !< Sensor is not present
+    /// Sensor is not present
     SensorNotPresent = -7,
     FirmwareTooOld = -8,
     CouldNotChangePeriod = -9,
-    /// !< User Specified General Error
+    /// User Specified General Error
     GeneralError = -100,
     SigNotUpdated = -200,
     NotAllPIDValuesUpdated = -201,
@@ -50,11 +50,11 @@ pub enum ErrorCode {
     DistanceBetweenWheelsTooSmall = -502,
     GainsAreNotSet = -503,
     IncompatibleMode = -600,
-    /// !< Handle does not match stored map of handles
+    /// Handle does not match stored map of handles
     InvalidHandle = -601,
     FeatureRequiresHigherFirm = -700,
     TalonFeatureRequiresHigherFirm = -701,
-    /// !< Special Code for "isSensorPresent"
+    /// Special Code for "isSensorPresent"
     PulseWidthSensorNotPresent = 10,
     GeneralWarning = 100,
     FeatureNotSupported = 101,
@@ -370,13 +370,13 @@ pub enum TrajectoryDuration {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct TrajectoryPoint {
-    /// !< The position to servo to.
+    /// The position to servo to.
     pub position: f64,
-    /// !< The velocity to feed-forward.
+    /// The velocity to feed-forward.
     pub velocity: f64,
     /// Not used.  Use auxiliary_pos instead.
     heading_deg: f64,
-    /// !< The position for auxiliary PID to target.
+    /// The position for auxiliary PID to target.
     pub auxiliary_pos: f64,
     /// Which slot to get PIDF gains.
     /// PID is used for position servo.
