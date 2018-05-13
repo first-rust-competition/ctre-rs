@@ -1,4 +1,5 @@
-// pub type Handle = *mut ::std::os::raw::c_void;
+use std::os::raw::{c_char, c_int};
+
 pub enum _Handle {}
 pub type Handle = *const _Handle;
 
@@ -69,7 +70,7 @@ pub enum ErrorCode {
     MotProfFirmThreshold2 = 110,
 }
 #[allow(non_camel_case_types)]
-#[repr(u32)]
+#[repr(i32)]
 /// Signal enumeration for generic signal access.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ParamEnum {
@@ -106,7 +107,8 @@ pub enum ParamEnum {
     SelectedSensorPosition = 331,
     FeedbackNotContinuous = 332,
     RemoteSensorSource = 333, // RemoteSensorSource_t
-    RemoteSensorDeviceID = 334, // [0,62] DeviceID
+    /// [0,62] DeviceID
+    RemoteSensorDeviceID = 334,
     SensorTerm = 335, // feedbackDevice_t (ordinal is the register)
     RemoteSensorClosedLoopDisableNeutralOnLOS = 336,
     PIDLoopPolarity = 337,
@@ -129,8 +131,10 @@ pub enum ParamEnum {
     PulseWidthPosition = 402,
     MotMag_Accel = 410,
     MotMag_VelCruise = 411,
-    LimitSwitchSource = 421, // ordinal (fwd=0,reverse=1), @see LimitSwitchSource_t
-    LimitSwitchNormClosedAndDis = 422, // ordinal (fwd=0,reverse=1). @see LimitSwitchNormClosedAndDis_t
+    /// ordinal (fwd=0,reverse=1), @see LimitSwitchSource_t
+    LimitSwitchSource = 421,
+    /// ordinal (fwd=0,reverse=1). @see LimitSwitchNormClosedAndDis_t
+    LimitSwitchNormClosedAndDis = 422,
     LimitSwitchDisableNeutralOnLOS = 423,
     LimitSwitchRemoteDevID = 424,
     SoftLimitDisableNeutralOnLOS = 425,
@@ -157,7 +161,7 @@ pub enum ParamEnum {
     MotionMeas_shake_reject_timeout = 180,
 }
 #[allow(non_camel_case_types)]
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ControlFrame {
     C3_General = 262272,
@@ -165,7 +169,7 @@ pub enum ControlFrame {
     C6_MotProfAddTrajPoint = 262464,
 }
 #[allow(non_camel_case_types)]
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ControlFrameEnhanced {
     C3_General = 262272,
@@ -186,7 +190,7 @@ pub enum ControlMode {
     MotionProfileArc = 10,
     Disabled = 15,
 }
-#[repr(u32)]
+#[repr(i32)]
 /// How to interpret a demand value.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum DemandType {
@@ -238,7 +242,7 @@ pub enum FollowerType {
     PercentOutput = 0,
     AuxOutput1 = 1,
 }
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum LimitSwitchSource {
     FeedbackConnector = 0,
@@ -246,21 +250,21 @@ pub enum LimitSwitchSource {
     RemoteCANifier = 2,
     Deactivated = 3,
 }
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum RemoteLimitSwitchSource {
     RemoteTalonSRX = 1,
     RemoteCANifier = 2,
     Deactivated = 3,
 }
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum LimitSwitchNormal {
     NormallyOpen = 0,
     NormallyClosed = 1,
     Disabled = 2,
 }
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum NeutralMode {
     /// Use the NeutralMode that is set by the jumper wire on the CAN device
@@ -297,7 +301,7 @@ pub enum SensorTerm {
     Diff1 = 3,
 }
 #[allow(non_camel_case_types)]
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum StatusFrameEnhanced {
     S1_General = 5120,
@@ -316,7 +320,7 @@ pub enum StatusFrameEnhanced {
     S11_UartGadgeteer = 5760,
 }
 #[allow(non_camel_case_types)]
-#[repr(u32)]
+#[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum StatusFrame {
     S1_General = 5120,
@@ -350,7 +354,7 @@ pub enum SetValueMotionProfile {
     Enable = 1,
     Hold = 2,
 }
-#[repr(u32)]
+#[repr(i32)]
 /// Duration to apply to a particular trajectory pt.
 /// This time unit is ADDED to the existing base time set by
 /// ConfigMotionProfileTrajectoryPeriod().
@@ -526,11 +530,11 @@ pub struct MotionProfileStatus {
     /// The robot API holds a "top buffer" of trajectory points, so your applicaion
     /// can dump several points at once.  The API will then stream them into the Talon's
     /// low-level buffer, allowing the Talon to act on them.
-    pub top_buffer_rem: ::std::os::raw::c_int,
+    pub top_buffer_rem: c_int,
     /// The number of points in the top trajectory buffer.
-    pub top_buffer_cnt: ::std::os::raw::c_int,
+    pub top_buffer_cnt: c_int,
     /// The number of points in the low level Talon buffer.
-    pub btm_buffer_cnt: ::std::os::raw::c_int,
+    pub btm_buffer_cnt: c_int,
     /// Set if isUnderrun ever gets set.
     /// Only is cleared by clearMotionProfileHasUnderrun() to ensure
     /// robot logic can react or instrument it.
@@ -545,15 +549,15 @@ pub struct MotionProfileStatus {
     pub active_point_valid: bool,
     pub is_last: bool,
     /// Selected slot for PID Loop 0
-    pub profile_slot_select_0: ::std::os::raw::c_int,
+    pub profile_slot_select_0: c_int,
     /// Selected slot for PID Loop 0
-    pub profile_slot_select_1: ::std::os::raw::c_int,
+    pub profile_slot_select_1: c_int,
     /// The current output mode of the motion profile executer (disabled, enabled, or hold).
     /// When changing the set() value in MP mode, it's important to check this signal to
     /// confirm the change takes effect before interacting with the top buffer.
     pub output_enable: SetValueMotionProfile,
     /// The applied duration of the active trajectory point
-    pub time_dur_ms: ::std::os::raw::c_int,
+    pub time_dur_ms: c_int,
 }
 #[test]
 fn bindgen_test_layout_MotionProfileStatus() {
@@ -697,762 +701,595 @@ fn bindgen_test_layout_MotionProfileStatus() {
     );
 }
 extern "C" {
-    pub fn c_MotController_Create1(baseArbId: ::std::os::raw::c_int) -> Handle;
-}
-extern "C" {
-    pub fn c_MotController_GetDeviceNumber(
-        handle: Handle,
-        deviceNumber: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
+    pub fn c_MotController_Create1(baseArbId: c_int) -> Handle;
+
+    pub fn c_MotController_GetDeviceNumber(handle: Handle, deviceNumber: *mut c_int) -> ErrorCode;
+
     pub fn c_MotController_GetDescription(
         handle: Handle,
-        toFill: *mut ::std::os::raw::c_char,
-        toFillByteSz: ::std::os::raw::c_int,
-        numBytesFilled: *mut ::std::os::raw::c_int,
+        toFill: *mut c_char,
+        toFillByteSz: c_int,
+        numBytesFilled: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_SetDemand(
         handle: Handle,
-        mode: ::std::os::raw::c_int,
-        demand0: ::std::os::raw::c_int,
-        demand1: ::std::os::raw::c_int,
+        mode: c_int,
+        demand0: c_int,
+        demand1: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_Set_4(
         handle: Handle,
-        mode: ::std::os::raw::c_int,
+        mode: c_int,
         demand0: f64,
         demand1: f64,
-        demand1Type: ::std::os::raw::c_int,
+        demand1Type: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_SetNeutralMode(handle: Handle, neutralMode: ::std::os::raw::c_int);
-}
-extern "C" {
+
+    pub fn c_MotController_SetNeutralMode(handle: Handle, neutralMode: c_int);
+
     pub fn c_MotController_SetSensorPhase(handle: Handle, PhaseSensor: bool);
-}
-extern "C" {
+
     pub fn c_MotController_SetInverted(handle: Handle, invert: bool);
-}
-extern "C" {
+
     pub fn c_MotController_ConfigOpenLoopRamp(
         handle: Handle,
         secondsFromNeutralToFull: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigClosedLoopRamp(
         handle: Handle,
         secondsFromNeutralToFull: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigPeakOutputForward(
         handle: Handle,
         percentOut: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigPeakOutputReverse(
         handle: Handle,
         percentOut: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigNominalOutputForward(
         handle: Handle,
         percentOut: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigNominalOutputReverse(
         handle: Handle,
         percentOut: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigNeutralDeadband(
         handle: Handle,
         percentDeadband: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigVoltageCompSaturation(
         handle: Handle,
         voltage: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigVoltageMeasurementFilter(
         handle: Handle,
-        filterWindowSamples: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        filterWindowSamples: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_EnableVoltageCompensation(handle: Handle, enable: bool);
-}
-extern "C" {
+
     pub fn c_MotController_GetBusVoltage(handle: Handle, voltage: *mut f64) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetMotorOutputPercent(
         handle: Handle,
         percentOutput: *mut f64,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetOutputCurrent(handle: Handle, current: *mut f64) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetTemperature(handle: Handle, temperature: *mut f64) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigSelectedFeedbackSensor(
         handle: Handle,
-        feedbackDevice: ::std::os::raw::c_int,
-        pidIdx: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        feedbackDevice: c_int,
+        pidIdx: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigSelectedFeedbackCoefficient(
         handle: Handle,
         coefficient: f64,
-        pidIdx: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        pidIdx: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigRemoteFeedbackFilter(
         handle: Handle,
-        deviceID: ::std::os::raw::c_int,
-        remoteSensorSource: ::std::os::raw::c_int,
-        remoteOrdinal: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        deviceID: c_int,
+        remoteSensorSource: c_int,
+        remoteOrdinal: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigSensorTerm(
         handle: Handle,
-        sensorTerm: ::std::os::raw::c_int,
-        feedbackDevice: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        sensorTerm: c_int,
+        feedbackDevice: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetSelectedSensorPosition(
         handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-        pidIdx: ::std::os::raw::c_int,
+        param: *mut c_int,
+        pidIdx: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetSelectedSensorVelocity(
         handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-        pidIdx: ::std::os::raw::c_int,
+        param: *mut c_int,
+        pidIdx: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_SetSelectedSensorPosition(
         handle: Handle,
-        sensorPos: ::std::os::raw::c_int,
-        pidIdx: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        sensorPos: c_int,
+        pidIdx: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_SetControlFramePeriod(
         handle: Handle,
-        frame: ::std::os::raw::c_int,
-        periodMs: ::std::os::raw::c_int,
+        frame: c_int,
+        periodMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_SetStatusFramePeriod(
         handle: Handle,
-        frame: ::std::os::raw::c_int,
-        periodMs: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        frame: c_int,
+        periodMs: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetStatusFramePeriod(
         handle: Handle,
-        frame: ::std::os::raw::c_int,
-        periodMs: *mut ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        frame: c_int,
+        periodMs: *mut c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigVelocityMeasurementPeriod(
         handle: Handle,
-        period: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        period: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigVelocityMeasurementWindow(
         handle: Handle,
-        windowSize: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        windowSize: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigForwardLimitSwitchSource(
         handle: Handle,
-        type_: ::std::os::raw::c_int,
-        normalOpenOrClose: ::std::os::raw::c_int,
-        deviceID: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        type_: c_int,
+        normalOpenOrClose: c_int,
+        deviceID: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigReverseLimitSwitchSource(
         handle: Handle,
-        type_: ::std::os::raw::c_int,
-        normalOpenOrClose: ::std::os::raw::c_int,
-        deviceID: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        type_: c_int,
+        normalOpenOrClose: c_int,
+        deviceID: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_OverrideLimitSwitchesEnable(handle: Handle, enable: bool);
-}
-extern "C" {
+
     pub fn c_MotController_ConfigForwardSoftLimitThreshold(
         handle: Handle,
-        forwardSensorLimit: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        forwardSensorLimit: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigReverseSoftLimitThreshold(
         handle: Handle,
-        reverseSensorLimit: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        reverseSensorLimit: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigForwardSoftLimitEnable(
         handle: Handle,
         enable: bool,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigReverseSoftLimitEnable(
         handle: Handle,
         enable: bool,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_OverrideSoftLimitsEnable(handle: Handle, enable: bool);
-}
-extern "C" {
+
     pub fn c_MotController_Config_kP(
         handle: Handle,
-        slotIdx: ::std::os::raw::c_int,
+        slotIdx: c_int,
         value: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_Config_kI(
         handle: Handle,
-        slotIdx: ::std::os::raw::c_int,
+        slotIdx: c_int,
         value: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_Config_kD(
         handle: Handle,
-        slotIdx: ::std::os::raw::c_int,
+        slotIdx: c_int,
         value: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_Config_kF(
         handle: Handle,
-        slotIdx: ::std::os::raw::c_int,
+        slotIdx: c_int,
         value: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_Config_IntegralZone(
         handle: Handle,
-        slotIdx: ::std::os::raw::c_int,
+        slotIdx: c_int,
         izone: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigAllowableClosedloopError(
         handle: Handle,
-        slotIdx: ::std::os::raw::c_int,
-        allowableClosedLoopError: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        slotIdx: c_int,
+        allowableClosedLoopError: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigMaxIntegralAccumulator(
         handle: Handle,
-        slotIdx: ::std::os::raw::c_int,
+        slotIdx: c_int,
         iaccum: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigClosedLoopPeakOutput(
         handle: Handle,
-        slotIdx: ::std::os::raw::c_int,
+        slotIdx: c_int,
         percentOut: f64,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigClosedLoopPeriod(
         handle: Handle,
-        slotIdx: ::std::os::raw::c_int,
-        loopTimeMs: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        slotIdx: c_int,
+        loopTimeMs: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_SetIntegralAccumulator(
         handle: Handle,
         iaccum: f64,
-        pidIdx: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        pidIdx: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetClosedLoopError(
         handle: Handle,
-        closedLoopError: *mut ::std::os::raw::c_int,
-        pidIdx: ::std::os::raw::c_int,
+        closedLoopError: *mut c_int,
+        pidIdx: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetIntegralAccumulator(
         handle: Handle,
         iaccum: *mut f64,
-        pidIdx: ::std::os::raw::c_int,
+        pidIdx: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetErrorDerivative(
         handle: Handle,
         derror: *mut f64,
-        pidIdx: ::std::os::raw::c_int,
+        pidIdx: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_SelectProfileSlot(
         handle: Handle,
-        slotIdx: ::std::os::raw::c_int,
-        pidIdx: ::std::os::raw::c_int,
+        slotIdx: c_int,
+        pidIdx: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetActiveTrajectoryPosition(
         handle: Handle,
-        param: *mut ::std::os::raw::c_int,
+        param: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetActiveTrajectoryVelocity(
         handle: Handle,
-        param: *mut ::std::os::raw::c_int,
+        param: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetActiveTrajectoryHeading(handle: Handle, param: *mut f64)
         -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetActiveTrajectoryAll(
         handle: Handle,
-        vel: *mut ::std::os::raw::c_int,
-        pos: *mut ::std::os::raw::c_int,
+        vel: *mut c_int,
+        pos: *mut c_int,
         heading: *mut f64,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigMotionCruiseVelocity(
         handle: Handle,
-        sensorUnitsPer100ms: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        sensorUnitsPer100ms: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigMotionAcceleration(
         handle: Handle,
-        sensorUnitsPer100msPerSec: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        sensorUnitsPer100msPerSec: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ClearMotionProfileTrajectories(handle: Handle) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetMotionProfileTopLevelBufferCount(
         handle: Handle,
-        value: *mut ::std::os::raw::c_int,
+        value: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_PushMotionProfileTrajectory(
         handle: Handle,
         position: f64,
         velocity: f64,
         headingDeg: f64,
-        profileSlotSelect: ::std::os::raw::c_int,
+        profileSlotSelect: c_int,
         isLastPoint: bool,
         zeroPos: bool,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_PushMotionProfileTrajectory_2(
         handle: Handle,
         position: f64,
         velocity: f64,
         headingDeg: f64,
-        profileSlotSelect0: ::std::os::raw::c_int,
-        profileSlotSelect1: ::std::os::raw::c_int,
+        profileSlotSelect0: c_int,
+        profileSlotSelect1: c_int,
         isLastPoint: bool,
         zeroPos: bool,
-        durationMs: ::std::os::raw::c_int,
+        durationMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_IsMotionProfileTopLevelBufferFull(
         handle: Handle,
         value: *mut bool,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ProcessMotionProfileBuffer(handle: Handle) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetMotionProfileStatus(
         handle: Handle,
-        topBufferRem: *mut ::std::os::raw::c_int,
-        topBufferCnt: *mut ::std::os::raw::c_int,
-        btmBufferCnt: *mut ::std::os::raw::c_int,
+        topBufferRem: *mut c_int,
+        topBufferCnt: *mut c_int,
+        btmBufferCnt: *mut c_int,
         hasUnderrun: *mut bool,
         isUnderrun: *mut bool,
         activePointValid: *mut bool,
         isLast: *mut bool,
-        profileSlotSelect: *mut ::std::os::raw::c_int,
-        outputEnable: *mut ::std::os::raw::c_int,
+        profileSlotSelect: *mut c_int,
+        outputEnable: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetMotionProfileStatus_2(
         handle: Handle,
-        topBufferRem: *mut ::std::os::raw::c_int,
-        topBufferCnt: *mut ::std::os::raw::c_int,
-        btmBufferCnt: *mut ::std::os::raw::c_int,
+        topBufferRem: *mut c_int,
+        topBufferCnt: *mut c_int,
+        btmBufferCnt: *mut c_int,
         hasUnderrun: *mut bool,
         isUnderrun: *mut bool,
         activePointValid: *mut bool,
         isLast: *mut bool,
-        profileSlotSelect: *mut ::std::os::raw::c_int,
+        profileSlotSelect: *mut c_int,
         outputEnable: *mut SetValueMotionProfile, // XXX: changed from c_int
-        timeDurMs: *mut ::std::os::raw::c_int,
-        profileSlotSelect1: *mut ::std::os::raw::c_int,
+        timeDurMs: *mut c_int,
+        profileSlotSelect1: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ClearMotionProfileHasUnderrun(
         handle: Handle,
-        timeoutMs: ::std::os::raw::c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ChangeMotionControlFramePeriod(
         handle: Handle,
-        periodMs: ::std::os::raw::c_int,
+        periodMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigMotionProfileTrajectoryPeriod(
         handle: Handle,
-        durationMs: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        durationMs: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetLastError(handle: Handle) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetFirmwareVersion(
-        handle: Handle,
-        arg1: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
+
+    pub fn c_MotController_GetFirmwareVersion(handle: Handle, arg1: *mut c_int) -> ErrorCode;
+
     pub fn c_MotController_HasResetOccurred(handle: Handle, arg1: *mut bool) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigSetCustomParam(
         handle: Handle,
-        newValue: ::std::os::raw::c_int,
-        paramIndex: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        newValue: c_int,
+        paramIndex: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigGetCustomParam(
         handle: Handle,
-        readValue: *mut ::std::os::raw::c_int,
-        paramIndex: ::std::os::raw::c_int,
-        timoutMs: ::std::os::raw::c_int,
+        readValue: *mut c_int,
+        paramIndex: c_int,
+        timoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigSetParameter(
         handle: Handle,
-        param: ::std::os::raw::c_int,
+        param: c_int,
         value: f64,
-        subValue: ::std::os::raw::c_int,
-        ordinal: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        subValue: c_int,
+        ordinal: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigGetParameter(
         handle: Handle,
-        param: ::std::os::raw::c_int,
+        param: c_int,
         value: *mut f64,
-        ordinal: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        ordinal: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigPeakCurrentLimit(
         handle: Handle,
-        amps: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        amps: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigPeakCurrentDuration(
         handle: Handle,
-        milliseconds: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        milliseconds: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_ConfigContinuousCurrentLimit(
         handle: Handle,
-        amps: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        amps: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_EnableCurrentLimit(handle: Handle, enable: bool) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_SetLastError(handle: Handle, error: ::std::os::raw::c_int) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetAnalogIn(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
+
+    pub fn c_MotController_SetLastError(handle: Handle, error: c_int) -> ErrorCode;
+
+    pub fn c_MotController_GetAnalogIn(handle: Handle, param: *mut c_int) -> ErrorCode;
+
     pub fn c_MotController_SetAnalogPosition(
         handle: Handle,
-        newPosition: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        newPosition: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetAnalogInRaw(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetAnalogInVel(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetQuadraturePosition(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
+
+    pub fn c_MotController_GetAnalogInRaw(handle: Handle, param: *mut c_int) -> ErrorCode;
+
+    pub fn c_MotController_GetAnalogInVel(handle: Handle, param: *mut c_int) -> ErrorCode;
+
+    pub fn c_MotController_GetQuadraturePosition(handle: Handle, param: *mut c_int) -> ErrorCode;
+
     pub fn c_MotController_SetQuadraturePosition(
         handle: Handle,
-        newPosition: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        newPosition: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetQuadratureVelocity(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetPulseWidthPosition(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
+
+    pub fn c_MotController_GetQuadratureVelocity(handle: Handle, param: *mut c_int) -> ErrorCode;
+
+    pub fn c_MotController_GetPulseWidthPosition(handle: Handle, param: *mut c_int) -> ErrorCode;
+
     pub fn c_MotController_SetPulseWidthPosition(
         handle: Handle,
-        newPosition: ::std::os::raw::c_int,
-        timeoutMs: ::std::os::raw::c_int,
+        newPosition: c_int,
+        timeoutMs: c_int,
     ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetPulseWidthVelocity(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
+
+    pub fn c_MotController_GetPulseWidthVelocity(handle: Handle, param: *mut c_int) -> ErrorCode;
+
     pub fn c_MotController_GetPulseWidthRiseToFallUs(
         handle: Handle,
-        param: *mut ::std::os::raw::c_int,
+        param: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetPulseWidthRiseToRiseUs(
         handle: Handle,
-        param: *mut ::std::os::raw::c_int,
+        param: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetPinStateQuadA(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetPinStateQuadB(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetPinStateQuadIdx(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_IsFwdLimitSwitchClosed(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_IsRevLimitSwitchClosed(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetFaults(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_GetStickyFaults(
-        handle: Handle,
-        param: *mut ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_ClearStickyFaults(
-        handle: Handle,
-        timeoutMs: ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
+
+    pub fn c_MotController_GetPinStateQuadA(handle: Handle, param: *mut c_int) -> ErrorCode;
+
+    pub fn c_MotController_GetPinStateQuadB(handle: Handle, param: *mut c_int) -> ErrorCode;
+
+    pub fn c_MotController_GetPinStateQuadIdx(handle: Handle, param: *mut c_int) -> ErrorCode;
+
+    pub fn c_MotController_IsFwdLimitSwitchClosed(handle: Handle, param: *mut c_int) -> ErrorCode;
+
+    pub fn c_MotController_IsRevLimitSwitchClosed(handle: Handle, param: *mut c_int) -> ErrorCode;
+
+    pub fn c_MotController_GetFaults(handle: Handle, param: *mut c_int) -> ErrorCode;
+
+    pub fn c_MotController_GetStickyFaults(handle: Handle, param: *mut c_int) -> ErrorCode;
+
+    pub fn c_MotController_ClearStickyFaults(handle: Handle, timeoutMs: c_int) -> ErrorCode;
+
     pub fn c_MotController_SelectDemandType(handle: Handle, enable: bool) -> ErrorCode;
-}
-extern "C" {
-    pub fn c_MotController_SetMPEOutput(
-        handle: Handle,
-        MpeOutput: ::std::os::raw::c_int,
-    ) -> ErrorCode;
-}
-extern "C" {
+
+    pub fn c_MotController_SetMPEOutput(handle: Handle, MpeOutput: c_int) -> ErrorCode;
+
     pub fn c_MotController_EnableHeadingHold(handle: Handle, enable: bool) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetAnalogInAll(
         handle: Handle,
-        withOv: *mut ::std::os::raw::c_int,
-        raw: *mut ::std::os::raw::c_int,
-        vel: *mut ::std::os::raw::c_int,
+        withOv: *mut c_int,
+        raw: *mut c_int,
+        vel: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetQuadratureSensor(
         handle: Handle,
-        pos: *mut ::std::os::raw::c_int,
-        vel: *mut ::std::os::raw::c_int,
+        pos: *mut c_int,
+        vel: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetPulseWidthAll(
         handle: Handle,
-        pos: *mut ::std::os::raw::c_int,
-        vel: *mut ::std::os::raw::c_int,
-        riseToRiseUs: *mut ::std::os::raw::c_int,
-        riseToFallUs: *mut ::std::os::raw::c_int,
+        pos: *mut c_int,
+        vel: *mut c_int,
+        riseToRiseUs: *mut c_int,
+        riseToFallUs: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetQuadPinStates(
         handle: Handle,
-        quadA: *mut ::std::os::raw::c_int,
-        quadB: *mut ::std::os::raw::c_int,
-        quadIdx: *mut ::std::os::raw::c_int,
+        quadA: *mut c_int,
+        quadB: *mut c_int,
+        quadIdx: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetLimitSwitchState(
         handle: Handle,
-        isFwdClosed: *mut ::std::os::raw::c_int,
-        isRevClosed: *mut ::std::os::raw::c_int,
+        isFwdClosed: *mut c_int,
+        isRevClosed: *mut c_int,
     ) -> ErrorCode;
-}
-extern "C" {
+
     pub fn c_MotController_GetClosedLoopTarget(
         handle: Handle,
-        value: *mut ::std::os::raw::c_int,
-        pidIdx: ::std::os::raw::c_int,
+        value: *mut c_int,
+        pidIdx: c_int,
     ) -> ErrorCode;
 }
