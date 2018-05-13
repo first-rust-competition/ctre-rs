@@ -49,13 +49,7 @@ pub trait BaseMotorController {
      * talonRght.set(ControlMode::MotionMagic, targetDistance, DemandType::AuxPID, desiredRobotHeading);
      * ```
      */
-    fn set(
-        &self,
-        mode: ControlMode,
-        demand0: f64,
-        demand1_type: DemandType,
-        demand1: f64,
-    ) -> ErrorCode {
+    fn set(&self, mode: ControlMode, demand0: f64, demand1_type: DemandType, demand1: f64) {
         match mode {
             ControlMode::Follower => {
                 let work = if 0.0 <= demand0 && demand0 <= 62.0 {
@@ -85,11 +79,11 @@ pub trait BaseMotorController {
                     demand1_type as _,
                 )
             },
-        }
+        };
     }
 
     /// Neutral the motor output by setting control mode to disabled.
-    fn neutral_output(&self) -> ErrorCode {
+    fn neutral_output(&self) {
         self.set(ControlMode::Disabled, 0.0, DemandType::Neutral, 0.0)
     }
     /// Sets the mode of operation during neutral throttle output.
@@ -650,8 +644,8 @@ pub trait BaseMotorController {
      * every 10ms.  All motion profile functions are thread-safe through the use of
      * a mutex, so there is no harm in having the caller utilize threading.
      */
-    fn process_motion_profile_buffer(&self) -> ErrorCode {
-        unsafe { c_MotController_ProcessMotionProfileBuffer(self.get_handle()) }
+    fn process_motion_profile_buffer(&self) {
+        unsafe { c_MotController_ProcessMotionProfileBuffer(self.get_handle()) };
     }
     /**
      * Retrieve all status information.
@@ -836,11 +830,7 @@ pub trait BaseMotorController {
      *   Use AuxOutput1 to follow the master device's auxiliary output 1.
      *   Use PercentOutput for standard follower mode.
      */
-    fn follow<T: BaseMotorController>(
-        &self,
-        master_to_follow: &T,
-        follower_type: FollowerType,
-    ) -> ErrorCode {
+    fn follow<T: BaseMotorController>(&self, master_to_follow: &T, follower_type: FollowerType) {
         let base_id = master_to_follow.get_base_id();
         let id24: i32 = ((base_id >> 0x10) << 8) | (base_id & 0xFF);
 
@@ -851,7 +841,7 @@ pub trait BaseMotorController {
             FollowerType::AuxOutput1 => {
                 self.set(ControlMode::Follower, id24 as f64, DemandType::AuxPID, 0.0)
             }
-        }
+        };
     }
 }
 
