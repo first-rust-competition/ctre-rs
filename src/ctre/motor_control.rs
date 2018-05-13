@@ -445,6 +445,8 @@ pub trait BaseMotorController {
         unsafe { c_MotController_OverrideSoftLimitsEnable(self.get_handle(), enable) }
     }
 
+    // current limiting is Talon-specific
+
     fn config_kp(&self, slot_idx: i32, value: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_Config_kP(self.get_handle(), slot_idx, value, timeout_ms) }
     }
@@ -874,6 +876,21 @@ impl BaseMotorController for TalonSRX {
     }
     fn get_base_id(&self) -> i32 {
         self.arb_id
+    }
+}
+
+impl TalonSRX {
+    pub fn config_peak_current_limit(&self, amps: i32, timeout_ms: i32) -> ErrorCode {
+        unsafe { c_MotController_ConfigPeakCurrentLimit(self.handle, amps, timeout_ms) }
+    }
+    pub fn config_peak_current_duration(&self, milliseconds: i32, timeout_ms: i32) -> ErrorCode {
+        unsafe { c_MotController_ConfigPeakCurrentLimit(self.handle, milliseconds, timeout_ms) }
+    }
+    pub fn config_continuous_current_limit(&self, amps: i32, timeout_ms: i32) -> ErrorCode {
+        unsafe { c_MotController_ConfigContinuousCurrentLimit(self.handle, amps, timeout_ms) }
+    }
+    pub fn enable_current_limit(&self, enable: bool) {
+        unsafe { c_MotController_EnableCurrentLimit(self.handle, enable) };
     }
 }
 
