@@ -5,7 +5,7 @@ pub use ctre::bindings::{ControlMode, DemandType, FeedbackDevice, FollowerType, 
                          LimitSwitchSource, RemoteFeedbackDevice, RemoteLimitSwitchSource,
                          VelocityMeasPeriod};
 
-trait BaseMotorController {
+pub trait BaseMotorController {
     /// Constructor for motor controllers.
     fn new(device_number: i32) -> Self;
 
