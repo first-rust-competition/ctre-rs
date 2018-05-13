@@ -105,9 +105,9 @@ pub enum ParamEnum {
     FeedbackSensorType = 330,
     SelectedSensorPosition = 331,
     FeedbackNotContinuous = 332,
-    RemoteSensorSource = 333,
-    RemoteSensorDeviceID = 334,
-    SensorTerm = 335,
+    RemoteSensorSource = 333, // RemoteSensorSource_t
+    RemoteSensorDeviceID = 334, // [0,62] DeviceID
+    SensorTerm = 335, // feedbackDevice_t (ordinal is the register)
     RemoteSensorClosedLoopDisableNeutralOnLOS = 336,
     PIDLoopPolarity = 337,
     PIDLoopPeriod = 338,
@@ -129,8 +129,8 @@ pub enum ParamEnum {
     PulseWidthPosition = 402,
     MotMag_Accel = 410,
     MotMag_VelCruise = 411,
-    LimitSwitchSource = 421,
-    LimitSwitchNormClosedAndDis = 422,
+    LimitSwitchSource = 421, // ordinal (fwd=0,reverse=1), @see LimitSwitchSource_t
+    LimitSwitchNormClosedAndDis = 422, // ordinal (fwd=0,reverse=1). @see LimitSwitchNormClosedAndDis_t
     LimitSwitchDisableNeutralOnLOS = 423,
     LimitSwitchRemoteDevID = 424,
     SoftLimitDisableNeutralOnLOS = 425,
@@ -330,6 +330,18 @@ pub enum StatusFrame {
     Status_13_Base_PIDF0 = 5888,
     Status_14_Turn_PIDF1 = 5952,
     Status_15_FirmareApiStatus = 6016,
+}
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum VelocityMeasPeriod {
+    P1Ms = 1,
+    P2Ms = 2,
+    P5Ms = 5,
+    P10Ms = 10,
+    P20Ms = 20,
+    P25Ms = 25,
+    P50Ms = 50,
+    P100Ms = 100,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]

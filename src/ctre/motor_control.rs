@@ -2,7 +2,8 @@ use ctre::Result;
 use ctre::bindings::*;
 use ctre::motion::{MotionProfileStatus, TrajectoryPoint};
 pub use ctre::bindings::{ControlMode, DemandType, FeedbackDevice, FollowerType, LimitSwitchNormal,
-                         LimitSwitchSource, RemoteFeedbackDevice, RemoteLimitSwitchSource};
+                         LimitSwitchSource, RemoteFeedbackDevice, RemoteLimitSwitchSource,
+                         VelocityMeasPeriod};
 
 trait BaseMotorController {
     /// Constructor for motor controllers.
@@ -342,9 +343,17 @@ trait BaseMotorController {
      * and the position sampled kPeriod ms ago is inserted into a filter.
      * kPeriod is configured with this function.
      */
-    fn config_velocity_measurement_period(&self, period: i32, timeout_ms: i32) -> ErrorCode {
+    fn config_velocity_measurement_period(
+        &self,
+        period: VelocityMeasPeriod,
+        timeout_ms: i32,
+    ) -> ErrorCode {
         unsafe {
-            c_MotController_ConfigVelocityMeasurementPeriod(self.get_handle(), period, timeout_ms)
+            c_MotController_ConfigVelocityMeasurementPeriod(
+                self.get_handle(),
+                period as _,
+                timeout_ms,
+            )
         }
     }
     /// Sets the number of velocity samples used in the rolling average velocity measurement.
