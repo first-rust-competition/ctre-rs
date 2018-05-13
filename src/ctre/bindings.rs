@@ -362,6 +362,8 @@ pub struct TrajectoryPoint {
     pub position: f64,
     /// !< The velocity to feed-forward.
     pub velocity: f64,
+    /// Not used.  Use auxiliary_pos instead.
+    heading_deg: f64,
     /// !< The position for auxiliary PID to target.
     pub auxiliary_pos: f64,
     /// Which slot to get PIDF gains.
@@ -428,77 +430,77 @@ fn bindgen_test_layout_TrajectoryPoint() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).headingDeg as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).heading_deg as *const _ as usize },
         16usize,
         concat!(
             "Offset of field: ",
             stringify!(TrajectoryPoint),
             "::",
-            stringify!(headingDeg)
+            stringify!(heading_deg)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).auxiliaryPos as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).auxiliary_pos as *const _ as usize },
         24usize,
         concat!(
             "Offset of field: ",
             stringify!(TrajectoryPoint),
             "::",
-            stringify!(auxiliaryPos)
+            stringify!(auxiliary_pos)
         )
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<TrajectoryPoint>())).profileSlotSelect0 as *const _ as usize
+            &(*(::std::ptr::null::<TrajectoryPoint>())).profile_slot_select_0 as *const _ as usize
         },
         32usize,
         concat!(
             "Offset of field: ",
             stringify!(TrajectoryPoint),
             "::",
-            stringify!(profileSlotSelect0)
+            stringify!(profile_slot_select_0)
         )
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<TrajectoryPoint>())).profileSlotSelect1 as *const _ as usize
+            &(*(::std::ptr::null::<TrajectoryPoint>())).profile_slot_select_1 as *const _ as usize
         },
         36usize,
         concat!(
             "Offset of field: ",
             stringify!(TrajectoryPoint),
             "::",
-            stringify!(profileSlotSelect1)
+            stringify!(profile_slot_select1)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).isLastPoint as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).is_last_point as *const _ as usize },
         40usize,
         concat!(
             "Offset of field: ",
             stringify!(TrajectoryPoint),
             "::",
-            stringify!(isLastPoint)
+            stringify!(is_last_point)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).zeroPos as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).zero_pos as *const _ as usize },
         41usize,
         concat!(
             "Offset of field: ",
             stringify!(TrajectoryPoint),
             "::",
-            stringify!(zeroPos)
+            stringify!(zero_pos)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).timeDur as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).time_dur as *const _ as usize },
         44usize,
         concat!(
             "Offset of field: ",
             stringify!(TrajectoryPoint),
             "::",
-            stringify!(timeDur)
+            stringify!(time_dur)
         )
     );
 }
@@ -590,7 +592,9 @@ fn bindgen_test_layout_MotionProfileStatus() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<MotionProfileStatus>())).has_underrun as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<MotionProfileStatus>())).has_underrun as *const _ as usize
+        },
         12usize,
         concat!(
             "Offset of field: ",
@@ -628,12 +632,13 @@ fn bindgen_test_layout_MotionProfileStatus() {
             "Offset of field: ",
             stringify!(MotionProfileStatus),
             "::",
-            stringify!(isLast)
+            stringify!(is_last)
         )
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<MotionProfileStatus>())).profileSlotSelect0 as *const _ as usize
+            &(*(::std::ptr::null::<MotionProfileStatus>())).profile_slot_select_0 as *const _
+                as usize
         },
         16usize,
         concat!(
@@ -645,7 +650,8 @@ fn bindgen_test_layout_MotionProfileStatus() {
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<MotionProfileStatus>())).profile_slot_select_1 as *const _ as usize
+            &(*(::std::ptr::null::<MotionProfileStatus>())).profile_slot_select_1 as *const _
+                as usize
         },
         20usize,
         concat!(
