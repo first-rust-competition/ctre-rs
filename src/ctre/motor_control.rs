@@ -453,9 +453,14 @@ pub trait BaseMotorController {
     fn config_kf(&self, slot_idx: i32, value: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_Config_kF(self.get_handle(), slot_idx, value, timeout_ms) }
     }
-    fn config_integral_zone(&self, slot_idx: i32, izone: f64, timeout_ms: i32) -> ErrorCode {
+    fn config_integral_zone(&self, slot_idx: i32, izone: i32, timeout_ms: i32) -> ErrorCode {
         unsafe {
-            c_MotController_Config_IntegralZone(self.get_handle(), slot_idx, izone, timeout_ms)
+            c_MotController_Config_IntegralZone(
+                self.get_handle(),
+                slot_idx,
+                izone as f64, // idek both C++ and Java do this too
+                timeout_ms,
+            )
         }
     }
     fn config_allowable_closedloop_error(
