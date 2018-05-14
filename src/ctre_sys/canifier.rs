@@ -100,6 +100,7 @@ extern "C" {
         measuredInput: *mut bool,
     ) -> ErrorCode;
 
+    /// dutyCycleAndPeriod takes an array of length 2
     pub fn c_CANifier_GetPWMInput(
         handle: Handle,
         pwmChannel: u32,

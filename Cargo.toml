@@ -1,6 +1,6 @@
 [package]
 name = "ctre-sys"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["David Vo <david@vovo.id.au>"]
 links = "CTRE_PhoenixCCI"
 build = "build.rs"
