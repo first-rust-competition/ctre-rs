@@ -1,4 +1,4 @@
-#[macro_use(cci_get_call)]
+#[macro_use(cci_get_call, cci_get_call_array)]
 extern crate ctre_sys;
 
 mod ctre;
