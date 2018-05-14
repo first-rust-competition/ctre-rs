@@ -290,7 +290,7 @@ pub trait BaseMotorController {
 
     fn config_selected_feedback_sensor(
         &self,
-        feedback_device: FeedbackDevice,
+        feedback_device: RemoteFeedbackDevice,
         pid_idx: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -434,39 +434,9 @@ pub trait BaseMotorController {
         ))
     }
 
-    /**
-     * Configures the period of each velocity sample.
-     * Every 1ms a position value is sampled, and the delta between that sample
-     * and the position sampled kPeriod ms ago is inserted into a filter.
-     * kPeriod is configured with this function.
-     */
-    fn config_velocity_measurement_period(
-        &self,
-        period: VelocityMeasPeriod,
-        timeout_ms: i32,
-    ) -> ErrorCode {
-        unsafe {
-            c_MotController_ConfigVelocityMeasurementPeriod(
-                self.get_handle(),
-                period as _,
-                timeout_ms,
-            )
-        }
-    }
-    /// Sets the number of velocity samples used in the rolling average velocity measurement.
-    fn config_velocity_measurement_window(&self, window_size: i32, timeout_ms: i32) -> ErrorCode {
-        unsafe {
-            c_MotController_ConfigVelocityMeasurementWindow(
-                self.get_handle(),
-                window_size,
-                timeout_ms,
-            )
-        }
-    }
-
     fn config_forward_limit_switch_source(
         &self,
-        type_: LimitSwitchSource,
+        type_: RemoteLimitSwitchSource,
         normal_open_or_close: LimitSwitchNormal,
         device_id: i32,
         timeout_ms: i32,
@@ -483,7 +453,7 @@ pub trait BaseMotorController {
     }
     fn config_reverse_limit_switch_source(
         &self,
-        type_: LimitSwitchSource,
+        type_: RemoteLimitSwitchSource,
         normal_open_or_close: LimitSwitchNormal,
         device_id: i32,
         timeout_ms: i32,
@@ -995,6 +965,22 @@ impl BaseMotorController for TalonSRX {
 }
 
 impl TalonSRX {
+    pub fn config_selected_feedback_sensor(
+        &self,
+        feedback_device: FeedbackDevice,
+        pid_idx: i32,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigSelectedFeedbackSensor(
+                self.handle,
+                feedback_device as _,
+                pid_idx,
+                timeout_ms,
+            )
+        }
+    }
+
     /*
     pub fn set_control_frame_period(
         &self,
@@ -1025,6 +1011,67 @@ impl TalonSRX {
             _: i32,
             timeout_ms,
         ))
+    }
+
+    /**
+     * Configures the period of each velocity sample.
+     * Every 1ms a position value is sampled, and the delta between that sample
+     * and the position sampled kPeriod ms ago is inserted into a filter.
+     * kPeriod is configured with this function.
+     */
+    pub fn config_velocity_measurement_period(
+        &self,
+        period: VelocityMeasPeriod,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigVelocityMeasurementPeriod(self.handle, period as _, timeout_ms)
+        }
+    }
+    /// Sets the number of velocity samples used in the rolling average velocity measurement.
+    pub fn config_velocity_measurement_window(
+        &self,
+        window_size: i32,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigVelocityMeasurementWindow(self.handle, window_size, timeout_ms)
+        }
+    }
+
+    pub fn config_forward_limit_switch_source(
+        &self,
+        type_: LimitSwitchSource,
+        normal_open_or_close: LimitSwitchNormal,
+        device_id: i32,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigForwardLimitSwitchSource(
+                self.handle,
+                type_ as _,
+                normal_open_or_close as _,
+                device_id,
+                timeout_ms,
+            )
+        }
+    }
+    pub fn config_reverse_limit_switch_source(
+        &self,
+        type_: LimitSwitchSource,
+        normal_open_or_close: LimitSwitchNormal,
+        device_id: i32,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigReverseLimitSwitchSource(
+                self.handle,
+                type_ as _,
+                normal_open_or_close as _,
+                device_id,
+                timeout_ms,
+            )
+        }
     }
 
     pub fn config_peak_current_limit(&self, amps: i32, timeout_ms: i32) -> ErrorCode {
