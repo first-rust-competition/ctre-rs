@@ -5,6 +5,83 @@ pub use ctre::bindings::{ControlMode, DemandType, FeedbackDevice, FollowerType, 
                          LimitSwitchSource, RemoteFeedbackDevice, RemoteLimitSwitchSource,
                          VelocityMeasPeriod};
 
+pub struct Faults(i32);
+impl Faults {
+    pub fn under_voltage(&self) -> bool {
+        self.0 & (1 << 0) != 0
+    }
+    pub fn forward_limit_switch(&self) -> bool {
+        self.0 & (1 << 1) != 0
+    }
+    pub fn reverse_limit_switch(&self) -> bool {
+        self.0 & (1 << 2) != 0
+    }
+    pub fn forward_soft_limit(&self) -> bool {
+        self.0 & (1 << 3) != 0
+    }
+    pub fn reverse_soft_limit(&self) -> bool {
+        self.0 & (1 << 4) != 0
+    }
+    pub fn hardware_failure(&self) -> bool {
+        self.0 & (1 << 5) != 0
+    }
+    pub fn reset_during_en(&self) -> bool {
+        self.0 & (1 << 6) != 0
+    }
+    pub fn sensor_overflow(&self) -> bool {
+        self.0 & (1 << 7) != 0
+    }
+    pub fn sensor_out_of_phase(&self) -> bool {
+        self.0 & (1 << 8) != 0
+    }
+    pub fn hardware_esd_reset(&self) -> bool {
+        self.0 & (1 << 9) != 0
+    }
+    pub fn remote_loss_of_signal(&self) -> bool {
+        self.0 & (1 << 10) != 0
+    }
+    pub fn has_any_fault(&self) -> bool {
+        self.0 != 0
+    }
+}
+
+pub struct StickyFaults(i32);
+impl StickyFaults {
+    pub fn under_voltage(&self) -> bool {
+        self.0 & (1 << 0) != 0
+    }
+    pub fn forward_limit_switch(&self) -> bool {
+        self.0 & (1 << 1) != 0
+    }
+    pub fn reverse_limit_switch(&self) -> bool {
+        self.0 & (1 << 2) != 0
+    }
+    pub fn forward_soft_limit(&self) -> bool {
+        self.0 & (1 << 3) != 0
+    }
+    pub fn reverse_soft_limit(&self) -> bool {
+        self.0 & (1 << 4) != 0
+    }
+    pub fn reset_during_en(&self) -> bool {
+        self.0 & (1 << 5) != 0
+    }
+    pub fn sensor_overflow(&self) -> bool {
+        self.0 & (1 << 6) != 0
+    }
+    pub fn sensor_out_of_phase(&self) -> bool {
+        self.0 & (1 << 7) != 0
+    }
+    pub fn hardware_esd_reset(&self) -> bool {
+        self.0 & (1 << 8) != 0
+    }
+    pub fn remote_loss_of_signal(&self) -> bool {
+        self.0 & (1 << 9) != 0
+    }
+    pub fn has_any_fault(&self) -> bool {
+        self.0 != 0
+    }
+}
+
 pub trait BaseMotorController {
     /// Constructor for motor controllers.
     fn new(device_number: i32) -> Self;
@@ -729,7 +806,15 @@ pub trait BaseMotorController {
         unsafe { c_MotController_GetLastError(self.get_handle()) }
     }
 
-    // TODO: faults
+    fn get_faults(&self) -> Result<Faults> {
+        Ok(Faults(cci_get_call!(c_MotController_GetFaults(self.get_handle(), _: i32))?))
+    }
+    fn get_sticky_faults(&self) -> Result<StickyFaults> {
+        Ok(StickyFaults(cci_get_call!(c_MotController_GetStickyFaults(self.get_handle(), _: i32))?))
+    }
+    fn clear_sticky_faults(&self, timeout_ms: i32) -> ErrorCode {
+        unsafe { c_MotController_ClearStickyFaults(self.get_handle(), timeout_ms) }
+    }
 
     fn get_firmware_version(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetFirmwareVersion(self.get_handle(), _: i32))

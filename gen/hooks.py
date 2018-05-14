@@ -10,7 +10,7 @@ RUST_TYPES = {
 
 
 def to_snake_case(s: str) -> str:
-    return re.sub(r'(?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z])', r'_\g<0>', s).lower()
+    return re.sub(r'(?<=[a-z0-9])[A-Z]|(?!^|_)[A-Z](?=[a-z])', r'_\g<0>', s).lower()
 
 
 def function_hook(fn, data):
@@ -19,10 +19,6 @@ def function_hook(fn, data):
 
     snake_name = to_snake_case(m.group(1))
     fn['meth_name'] = snake_name
-    if snake_name == 'create1':
-        fn['meth_name'] = 'new'
-        fn['rust_returns'] = 'Self'
-        return
 
     in_params = []
     out_params = []
@@ -49,3 +45,12 @@ def function_hook(fn, data):
 
     fn['in_params'] = in_params
     fn['out_params'] = out_params
+
+    if snake_name == 'create1':
+        fn['meth_name'] = 'new'
+        fn['rust_returns'] = 'Self'
+
+
+def class_hook(cls, data):
+    for p in cls['properties']['public']:
+        p['snake_name'] = to_snake_case(p['name'])
