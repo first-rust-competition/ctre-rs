@@ -4,6 +4,8 @@ This crate contains bindings for the CTRE Phoenix CCI libraries, and a port of t
 This currently only supports motor controllers.
 A couple of functions are still missing from the high-level abstraction.
 
+This project is not affiliated with nor endorsed by Cross the Road Electronics.
+
 ## What is this `gen` directory?
 The `gen` directory holds a couple of files that helped generate a starting point for everything.
 
