@@ -1,9 +1,9 @@
-use ctre::Result;
-use ctre::bindings::*;
+use ctre::{ErrorCode, ParamEnum, Result};
+use ctre_sys::mot::*;
 use ctre::motion::{MotionProfileStatus, TrajectoryPoint};
-pub use ctre::bindings::{ControlMode, DemandType, FeedbackDevice, FollowerType, LimitSwitchNormal,
-                         LimitSwitchSource, RemoteFeedbackDevice, RemoteLimitSwitchSource,
-                         VelocityMeasPeriod};
+pub use ctre_sys::mot::{ControlMode, DemandType, FeedbackDevice, FollowerType, LimitSwitchNormal,
+                        LimitSwitchSource, RemoteFeedbackDevice, RemoteLimitSwitchSource,
+                        VelocityMeasPeriod};
 
 pub struct Faults(i32);
 impl Faults {
@@ -807,10 +807,14 @@ pub trait BaseMotorController {
     }
 
     fn get_faults(&self) -> Result<Faults> {
-        Ok(Faults(cci_get_call!(c_MotController_GetFaults(self.get_handle(), _: i32))?))
+        Ok(Faults(
+            cci_get_call!(c_MotController_GetFaults(self.get_handle(), _: i32))?,
+        ))
     }
     fn get_sticky_faults(&self) -> Result<StickyFaults> {
-        Ok(StickyFaults(cci_get_call!(c_MotController_GetStickyFaults(self.get_handle(), _: i32))?))
+        Ok(StickyFaults(
+            cci_get_call!(c_MotController_GetStickyFaults(self.get_handle(), _: i32))?,
+        ))
     }
     fn clear_sticky_faults(&self, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ClearStickyFaults(self.get_handle(), timeout_ms) }
