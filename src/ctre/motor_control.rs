@@ -1,9 +1,10 @@
 use ctre::{ErrorCode, ParamEnum, Result};
 use ctre_sys::mot::*;
 use ctre::motion::{MotionProfileStatus, TrajectoryPoint};
-pub use ctre_sys::mot::{ControlMode, DemandType, FeedbackDevice, FollowerType, LimitSwitchNormal,
-                        LimitSwitchSource, RemoteFeedbackDevice, RemoteLimitSwitchSource,
-                        VelocityMeasPeriod};
+pub use ctre_sys::mot::{ControlFrame, ControlFrameEnhanced, ControlMode, DemandType,
+                        FeedbackDevice, FollowerType, LimitSwitchNormal, LimitSwitchSource,
+                        RemoteFeedbackDevice, RemoteLimitSwitchSource, StatusFrame,
+                        StatusFrameEnhanced, VelocityMeasPeriod};
 
 pub struct Faults(i32);
 impl Faults {
@@ -406,7 +407,32 @@ pub trait BaseMotorController {
         }
     }
 
-    // TODO: control and status frame period
+    fn set_control_frame_period(&self, frame: ControlFrame, period_ms: i32) -> ErrorCode {
+        unsafe { c_MotController_SetControlFramePeriod(self.get_handle(), frame as _, period_ms) }
+    }
+    fn set_status_frame_period(
+        &self,
+        frame: StatusFrame,
+        period_ms: i32,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_SetStatusFramePeriod(
+                self.get_handle(),
+                frame as _,
+                period_ms,
+                timeout_ms,
+            )
+        }
+    }
+    fn get_status_frame_period(&self, frame: StatusFrame, timeout_ms: i32) -> Result<i32> {
+        cci_get_call!(c_MotController_GetStatusFramePeriod(
+            self.get_handle(),
+            frame as _,
+            _: i32,
+            timeout_ms,
+        ))
+    }
 
     /**
      * Configures the period of each velocity sample.
@@ -969,6 +995,38 @@ impl BaseMotorController for TalonSRX {
 }
 
 impl TalonSRX {
+    /*
+    pub fn set_control_frame_period(
+        &self,
+        frame: ControlFrameEnhanced,
+        period_ms: i32,
+    ) -> ErrorCode {
+        unsafe { c_MotController_SetControlFramePeriod(self.handle, frame as _, period_ms) }
+    }
+    */
+    pub fn set_status_frame_period(
+        &self,
+        frame: StatusFrameEnhanced,
+        period_ms: i32,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_SetStatusFramePeriod(self.handle, frame as _, period_ms, timeout_ms)
+        }
+    }
+    pub fn get_status_frame_period(
+        &self,
+        frame: StatusFrameEnhanced,
+        timeout_ms: i32,
+    ) -> Result<i32> {
+        cci_get_call!(c_MotController_GetStatusFramePeriod(
+            self.handle,
+            frame as _,
+            _: i32,
+            timeout_ms,
+        ))
+    }
+
     pub fn config_peak_current_limit(&self, amps: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ConfigPeakCurrentLimit(self.handle, amps, timeout_ms) }
     }

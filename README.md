@@ -2,7 +2,6 @@
 This crate contains a port of the high-level CTRE Phoenix library.
 
 This currently only supports motor controllers.
-A couple of functions are still missing.
 
 This project is not affiliated with nor endorsed by Cross the Road Electronics.
 
