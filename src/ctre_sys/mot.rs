@@ -23,6 +23,7 @@ pub enum ControlFrameEnhanced {
     C5_FeedbackOutputOverride = 262400,
     C6_MotProfAddTrajPoint = 262464,
 }
+
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ControlMode {
@@ -52,6 +53,7 @@ pub enum DemandType {
     /// Simply add to the output
     ArbitraryFeedForward = 2,
 }
+
 #[allow(non_upper_case_globals)]
 pub const FeedbackDevice_CTRE_MagEncoder_Absolute: FeedbackDevice =
     FeedbackDevice::PulseWidthEncodedPosition;
@@ -82,12 +84,14 @@ pub enum RemoteFeedbackDevice {
     RemoteSensor1 = 12,
     SoftwareEmulatedSensor = 15,
 }
+
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum FollowerType {
     PercentOutput = 0,
     AuxOutput1 = 1,
 }
+
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum LimitSwitchSource {
@@ -110,6 +114,7 @@ pub enum LimitSwitchNormal {
     NormallyClosed = 1,
     Disabled = 2,
 }
+
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum NeutralMode {
@@ -120,6 +125,7 @@ pub enum NeutralMode {
     /// Stop the motor's rotation by applying a force.
     Brake = 2,
 }
+
 #[allow(non_camel_case_types)]
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -138,6 +144,7 @@ pub enum RemoteSensorSource {
     GadgeteerPigeon_Pitch = 11,
     GadgeteerPigeon_Roll = 12,
 }
+
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum SensorTerm {
@@ -146,6 +153,7 @@ pub enum SensorTerm {
     Diff0 = 2,
     Diff1 = 3,
 }
+
 #[allow(non_camel_case_types)]
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -181,6 +189,7 @@ pub enum StatusFrame {
     S14_Turn_PIDF1 = 5952,
     S15_FirmareApiStatus = 6016,
 }
+
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum VelocityMeasPeriod {
@@ -193,6 +202,7 @@ pub enum VelocityMeasPeriod {
     P50Ms = 50,
     P100Ms = 100,
 }
+
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum SetValueMotionProfile {
@@ -546,6 +556,7 @@ fn bindgen_test_layout_MotionProfileStatus() {
         )
     );
 }
+
 extern "C" {
     pub fn c_MotController_Create1(baseArbId: c_int) -> Handle;
 

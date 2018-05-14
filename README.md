@@ -1,8 +1,6 @@
 # CTRE Phoenix CCI bindings for Rust
 This crate contains bindings for the CTRE Phoenix CCI libraries.
 
-This currently only supports motor controllers.
-
 This project is not affiliated with nor endorsed by Cross the Road Electronics.
 
 ## Was this auto-generated?

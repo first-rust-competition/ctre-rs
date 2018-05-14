@@ -1,4 +1,6 @@
+pub mod canifier;
 pub mod mot;
+pub mod pigeon;
 
 /// Convenience wrapper for making simple get calls.
 #[macro_export]
