@@ -816,6 +816,11 @@ pub trait BaseMotorController {
         unsafe { c_MotController_ClearStickyFaults(self.get_handle(), timeout_ms) }
     }
 
+    /**
+     * Gets the firmware version of the device.
+     *
+     * @return Firmware version of device.  For example: version 1-dot-2 is 0x0102.
+     */
     fn get_firmware_version(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetFirmwareVersion(self.get_handle(), _: i32))
     }
