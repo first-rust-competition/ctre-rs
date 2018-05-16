@@ -1,7 +1,133 @@
+use std::fmt;
 use ctre::{ErrorCode, ParamEnum, Result};
 use ctre::motor_control::{BaseMotorController, TalonSRX};
 use ctre_sys::pigeon::*;
-pub use ctre_sys::pigeon::{PigeonIMU_ControlFrame, PigeonIMU_StatusFrame};
+pub use ctre_sys::pigeon::{PigeonIMU_ControlFrame as ControlFrame,
+                           PigeonIMU_StatusFrame as StatusFrame};
+
+#[derive(Default)]
+pub struct FusionStatus {
+    pub is_fusing: bool, // int
+    pub is_valid: bool,  // int
+    pub heading: f64,
+    /// Same as getLastError()
+    last_error: i32,
+}
+impl fmt::Debug for FusionStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            if self.last_error != 0 {
+                "Could not receive status frame.  Check wiring and web-config."
+            } else if !self.is_valid {
+                "Fused Heading is not valid."
+            } else if !self.is_fusing {
+                "Fused Heading is valid."
+            } else {
+                "Fused Heading is valid and is fusing compass."
+            }
+        )
+    }
+}
+
+#[repr(i32)]
+/// Various calibration modes supported by Pigeon.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum CalibrationMode {
+    BootTareGyroAccel = 0,
+    Temperature = 1,
+    Magnetometer12Pt = 2,
+    Magnetometer360 = 3,
+    Accelerometer = 5,
+    Unknown = -1,
+}
+impl Default for CalibrationMode {
+    fn default() -> CalibrationMode {
+        CalibrationMode::Unknown
+    }
+}
+impl From<i32> for CalibrationMode {
+    fn from(v: i32) -> CalibrationMode {
+        match v {
+            0 => CalibrationMode::BootTareGyroAccel,
+            1 => CalibrationMode::Temperature,
+            2 => CalibrationMode::Magnetometer12Pt,
+            3 => CalibrationMode::Magnetometer360,
+            5 => CalibrationMode::Accelerometer,
+            _ => CalibrationMode::Unknown,
+        }
+    }
+}
+
+#[repr(i32)]
+/// Overall state of the Pigeon.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum PigeonState {
+    NoComm = 0,
+    Initializing = 1,
+    Ready = 2,
+    UserCalibration = 3,
+    Unknown = -1,
+}
+impl Default for PigeonState {
+    fn default() -> PigeonState {
+        PigeonState::Unknown
+    }
+}
+impl From<i32> for PigeonState {
+    fn from(v: i32) -> PigeonState {
+        match v {
+            0 => PigeonState::NoComm,
+            1 => PigeonState::Initializing,
+            2 => PigeonState::Ready,
+            3 => PigeonState::UserCalibration,
+            _ => PigeonState::Unknown,
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct GeneralStatus {
+    pub state: PigeonState,
+    pub current_mode: CalibrationMode,
+    pub calibration_error: i32,
+    pub cal_is_booting: bool, // int
+    pub temp_c: f64,
+    pub up_time_sec: i32,
+    pub no_motion_bias_count: i32,
+    pub temp_compensation_count: i32,
+    /// Same as getLastError()
+    last_error: i32,
+}
+impl fmt::Debug for GeneralStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            if self.last_error != 0 {
+                // same as NoComm
+                "Status frame was not received, check wired connections and web-based config."
+            } else if self.cal_is_booting {
+                "Pigeon is boot-caling to properly bias accel and gyro.  Do not move Pigeon.  When finished biasing, calibration mode will start."
+            } else {
+                match self.state {
+                    PigeonState::UserCalibration => match self.current_mode {
+                        CalibrationMode::BootTareGyroAccel => "",
+                        CalibrationMode::Temperature => "",
+                        CalibrationMode::Magnetometer12Pt => "",
+                        CalibrationMode::Magnetometer360 => "",
+                        CalibrationMode::Accelerometer => "",
+                        _ => "",
+                    },
+                    PigeonState::Ready => "",
+                    PigeonState::Initializing => "",
+                    _ => "Not enough data to determine status.",
+                }
+            }
+        )
+    }
+}
 
 pub struct Faults(i32);
 impl Faults {
@@ -78,22 +204,34 @@ impl PigeonIMU {
         unsafe { c_PigeonIMU_EnterCalibrationMode(self.handle, cal_mode, timeout_ms) }
     }
 
-    /*
-    pub fn get_general_status(&self) -> Result<(i32, i32, i32, i32, f64, i32, i32, i32, i32)> {
-        cci_get_call!(c_PigeonIMU_GetGeneralStatus(
-            self.handle,
-            _: i32, // state
-            _: i32, // current_mode
-            _: i32, // calibration_error
-            _: i32, // b_cal_is_booting
-            _: f64, // temp_c
-            _: i32, // up_time_sec
-            _: i32, // no_motion_bias_count
-            _: i32, // temp_compensation_count
-            _: i32, // last_error
-        ))
+    pub fn get_general_status(&self) -> Result<GeneralStatus> {
+        let mut status: GeneralStatus = Default::default();
+        let mut state = 0;
+        let mut current_mode = 0;
+        let mut b_cal_is_booting = 0;
+        let err = unsafe {
+            c_PigeonIMU_GetGeneralStatus(
+                self.handle,
+                &mut state,
+                &mut current_mode,
+                &mut status.calibration_error,
+                &mut b_cal_is_booting,
+                &mut status.temp_c,
+                &mut status.up_time_sec,
+                &mut status.no_motion_bias_count,
+                &mut status.temp_compensation_count,
+                &mut status.last_error,
+            )
+        };
+        if err == ErrorCode::OK {
+            status.state = PigeonState::from(state);
+            status.current_mode = CalibrationMode::from(current_mode);
+            status.cal_is_booting = b_cal_is_booting != 0;
+            Ok(status)
+        } else {
+            Err(err)
+        }
     }
-    */
 
     pub fn get_last_error(&self) -> ErrorCode {
         unsafe { c_PigeonIMU_GetLastError(self.handle) }
@@ -167,17 +305,27 @@ impl PigeonIMU {
         ))
     }
 
-    /*
-    pub fn get_fused_heading2(&self) -> Result<(i32, i32, f64, i32)> {
-        cci_get_call!(c_PigeonIMU_GetFusedHeading2(
-            self.handle,
-            _: i32, // b_is_fusing
-            _: i32, // b_is_valid
-            _: f64, // value
-            _: i32, // last_error
-        ))
+    pub fn get_fused_heading2(&self) -> Result<FusionStatus> {
+        let mut status: FusionStatus = Default::default();
+        let mut b_is_fusing = 0;
+        let mut b_is_valid = 0;
+        let err = unsafe {
+            c_PigeonIMU_GetFusedHeading2(
+                self.handle,
+                &mut b_is_fusing,
+                &mut b_is_valid,
+                &mut status.heading,
+                &mut status.last_error,
+            )
+        };
+        if err == ErrorCode::OK {
+            status.is_fusing = b_is_fusing != 0;
+            status.is_valid = b_is_valid != 0;
+            Ok(status)
+        } else {
+            Err(err)
+        }
     }
-    */
     pub fn get_fused_heading1(&self) -> Result<f64> {
         cci_get_call!(c_PigeonIMU_GetFusedHeading1(self.handle, _: f64))
     }
@@ -261,24 +409,16 @@ impl PigeonIMU {
 
     pub fn set_status_frame_period(
         &self,
-        frame: PigeonIMU_StatusFrame,
+        frame: StatusFrame,
         period_ms: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
         unsafe { c_PigeonIMU_SetStatusFramePeriod(self.handle, frame as _, period_ms, timeout_ms) }
     }
-    pub fn get_status_frame_period(
-        &self,
-        frame: PigeonIMU_StatusFrame,
-        timeout_ms: i32,
-    ) -> Result<i32> {
+    pub fn get_status_frame_period(&self, frame: StatusFrame, timeout_ms: i32) -> Result<i32> {
         cci_get_call!(c_PigeonIMU_GetStatusFramePeriod(self.handle, frame as _, _: i32, timeout_ms))
     }
-    pub fn set_control_frame_period(
-        &self,
-        frame: PigeonIMU_ControlFrame,
-        period_ms: i32,
-    ) -> ErrorCode {
+    pub fn set_control_frame_period(&self, frame: ControlFrame, period_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetControlFramePeriod(self.handle, frame as _, period_ms) }
     }
 }

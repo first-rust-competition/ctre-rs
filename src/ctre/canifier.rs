@@ -6,6 +6,7 @@ pub use ctre_sys::canifier::{CANifierControlFrame as ControlFrame,
 
 #[repr(u32)]
 /// Enum for the LED Output Channels
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum LEDChannel {
     A = 0,
     B = 1,
@@ -14,6 +15,7 @@ pub enum LEDChannel {
 
 #[repr(u32)]
 /// Enum for the PWM Input Channels
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum PWMChannel {
     P0 = 0,
     P1 = 1,
@@ -21,6 +23,21 @@ pub enum PWMChannel {
     P3 = 3,
 }
 pub const PWM_CHANNEL_COUNT: usize = 4;
+
+#[allow(non_snake_case)]
+pub struct PinValues {
+    pub QUAD_IDX: bool,
+    pub QUAD_B: bool,
+    pub QUAD_A: bool,
+    pub LIMR: bool,
+    pub LIMF: bool,
+    pub SDA: bool,
+    pub SCL: bool,
+    pub SPI_CS_PWM3: bool,
+    pub SPI_MISO_PWM2: bool,
+    pub SPI_MOSI_PWM1: bool,
+    pub SPI_CLK_PWM0: bool,
+}
 
 pub struct Faults(i32);
 impl Faults {
@@ -37,11 +54,13 @@ impl StickyFaults {
 
 pub struct CANifier {
     handle: Handle,
+    _temp_pins: [bool; 11],
 }
 impl CANifier {
     pub fn new(device_number: i32) -> CANifier {
         let handle = unsafe { c_CANifier_Create1(device_number) };
-        CANifier { handle }
+        let mut _temp_pins = [false; 11];
+        CANifier { handle, _temp_pins }
     }
 
     pub fn set_led_output(&self, duty_cycle: u32, led_channel: LEDChannel) -> ErrorCode {
@@ -72,6 +91,27 @@ impl CANifier {
         unsafe {
             c_CANifier_GetGeneralInputs(self.handle, all_pins.as_mut_ptr(), all_pins.len() as _)
         }
+    }
+    pub fn get_general_inputs(&mut self, all_pins: &mut PinValues) -> ErrorCode {
+        let err = unsafe {
+            c_CANifier_GetGeneralInputs(
+                self.handle,
+                self._temp_pins.as_mut_ptr(),
+                self._temp_pins.len() as _,
+            )
+        };
+        all_pins.LIMF = self._temp_pins[GeneralPin::LIMF as usize];
+        all_pins.LIMR = self._temp_pins[GeneralPin::LIMR as usize];
+        all_pins.QUAD_A = self._temp_pins[GeneralPin::QUAD_A as usize];
+        all_pins.QUAD_B = self._temp_pins[GeneralPin::QUAD_B as usize];
+        all_pins.QUAD_IDX = self._temp_pins[GeneralPin::QUAD_IDX as usize];
+        all_pins.SCL = self._temp_pins[GeneralPin::SCL as usize];
+        all_pins.SDA = self._temp_pins[GeneralPin::SDA as usize];
+        all_pins.SPI_CLK_PWM0 = self._temp_pins[GeneralPin::SPI_CLK_PWM0P as usize];
+        all_pins.SPI_MOSI_PWM1 = self._temp_pins[GeneralPin::SPI_MOSI_PWM1P as usize];
+        all_pins.SPI_MISO_PWM2 = self._temp_pins[GeneralPin::SPI_MISO_PWM2P as usize];
+        all_pins.SPI_CS_PWM3 = self._temp_pins[GeneralPin::SPI_CS as usize];
+        err
     }
     pub fn get_general_input(&self, input_pin: u32) -> Result<bool> {
         cci_get_call!(c_CANifier_GetGeneralInput(self.handle, input_pin, _: bool))
