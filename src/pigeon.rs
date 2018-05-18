@@ -1,4 +1,4 @@
-use ctre_sys::ErrorCode;
+use ::ErrorCode;
 use std::os::raw::{c_char, c_int, c_short};
 
 pub enum _Handle {}
