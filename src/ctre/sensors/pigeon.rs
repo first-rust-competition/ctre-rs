@@ -1,9 +1,9 @@
-use std::fmt;
-use ctre::{ErrorCode, ParamEnum, Result};
 use ctre::motor_control::{BaseMotorController, TalonSRX};
+use ctre::{ErrorCode, ParamEnum, Result};
 use ctre_sys::pigeon::*;
 pub use ctre_sys::pigeon::{PigeonIMU_ControlFrame as ControlFrame,
                            PigeonIMU_StatusFrame as StatusFrame};
+use std::fmt;
 
 #[derive(Default)]
 pub struct FusionStatus {
@@ -113,15 +113,15 @@ impl fmt::Debug for GeneralStatus {
             } else {
                 match self.state {
                     PigeonState::UserCalibration => match self.current_mode {
-                        CalibrationMode::BootTareGyroAccel => "",
-                        CalibrationMode::Temperature => "",
-                        CalibrationMode::Magnetometer12Pt => "",
-                        CalibrationMode::Magnetometer360 => "",
-                        CalibrationMode::Accelerometer => "",
-                        _ => "",
+                        CalibrationMode::BootTareGyroAccel => "Boot-Calibration: Gyro and Accelerometer are being biased.",
+                        CalibrationMode::Temperature => "Temperature-Calibration: Pigeon is collecting temp data and will finish when temp range is reached. Do not move Pigeon.",
+                        CalibrationMode::Magnetometer12Pt => "Magnetometer Level 1 calibration: Orient the Pigeon PCB in the 12 positions documented in the User's Manual.",
+                        CalibrationMode::Magnetometer360 => "Magnetometer Level 2 calibration: Spin robot slowly in 360' fashion.",
+                        CalibrationMode::Accelerometer => "Accelerometer Calibration: Pigeon PCB must be placed on a level source.  Follow User's Guide for how to level surfacee.",
+                        _ => "Unknown status",
                     },
-                    PigeonState::Ready => "",
-                    PigeonState::Initializing => "",
+                    PigeonState::Ready => "Pigeon is running normally.  Last CAL error code was {}.",
+                    PigeonState::Initializing => "Pigeon is boot-caling to properly bias accel and gyro.  Do not move Pigeon.",
                     _ => "Not enough data to determine status.",
                 }
             }
