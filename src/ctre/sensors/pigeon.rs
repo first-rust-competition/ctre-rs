@@ -267,8 +267,10 @@ impl PigeonIMU {
     pub fn get_temp(&self) -> Result<f64> {
         cci_get_call!(c_PigeonIMU_GetTemp(self.handle, _: f64))
     }
-    pub fn get_state(&self) -> Result<i32> {
-        cci_get_call!(c_PigeonIMU_GetState(self.handle, _: i32))
+    pub fn get_state(&self) -> Result<PigeonState> {
+        Ok(PigeonState::from(
+            cci_get_call!(c_PigeonIMU_GetState(self.handle, _: i32))?,
+        ))
     }
     pub fn get_up_time(&self) -> Result<i32> {
         cci_get_call!(c_PigeonIMU_GetUpTime(self.handle, _: i32))
