@@ -12,6 +12,16 @@ macro_rules! cci_get_call {
     }}
 }
 
+/// Convenience wrapper for making simple get calls, ignoring the ErrorCode.
+#[macro_export]
+macro_rules! cci_get_only {
+    ($function:ident($($arg0:expr,)+ _: $type:ty $(, $arg1:expr)*$(,)*)) => {{
+        let mut value: $type = Default::default();
+        unsafe { $function($($arg0,)* &mut value, $($arg1,)*) };
+        value
+    }}
+}
+
 /// Convenience wrapper for making simple get calls which expect fixed size arrays.
 #[macro_export]
 macro_rules! cci_get_call_array {
