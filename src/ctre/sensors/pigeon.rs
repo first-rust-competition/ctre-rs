@@ -150,11 +150,6 @@ impl PigeonIMU {
         let handle = unsafe { c_PigeonIMU_Create1(device_number) };
         PigeonIMU { handle }
     }
-    pub fn from_talon(talon_srx: &TalonSRX) -> Result<PigeonIMU> {
-        let talon_device_id = talon_srx.get_device_id()?;
-        let handle = unsafe { c_PigeonIMU_Create2(talon_device_id) };
-        Ok(PigeonIMU { handle })
-    }
 
     pub fn set_yaw(&self, angle_deg: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetYaw(self.handle, angle_deg, timeout_ms) }
@@ -422,5 +417,12 @@ impl PigeonIMU {
     }
     pub fn set_control_frame_period(&self, frame: ControlFrame, period_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetControlFramePeriod(self.handle, frame as _, period_ms) }
+    }
+}
+impl<'a> From<&'a TalonSRX> for PigeonIMU {
+    fn from(talon_srx: &'a TalonSRX) -> PigeonIMU {
+        let talon_device_id = talon_srx.get_device_id();
+        let handle = unsafe { c_PigeonIMU_Create2(talon_device_id) };
+        PigeonIMU { handle }
     }
 }

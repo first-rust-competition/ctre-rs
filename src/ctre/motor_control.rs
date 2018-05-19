@@ -89,8 +89,8 @@ pub trait BaseMotorController {
 
     fn get_handle(&self) -> Handle;
     fn get_base_id(&self) -> i32;
-    fn get_device_id(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetDeviceNumber(self.get_handle(), _: i32))
+    fn get_device_id(&self) -> i32 {
+        cci_get_only!(c_MotController_GetDeviceNumber(self.get_handle(), _: i32))
     }
 
     /**
