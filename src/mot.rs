@@ -1,5 +1,5 @@
-use ::ErrorCode;
 use std::os::raw::{c_char, c_int};
+use ErrorCode;
 
 pub enum _Handle {}
 pub type Handle = *const _Handle;
