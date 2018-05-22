@@ -1,4 +1,5 @@
 pub mod canifier;
+pub mod logger;
 pub mod mot;
 pub mod pigeon;
 
