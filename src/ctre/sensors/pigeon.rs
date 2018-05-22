@@ -5,7 +5,8 @@ pub use ctre_sys::pigeon::{PigeonIMU_ControlFrame as ControlFrame,
                            PigeonIMU_StatusFrame as StatusFrame};
 use std::fmt;
 
-#[derive(Default)]
+/// Data object for holding fusion information.
+#[derive(Default, Debug)]
 pub struct FusionStatus {
     pub is_fusing: bool, // int
     pub is_valid: bool,  // int
@@ -13,7 +14,7 @@ pub struct FusionStatus {
     /// Same as getLastError()
     last_error: i32,
 }
-impl fmt::Debug for FusionStatus {
+impl fmt::Display for FusionStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -43,6 +44,7 @@ pub enum CalibrationMode {
     Unknown = -1,
 }
 impl Default for CalibrationMode {
+    #[inline]
     fn default() -> CalibrationMode {
         CalibrationMode::Unknown
     }
@@ -71,6 +73,7 @@ pub enum PigeonState {
     Unknown = -1,
 }
 impl Default for PigeonState {
+    #[inline]
     fn default() -> PigeonState {
         PigeonState::Unknown
     }
@@ -87,20 +90,85 @@ impl From<i32> for PigeonState {
     }
 }
 
-#[derive(Default)]
+/**
+ * Data object for status on current calibration and general status.
+ *
+ * Pigeon has many calibration modes supported for a variety of uses. The
+ * modes generally collects and saves persistently information that makes
+ * the Pigeon signals more accurate. This includes collecting temperature,
+ * gyro, accelerometer, and compass information.
+ *
+ * For FRC use-cases, typically compass and temperature calibration is not required.
+ *
+ * Additionally when motion driver software in the Pigeon boots, it will
+ * perform a fast boot calibration to initially bias gyro and setup accelerometer.
+ *
+ * These modes can be enabled with the EnterCalibration mode.
+ *
+ * When a calibration mode is entered, caller can expect...
+ *
+ * - PigeonState to reset to Initializing and bCalIsBooting is set to true.
+ * Pigeon LEDs will blink the boot pattern. This is similar to the normal
+ * boot cal, however it can an additional ~30 seconds since calibration
+ * generally requires more information. currentMode will reflect the user's
+ * selected calibration mode.
+ *
+ * - PigeonState will eventually settle to UserCalibration and Pigeon LEDs
+ * will show cal specific blink patterns. bCalIsBooting is now false.
+ *
+ * - Follow the instructions in the Pigeon User Manual to meet the
+ * calibration specific requirements. When finished calibrationError will
+ * update with the result. Pigeon will solid-fill LEDs with red (for
+ * failure) or green (for success) for ~5 seconds. Pigeon then perform
+ * boot-cal to cleanly apply the newly saved calibration data.
+ */
+#[derive(Default, Debug)]
 pub struct GeneralStatus {
+    /**
+     * The current state of the motion driver.  This reflects if the sensor signals are accurate.
+     * Most calibration modes will force Pigeon to reinit the motion driver.
+     */
     pub state: PigeonState,
+    /**
+     * The currently applied calibration mode if state is in UserCalibration
+     * or if bCalIsBooting is true. Otherwise it holds the last selected
+     * calibration mode (when calibrationError was updated).
+     */
     pub current_mode: CalibrationMode,
+    /**
+     * The error code for the last calibration mode.
+     * Zero represents a successful cal (with solid green LEDs at end of cal)
+     * and nonzero is a failed calibration (with solid red LEDs at end of cal).
+     * Different calibration
+     */
     pub calibration_error: i32,
+    /**
+     * After caller requests a calibration mode, pigeon will perform a boot-cal before
+     * entering the requested mode.  During this period, this flag is set to true.
+     */
     pub cal_is_booting: bool, // int
+    /// Temperature in Celsius
     pub temp_c: f64,
+    /**
+     * Number of seconds Pigeon has been up (since boot).
+     * This register is reset on power boot or processor reset.
+     * Register is capped at 255 seconds with no wrap around.
+     */
     pub up_time_sec: i32,
+    /**
+     * Number of times the Pigeon has automatically rebiased the gyro.
+     * This counter overflows from 15 -> 0 with no cap.
+     */
     pub no_motion_bias_count: i32,
+    /**
+     * Number of times the Pigeon has temperature compensated the various signals.
+     * This counter overflows from 15 -> 0 with no cap.
+     */
     pub temp_compensation_count: i32,
     /// Same as getLastError()
     last_error: i32,
 }
-impl fmt::Debug for GeneralStatus {
+impl fmt::Display for GeneralStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -129,12 +197,14 @@ impl fmt::Debug for GeneralStatus {
     }
 }
 
+#[derive(Default, Debug, Copy, Clone)]
 pub struct Faults(i32);
 impl Faults {
     pub fn has_any_fault(&self) -> bool {
         self.0 != 0
     }
 }
+#[derive(Default, Debug, Copy, Clone)]
 pub struct StickyFaults(i32);
 impl StickyFaults {
     pub fn has_any_fault(&self) -> bool {
@@ -142,6 +212,10 @@ impl StickyFaults {
     }
 }
 
+/**
+ * Pigeon IMU Class.
+ * Class supports communicating over CANbus and over ribbon-cable (CAN Talon SRX).
+ */
 pub struct PigeonIMU {
     handle: Handle,
 }
@@ -232,33 +306,38 @@ impl PigeonIMU {
         unsafe { c_PigeonIMU_GetLastError(self.handle) }
     }
 
+    /// Get 6d Quaternion data.
+    /// Returns an array of the wxyz quaternion data.
     pub fn get6d_quaternion(&self) -> Result<[f64; 4]> {
-        cci_get_call_array!(c_PigeonIMU_Get6dQuaternion(
-            self.handle,
-            _: [f64; 4],
-        ))
+        cci_get_call_array!(c_PigeonIMU_Get6dQuaternion(self.handle, _: [f64; 4]))
     }
+    /// Get Yaw, Pitch, and Roll data.
+    /// Returns an array with yaw, pitch, and roll, in that order.
     pub fn get_yaw_pitch_roll(&self) -> Result<[f64; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetYawPitchRoll(
-            self.handle,
-            _: [f64; 3],
-        ))
+        cci_get_call_array!(c_PigeonIMU_GetYawPitchRoll(self.handle, _: [f64; 3]))
     }
+    /**
+     * Get AccumGyro data.
+     * AccumGyro is the integrated gyro value on each axis.
+     *
+     * Returns an array `xyz_deg`.
+     */
     pub fn get_accum_gyro(&self) -> Result<[f64; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetAccumGyro(
-            self.handle,
-            _: [f64; 3],
-        ))
+        cci_get_call_array!(c_PigeonIMU_GetAccumGyro(self.handle, _: [f64; 3]))
     }
+    /// Get the absolute compass heading, in the interval [0, 360) degrees.
     pub fn get_absolute_compass_heading(&self) -> Result<f64> {
         cci_get_call!(c_PigeonIMU_GetAbsoluteCompassHeading(self.handle, _: f64))
     }
+    /// Get the continuous compass heading, in the interval [-23040, 23040) degrees.
     pub fn get_compass_heading(&self) -> Result<f64> {
         cci_get_call!(c_PigeonIMU_GetCompassHeading(self.handle, _: f64))
     }
+    /// Get the compass' measured magnetic field strength in microteslas (uT).
     pub fn get_compass_field_strength(&self) -> Result<f64> {
         cci_get_call!(c_PigeonIMU_GetCompassFieldStrength(self.handle, _: f64))
     }
+    /// Get the temperature of the pigeon, in degrees Celsius.
     pub fn get_temp(&self) -> Result<f64> {
         cci_get_call!(c_PigeonIMU_GetTemp(self.handle, _: f64))
     }
@@ -271,37 +350,33 @@ impl PigeonIMU {
         cci_get_call!(c_PigeonIMU_GetUpTime(self.handle, _: i32))
     }
 
+    /// Get Raw Magnetometer data.
+    /// Returns an array `rm_xyz`.  Number is equal to 0.6 microteslas per unit.
     pub fn get_raw_magnetometer(&self) -> Result<[i16; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetRawMagnetometer(
-            self.handle,
-            _: [i16; 3],
-        ))
+        cci_get_call_array!(c_PigeonIMU_GetRawMagnetometer(self.handle, _: [i16; 3]))
     }
+    /// Get Biased Magnetometer data.
+    /// Returns an array `bm_xyz`.  Number is equal to 0.6 microteslas per unit.
     pub fn get_biased_magnetometer(&self) -> Result<[i16; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetBiasedMagnetometer(
-            self.handle,
-            _: [i16; 3],
-        ))
+        cci_get_call_array!(c_PigeonIMU_GetBiasedMagnetometer(self.handle, _: [i16; 3]))
     }
+    /// Get Biased Accelerometer data.
+    /// Returns an array `ba_xyz`.  These are in fixed point notation Q2.14.  eg. 16384 = 1G
     pub fn get_biased_accelerometer(&self) -> Result<[i16; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetBiasedAccelerometer(
-            self.handle,
-            _: [i16; 3],
-        ))
+        cci_get_call_array!(c_PigeonIMU_GetBiasedAccelerometer(self.handle, _: [i16; 3]))
     }
+    /// Get Raw Gyro data.
+    /// Returns an array `xyz_dps`, with data in degrees per second.
     pub fn get_raw_gyro(&self) -> Result<[f64; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetRawGyro(
-            self.handle,
-            _: [f64; 3],
-        ))
+        cci_get_call_array!(c_PigeonIMU_GetRawGyro(self.handle, _: [f64; 3]))
     }
+    /// Get Accelerometer tilt angles.
+    /// Returns a 3-array of x, y, z angles in degrees.
     pub fn get_accelerometer_angles(&self) -> Result<[f64; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetAccelerometerAngles(
-            self.handle,
-            _: [f64; 3],
-        ))
+        cci_get_call_array!(c_PigeonIMU_GetAccelerometerAngles(self.handle, _: [f64; 3]))
     }
 
+    /// Get the current Fusion Status (including fused heading)
     pub fn get_fused_heading2(&self) -> Result<FusionStatus> {
         let mut status: FusionStatus = Default::default();
         let mut b_is_fusing = 0;
@@ -323,10 +398,12 @@ impl PigeonIMU {
             Err(err)
         }
     }
+    /// Gets the Fused Heading in degrees.
     pub fn get_fused_heading1(&self) -> Result<f64> {
         cci_get_call!(c_PigeonIMU_GetFusedHeading1(self.handle, _: f64))
     }
 
+    /// Use [`has_reset_occurred`] instead.
     pub fn get_reset_count(&self) -> Result<i32> {
         cci_get_call!(c_PigeonIMU_GetResetCount(self.handle, _: i32))
     }

@@ -1,11 +1,12 @@
+use ctre::motion::{MotionProfileStatus, TrajectoryPoint};
 use ctre::{ErrorCode, ParamEnum, Result};
 use ctre_sys::mot::*;
-use ctre::motion::{MotionProfileStatus, TrajectoryPoint};
 pub use ctre_sys::mot::{ControlFrame, ControlFrameEnhanced, ControlMode, DemandType,
                         FeedbackDevice, FollowerType, LimitSwitchNormal, LimitSwitchSource,
                         RemoteFeedbackDevice, RemoteLimitSwitchSource, StatusFrame,
                         StatusFrameEnhanced, VelocityMeasPeriod};
 
+#[derive(Default, Debug, Copy, Clone)]
 pub struct Faults(i32);
 impl Faults {
     pub fn under_voltage(&self) -> bool {
@@ -46,6 +47,7 @@ impl Faults {
     }
 }
 
+#[derive(Default, Debug, Copy, Clone)]
 pub struct StickyFaults(i32);
 impl StickyFaults {
     pub fn under_voltage(&self) -> bool {
@@ -102,8 +104,7 @@ pub trait BaseMotorController {
      *   * In Velocity mode, output value is in position change / 100ms.
      *   * In Position mode, output value is in encoder ticks or an analog value,
      *     depending on the sensor. See
-     *   * In Follower mode, the output value is the integer device ID of the talon to
-     *     duplicate.
+     *   * In Follower mode, the output value is the integer device ID of the talon to duplicate.
      * * `demand1Type` - The demand type for demand1.
      * * `demand1` - Supplmental output value.  Units match the set mode.
      *
@@ -173,7 +174,7 @@ pub trait BaseMotorController {
      * Sets the phase of the sensor. Use when controller forward/reverse output
      * doesn't correlate to appropriate forward/reverse reading of sensor.
      * Pick a value so that positive PercentOutput yields a positive change in sensor.
-     * After setting this, user can freely call SetInvert() with any value.
+     * After setting this, user can freely call [`set_inverted`] with any value.
      *
      * * `phase_sensor` - Indicates whether to invert the phase of the sensor.
      */
@@ -275,6 +276,7 @@ pub trait BaseMotorController {
     fn get_bus_voltage(&self) -> Result<f64> {
         cci_get_call!(c_MotController_GetBusVoltage(self.get_handle(), _: f64))
     }
+    /// Gets the output percentage of the motor controller, in the interval \[-1, +1].
     fn get_motor_output_percent(&self) -> Result<f64> {
         cci_get_call!(c_MotController_GetMotorOutputPercent(self.get_handle(), _: f64))
     }
@@ -284,6 +286,7 @@ pub trait BaseMotorController {
     fn get_output_current(&self) -> Result<f64> {
         cci_get_call!(c_MotController_GetOutputCurrent(self.get_handle(), _: f64))
     }
+    /// Gets the temperature of the motor controller in degrees Celsius.
     fn get_temperature(&self) -> Result<f64> {
         cci_get_call!(c_MotController_GetTemperature(self.get_handle(), _: f64))
     }
@@ -672,8 +675,8 @@ pub trait BaseMotorController {
         }
     }
 
-    /// Clear the buffered motion profile in both motor controller's RAM (bottom), and in the API
-    /// (top).
+    /// Clear the buffered motion profile in both motor controller's RAM (bottom),
+    /// and in the API (top).
     fn clear_motion_profile_trajectories(&self) -> ErrorCode {
         unsafe { c_MotController_ClearMotionProfileTrajectories(self.get_handle()) }
     }
@@ -681,7 +684,7 @@ pub trait BaseMotorController {
      * Retrieve just the buffer count for the api-level (top) buffer.
      * This routine performs no CAN or data structure lookups, so its fast and ideal
      * if caller needs to quickly poll the progress of trajectory points being
-     * emptied into motor controller's RAM. Otherwise just use GetMotionProfileStatus.
+     * emptied into motor controller's RAM. Otherwise just use [`get_motion_profile_status`].
      */
     fn get_motion_profile_top_level_buffer_count(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetMotionProfileTopLevelBufferCount(
@@ -709,10 +712,13 @@ pub trait BaseMotorController {
     /**
      * Retrieve just the buffer full for the api-level (top) buffer.
      * This routine performs no CAN or data structure lookups, so its fast and ideal
-     * if caller needs to quickly poll. Otherwise just use GetMotionProfileStatus.
+     * if caller needs to quickly poll. Otherwise just use [`get_motion_profile_status`].
      */
     fn is_motion_profile_top_level_buffer_full(&self) -> Result<bool> {
-        cci_get_call!(c_MotController_IsMotionProfileTopLevelBufferFull(self.get_handle(), _: bool))
+        cci_get_call!(c_MotController_IsMotionProfileTopLevelBufferFull(
+            self.get_handle(),
+            _: bool,
+        ))
     }
     /**
      * This must be called periodically to funnel the trajectory points from the
@@ -731,7 +737,7 @@ pub trait BaseMotorController {
      * motion profile executer.
      */
     fn get_motion_profile_status(&self, status_to_fill: &mut MotionProfileStatus) -> ErrorCode {
-        // let mut status_to_fill: MotionProfileStatus;
+        // let mut status_to_fill: MotionProfileStatus = Default::default();
         let retval = unsafe {
             c_MotController_GetMotionProfileStatus_2(
                 self.get_handle(),
