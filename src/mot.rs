@@ -1,5 +1,5 @@
-use std::os::raw::{c_char, c_int};
 use ErrorCode;
+use std::os::raw::{c_char, c_int};
 
 pub enum _Handle {}
 pub type Handle = *const _Handle;
@@ -210,6 +210,12 @@ pub enum SetValueMotionProfile {
     Enable = 1,
     Hold = 2,
 }
+impl Default for SetValueMotionProfile {
+    #[inline]
+    fn default() -> SetValueMotionProfile {
+        SetValueMotionProfile::Disable
+    }
+}
 #[repr(i32)]
 /// Duration to apply to a particular trajectory pt.
 /// This time unit is ADDED to the existing base time set by
@@ -225,10 +231,16 @@ pub enum TrajectoryDuration {
     T50ms = 50,
     T100ms = 100,
 }
+impl Default for TrajectoryDuration {
+    #[inline]
+    fn default() -> TrajectoryDuration {
+        TrajectoryDuration::T0ms
+    }
+}
 /// Motion Profile Trajectory Point
 /// This is simply a data transfer object.
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Default, Debug, Copy, Clone)]
 pub struct TrajectoryPoint {
     /// The position to servo to.
     pub position: f64,
@@ -379,7 +391,7 @@ fn bindgen_test_layout_TrajectoryPoint() {
 /// Motion Profile Status
 /// This is simply a data transer object.
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq)]
 pub struct MotionProfileStatus {
     /// The available empty slots in the trajectory buffer.
     ///
@@ -391,7 +403,7 @@ pub struct MotionProfileStatus {
     pub top_buffer_cnt: c_int,
     /// The number of points in the low level Talon buffer.
     pub btm_buffer_cnt: c_int,
-    /// Set if isUnderrun ever gets set.
+    /// Set if [`is_underrun`] ever gets set.
     /// Only is cleared by clearMotionProfileHasUnderrun() to ensure
     /// robot logic can react or instrument it.
     /// @see clearMotionProfileHasUnderrun()
