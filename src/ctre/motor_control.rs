@@ -940,6 +940,65 @@ pub trait BaseMotorController {
     }
 }
 
+/// An interface for getting and setting raw sensor values.
+pub trait SensorCollection: BaseMotorController {
+    fn get_analog_in(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetAnalogIn(self.get_handle(), _: i32))
+    }
+    fn set_analog_position(&self, new_position: i32, timeout_ms: i32) -> ErrorCode {
+        unsafe { c_MotController_SetAnalogPosition(self.get_handle(), new_position, timeout_ms) }
+    }
+    fn get_analog_in_raw(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetAnalogInRaw(self.get_handle(), _: i32))
+    }
+    fn get_analog_in_vel(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetAnalogInVel(self.get_handle(), _: i32))
+    }
+    fn get_quadrature_position(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetQuadraturePosition(self.get_handle(), _: i32))
+    }
+    fn set_quadrature_position(&self, new_position: i32, timeout_ms: i32) -> ErrorCode {
+        unsafe {
+            c_MotController_SetQuadraturePosition(self.get_handle(), new_position, timeout_ms)
+        }
+    }
+    fn get_quadrature_velocity(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetQuadratureVelocity(self.get_handle(), _: i32))
+    }
+    fn get_pulse_width_position(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetPulseWidthPosition(self.get_handle(), _: i32))
+    }
+    fn set_pulse_width_position(&self, new_position: i32, timeout_ms: i32) -> ErrorCode {
+        unsafe {
+            c_MotController_SetPulseWidthPosition(self.get_handle(), new_position, timeout_ms)
+        }
+    }
+    fn get_pulse_width_velocity(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetPulseWidthVelocity(self.get_handle(), _: i32))
+    }
+    fn get_pulse_width_rise_to_fall_us(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetPulseWidthRiseToFallUs(self.get_handle(), _: i32))
+    }
+    fn get_pulse_width_rise_to_rise_us(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetPulseWidthRiseToRiseUs(self.get_handle(), _: i32))
+    }
+    fn get_pin_state_quad_a(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetPinStateQuadA(self.get_handle(), _: i32))
+    }
+    fn get_pin_state_quad_b(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetPinStateQuadB(self.get_handle(), _: i32))
+    }
+    fn get_pin_state_quad_idx(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_GetPinStateQuadIdx(self.get_handle(), _: i32))
+    }
+    fn is_fwd_limit_switch_closed(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_IsFwdLimitSwitchClosed(self.get_handle(), _: i32))
+    }
+    fn is_rev_limit_switch_closed(&self) -> Result<i32> {
+        cci_get_call!(c_MotController_IsRevLimitSwitchClosed(self.get_handle(), _: i32))
+    }
+}
+
 pub struct TalonSRX {
     handle: Handle,
     arb_id: i32,
@@ -1087,6 +1146,8 @@ impl TalonSRX {
         unsafe { c_MotController_EnableCurrentLimit(self.handle, enable) };
     }
 }
+
+impl SensorCollection for TalonSRX {}
 
 pub struct VictorSPX {
     handle: Handle,
