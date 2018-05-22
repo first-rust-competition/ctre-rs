@@ -1,9 +1,9 @@
-use ctre::motor_control::{BaseMotorController, TalonSRX};
-use ctre::{ErrorCode, ParamEnum, Result};
 use ctre_sys::pigeon::*;
 pub use ctre_sys::pigeon::{PigeonIMU_ControlFrame as ControlFrame,
                            PigeonIMU_StatusFrame as StatusFrame};
+use motor_control::{BaseMotorController, TalonSRX};
 use std::fmt;
+use {ErrorCode, ParamEnum, Result};
 
 /// Data object for holding fusion information.
 #[derive(Default, Debug)]

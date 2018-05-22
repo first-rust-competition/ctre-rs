@@ -1,10 +1,10 @@
-use ctre::motion::{MotionProfileStatus, TrajectoryPoint};
-use ctre::{ErrorCode, ParamEnum, Result};
 use ctre_sys::mot::*;
 pub use ctre_sys::mot::{ControlFrame, ControlFrameEnhanced, ControlMode, DemandType,
                         FeedbackDevice, FollowerType, LimitSwitchNormal, LimitSwitchSource,
                         RemoteFeedbackDevice, RemoteLimitSwitchSource, StatusFrame,
                         StatusFrameEnhanced, VelocityMeasPeriod};
+use motion::{MotionProfileStatus, TrajectoryPoint};
+use {ErrorCode, ParamEnum, Result};
 
 #[derive(Default, Debug, Copy, Clone)]
 pub struct Faults(i32);

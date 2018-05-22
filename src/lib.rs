@@ -1,4 +1,6 @@
 extern crate ctre_sys;
+pub use ctre_sys::{ErrorCode, ParamEnum};
+pub type Result<T> = ::std::result::Result<T, ErrorCode>;
 
 /// Convenience wrapper for making simple get calls.
 macro_rules! cci_get_call {
@@ -27,5 +29,9 @@ macro_rules! cci_get_call_array {
     })
 }
 
-mod ctre;
-pub use ctre::*;
+pub mod canifier;
+pub mod motion;
+pub mod motor_control;
+pub mod sensors;
+
+pub use canifier::CANifier;

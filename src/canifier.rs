@@ -1,8 +1,8 @@
-use ctre::{ErrorCode, ParamEnum, Result};
 use ctre_sys::canifier::*;
 pub use ctre_sys::canifier::{CANifierControlFrame as ControlFrame,
                              CANifierStatusFrame as StatusFrame,
                              CANifierVelocityMeasPeriod as VelocityMeasPeriod, GeneralPin};
+use {ErrorCode, ParamEnum, Result};
 
 #[repr(u32)]
 /// Enum for the LED Output Channels
