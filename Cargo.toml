@@ -4,5 +4,8 @@ version = "5.3.0"
 authors = ["David Vo <david@vovo.id.au>"]
 links = "CTRE_PhoenixCCI"
 build = "build.rs"
+repository = "https://github.com/auscompgeek/ctre-sys"
+readme = "README.md"
+license-file = "LICENSE"
 
 [dependencies]
