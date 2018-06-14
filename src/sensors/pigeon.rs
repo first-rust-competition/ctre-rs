@@ -389,7 +389,7 @@ impl PigeonIMU {
     }
 
     /// Get the current Fusion Status (including fused heading)
-    pub fn get_fused_heading2(&self) -> Result<FusionStatus> {
+    pub fn get_fusion_status(&self) -> Result<FusionStatus> {
         let mut status: FusionStatus = Default::default();
         let mut b_is_fusing = 0;
         let mut b_is_valid = 0;
@@ -411,7 +411,7 @@ impl PigeonIMU {
         }
     }
     /// Gets the Fused Heading in degrees.
-    pub fn get_fused_heading1(&self) -> Result<f64> {
+    pub fn get_fused_heading(&self) -> Result<f64> {
         cci_get_call!(c_PigeonIMU_GetFusedHeading1(self.handle, _: f64))
     }
 
