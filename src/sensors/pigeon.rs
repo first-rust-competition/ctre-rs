@@ -170,6 +170,13 @@ pub struct GeneralStatus {
 }
 impl fmt::Display for GeneralStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.state == PigeonState::Ready {
+            return write!(
+                f,
+                "Pigeon is running normally.  Last CAL error code was {}.",
+                self.calibration_error,
+            );
+        }
         write!(
             f,
             "{}",
@@ -181,15 +188,20 @@ impl fmt::Display for GeneralStatus {
             } else {
                 match self.state {
                     PigeonState::UserCalibration => match self.current_mode {
-                        CalibrationMode::BootTareGyroAccel => "Boot-Calibration: Gyro and Accelerometer are being biased.",
-                        CalibrationMode::Temperature => "Temperature-Calibration: Pigeon is collecting temp data and will finish when temp range is reached. Do not move Pigeon.",
-                        CalibrationMode::Magnetometer12Pt => "Magnetometer Level 1 calibration: Orient the Pigeon PCB in the 12 positions documented in the User's Manual.",
-                        CalibrationMode::Magnetometer360 => "Magnetometer Level 2 calibration: Spin robot slowly in 360' fashion.",
-                        CalibrationMode::Accelerometer => "Accelerometer Calibration: Pigeon PCB must be placed on a level source.  Follow User's Guide for how to level surfacee.",
+                        CalibrationMode::BootTareGyroAccel =>
+                            "Boot-Calibration: Gyro and Accelerometer are being biased.",
+                        CalibrationMode::Temperature =>
+                            "Temperature-Calibration: Pigeon is collecting temp data and will finish when temp range is reached. Do not move Pigeon.",
+                        CalibrationMode::Magnetometer12Pt =>
+                            "Magnetometer Level 1 calibration: Orient the Pigeon PCB in the 12 positions documented in the User's Manual.",
+                        CalibrationMode::Magnetometer360 =>
+                            "Magnetometer Level 2 calibration: Spin robot slowly in 360' fashion.",
+                        CalibrationMode::Accelerometer =>
+                            "Accelerometer Calibration: Pigeon PCB must be placed on a level source.  Follow User's Guide for how to level surfacee.",
                         _ => "Unknown status",
                     },
-                    PigeonState::Ready => "Pigeon is running normally.  Last CAL error code was {}.",
-                    PigeonState::Initializing => "Pigeon is boot-caling to properly bias accel and gyro.  Do not move Pigeon.",
+                    PigeonState::Initializing =>
+                        "Pigeon is boot-caling to properly bias accel and gyro.  Do not move Pigeon.",
                     _ => "Not enough data to determine status.",
                 }
             }
