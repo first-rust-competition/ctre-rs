@@ -4,4 +4,4 @@ version = "0.3.0"
 authors = ["David Vo <david@vovo.id.au>"]
 
 [dependencies]
-ctre-sys = "*"
+ctre-sys = { path = "ctre-sys", version = "5.3.1" }
