@@ -1,5 +1,5 @@
-use ErrorCode;
 use std::os::raw::{c_char, c_int};
+use ErrorCode;
 
 pub enum _Handle {}
 pub type Handle = *const _Handle;
@@ -53,6 +53,12 @@ pub enum DemandType {
     /// Simply add to the output
     ArbitraryFeedForward = 2,
 }
+impl Default for DemandType {
+    #[inline]
+    fn default() -> DemandType {
+        DemandType::Neutral
+    }
+}
 
 #[allow(non_upper_case_globals)]
 pub const FeedbackDevice_CTRE_MagEncoder_Absolute: FeedbackDevice =
@@ -90,6 +96,12 @@ pub enum RemoteFeedbackDevice {
 pub enum FollowerType {
     PercentOutput = 0,
     AuxOutput1 = 1,
+}
+impl Default for FollowerType {
+    #[inline]
+    fn default() -> FollowerType {
+        FollowerType::PercentOutput
+    }
 }
 
 #[repr(i32)]
