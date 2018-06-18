@@ -114,8 +114,8 @@ impl CANifier {
             Err(err)
         }
     }
-    pub fn get_general_input(&self, input_pin: u32) -> Result<bool> {
-        cci_get_call!(c_CANifier_GetGeneralInput(self.handle, input_pin, _: bool))
+    pub fn get_general_input(&self, input_pin: GeneralPin) -> Result<bool> {
+        cci_get_call!(c_CANifier_GetGeneralInput(self.handle, input_pin as u32, _: bool))
     }
 
     pub fn get_pwm_input(&self, pwm_channel: u32) -> Result<[f64; 2]> {
