@@ -252,7 +252,7 @@ impl Default for TrajectoryDuration {
 /// Motion Profile Trajectory Point
 /// This is simply a data transfer object.
 #[repr(C)]
-#[derive(Default, Debug, Copy, Clone)]
+#[derive(Default, Debug)]
 pub struct TrajectoryPoint {
     /// The position to servo to.
     pub position: f64,
@@ -403,7 +403,7 @@ fn bindgen_test_layout_TrajectoryPoint() {
 /// Motion Profile Status
 /// This is simply a data transer object.
 #[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, PartialEq, Eq)]
 pub struct MotionProfileStatus {
     /// The available empty slots in the trajectory buffer.
     ///
