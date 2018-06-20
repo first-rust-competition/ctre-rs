@@ -64,8 +64,12 @@ impl CANifier {
         CANifier { handle }
     }
 
-    pub fn set_led_output(&self, duty_cycle: u32, led_channel: LEDChannel) -> ErrorCode {
+    pub fn _set_led_output(&self, duty_cycle: u32, led_channel: LEDChannel) -> ErrorCode {
         unsafe { c_CANifier_SetLEDOutput(self.handle, duty_cycle, led_channel as u32) }
+    }
+    pub fn set_led_output(&self, percent_output: f64, led_channel: LEDChannel) -> ErrorCode {
+        let duty_cycle = 1023. * percent_output.min(1.).max(0.);
+        self._set_led_output(duty_cycle as u32, led_channel)
     }
     pub fn set_general_outputs(&self, outputs_bits: u32, is_output_bits: u32) -> ErrorCode {
         unsafe { c_CANifier_SetGeneralOutputs(self.handle, outputs_bits, is_output_bits) }
@@ -81,8 +85,13 @@ impl CANifier {
         }
     }
 
-    pub fn set_pwm_output(&self, pwm_channel: PWMChannel, duty_cycle: u32) -> ErrorCode {
+    pub fn _set_pwm_output(&self, pwm_channel: PWMChannel, duty_cycle: u32) -> ErrorCode {
         unsafe { c_CANifier_SetPWMOutput(self.handle, pwm_channel as u32, duty_cycle) }
+    }
+    pub fn set_pwm_output(&self, pwm_channel: PWMChannel, duty_cycle: f64) -> ErrorCode {
+        // convert float to integral fixed pt
+        let duty_cyc_10bit = 1023. * duty_cycle.max(0.).min(1.);
+        self._set_pwm_output(pwm_channel, duty_cyc_10bit as u32)
     }
     pub fn enable_pwm_output(&self, pwm_channel: PWMChannel, b_enable: bool) -> ErrorCode {
         unsafe { c_CANifier_EnablePWMOutput(self.handle, pwm_channel as u32, b_enable) }
