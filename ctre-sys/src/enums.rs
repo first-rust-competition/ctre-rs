@@ -6,8 +6,12 @@
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ErrorCode {
+    /// No Error - Function executed as expected
     OK = 0,
+
+    // CAN-Related
     CAN_MSG_STALE = 1,
+    /// Could not transmit the CAN frame.
     TxFailed = -1,
     /// Caller passed an invalid param
     InvalidParamValue = -2,
@@ -24,31 +28,54 @@ pub enum ErrorCode {
     SensorNotPresent = -7,
     FirmwareTooOld = -8,
     CouldNotChangePeriod = -9,
+
     /// User Specified General Error
     GeneralError = -100,
+
+    // Signal
+    /// Have not received an value response for signal.
     SigNotUpdated = -200,
     NotAllPIDValuesUpdated = -201,
+
+    // Gadgeteer Port Error Codes
+    // These include errors between ports and modules
     GEN_PORT_ERROR = -300,
     PORT_MODULE_TYPE_MISMATCH = -301,
+
+    // Gadgeteer Module Error Codes
+    // These apply only to the module units themselves
     GEN_MODULE_ERROR = -400,
     MODULE_NOT_INIT_SET_ERROR = -401,
     MODULE_NOT_INIT_GET_ERROR = -402,
+
+    // API
     WheelRadiusTooSmall = -500,
     TicksPerRevZero = -501,
     DistanceBetweenWheelsTooSmall = -502,
     GainsAreNotSet = -503,
+
+    // Higher Level
     IncompatibleMode = -600,
     /// Handle does not match stored map of handles
     InvalidHandle = -601,
+
+    // Firmware Versions
     FeatureRequiresHigherFirm = -700,
     TalonFeatureRequiresHigherFirm = -701,
+
     /// Special Code for "isSensorPresent"
     PulseWidthSensorNotPresent = 10,
+
+    // General
     GeneralWarning = 100,
+    /// feature not implement in the API or firmware
     FeatureNotSupported = 101,
+    /// feature not implement in the API
     NotImplemented = 102,
     FirmVersionCouldNotBeRetrieved = 103,
+    /// feature will be release in an upcoming release
     FeaturesNotAvailableYet = 104,
+    /// Current control mode of motor controller not valid for this call
     ControlModeNotValid = 105,
     ControlModeNotSupportedYet = 106,
     AuxiliaryPIDNotSupportedYet = 107,
@@ -69,14 +96,17 @@ pub enum ParamEnum {
     MotionProfileTrajectoryPointDurationMs = 120,
     ClearPosOnLimitF = 144,
     ClearPosOnLimitR = 145,
+
     StatusFramePeriod = 300,
     OpenloopRamp = 301,
     ClosedloopRamp = 302,
     NeutralDeadband = 303,
+
     PeakPosOutput = 305,
     NominalPosOutput = 306,
     PeakNegOutput = 307,
     NominalNegOutput = 308,
+
     ProfileParamSlot_P = 310,
     ProfileParamSlot_I = 311,
     ProfileParamSlot_D = 312,
@@ -85,11 +115,14 @@ pub enum ParamEnum {
     ProfileParamSlot_AllowableErr = 315,
     ProfileParamSlot_MaxIAccum = 316,
     ProfileParamSlot_PeakOutput = 317,
+
     ClearPositionOnLimitF = 320,
     ClearPositionOnLimitR = 321,
     ClearPositionOnQuadIdx = 322,
+
     SampleVelocityPeriod = 325,
     SampleVelocityWindow = 326,
+
     FeedbackSensorType = 330,
     SelectedSensorPosition = 331,
     FeedbackNotContinuous = 332,
@@ -101,23 +134,32 @@ pub enum ParamEnum {
     PIDLoopPolarity = 337,
     PIDLoopPeriod = 338,
     SelectedSensorCoefficient = 339,
+
     ForwardSoftLimitThreshold = 340,
     ReverseSoftLimitThreshold = 341,
     ForwardSoftLimitEnable = 342,
     ReverseSoftLimitEnable = 343,
+
     NominalBatteryVoltage = 350,
     BatteryVoltageFilterSize = 351,
+
     ContinuousCurrentLimitAmps = 360,
     PeakCurrentLimitMs = 361,
     PeakCurrentLimitAmps = 362,
+
     ClosedLoopIAccum = 370,
+
     CustomParam = 380,
+
     StickyFaults = 390,
+
     AnalogPosition = 400,
     QuadraturePosition = 401,
     PulseWidthPosition = 402,
+
     MotMag_Accel = 410,
     MotMag_VelCruise = 411,
+
     /// ordinal (fwd=0,reverse=1), @see LimitSwitchSource_t
     LimitSwitchSource = 421,
     /// ordinal (fwd=0,reverse=1). @see LimitSwitchNormClosedAndDis_t
@@ -125,8 +167,10 @@ pub enum ParamEnum {
     LimitSwitchDisableNeutralOnLOS = 423,
     LimitSwitchRemoteDevID = 424,
     SoftLimitDisableNeutralOnLOS = 425,
+
     PulseWidthPeriod_EdgesPerRot = 430,
     PulseWidthPeriod_FilterWindowSz = 431,
+
     YawOffset = 160,
     CompassOffset = 161,
     BetaGain = 162,
