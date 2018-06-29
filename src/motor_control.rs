@@ -1,8 +1,9 @@
 use ctre_sys::mot::*;
-pub use ctre_sys::mot::{ControlFrame, ControlFrameEnhanced, ControlMode, DemandType,
-                        FeedbackDevice, FollowerType, LimitSwitchNormal, LimitSwitchSource,
-                        RemoteFeedbackDevice, RemoteLimitSwitchSource, StatusFrame,
-                        StatusFrameEnhanced, VelocityMeasPeriod};
+pub use ctre_sys::mot::{
+    ControlFrame, ControlFrameEnhanced, ControlMode, DemandType, FeedbackDevice, FollowerType,
+    LimitSwitchNormal, LimitSwitchSource, RemoteFeedbackDevice, RemoteLimitSwitchSource,
+    StatusFrame, StatusFrameEnhanced, VelocityMeasPeriod,
+};
 use motion::{MotionProfileStatus, TrajectoryPoint};
 use {ErrorCode, ParamEnum, Result};
 
@@ -803,7 +804,7 @@ pub trait BaseMotorController {
      *
      * * `base_traj_duration_ms` - The base duration time of every trajectory point.
      * 	 This is summed with the trajectory points unique timeDur.
-     * * `timeoutMs` - Timeout value in ms.
+     * * `timeout_ms` - Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
@@ -953,7 +954,7 @@ pub trait BaseMotorController {
      *   Use AuxOutput1 to follow the master device's auxiliary output 1.
      *   Use PercentOutput for standard follower mode.
      */
-    fn follow<T: BaseMotorController>(&self, master_to_follow: &T, follower_type: FollowerType) {
+    fn follow(&self, master_to_follow: &impl BaseMotorController, follower_type: FollowerType) {
         let base_id = master_to_follow.get_base_id();
         let id24: i32 = ((base_id >> 0x10) << 8) | (base_id & 0xFF);
 
@@ -1068,6 +1069,7 @@ impl TalonSRX {
         }
     }
 
+    // XXX: not provided by CTRE's APIs
     /*
     pub fn set_control_frame_period(
         &self,
