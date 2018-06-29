@@ -1,8 +1,9 @@
 use ctre_sys::mot::*;
 pub use ctre_sys::mot::{
     ControlFrame, ControlFrameEnhanced, ControlMode, DemandType, FeedbackDevice, FollowerType,
-    LimitSwitchNormal, LimitSwitchSource, RemoteFeedbackDevice, RemoteLimitSwitchSource,
-    StatusFrame, StatusFrameEnhanced, VelocityMeasPeriod,
+    LimitSwitchNormal, LimitSwitchSource, NeutralMode, RemoteFeedbackDevice,
+    RemoteLimitSwitchSource, RemoteSensorSource, SensorTerm, StatusFrame, StatusFrameEnhanced,
+    VelocityMeasPeriod,
 };
 use motion::{MotionProfileStatus, TrajectoryPoint};
 use {ErrorCode, ParamEnum, Result};
