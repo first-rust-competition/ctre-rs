@@ -131,12 +131,15 @@ pub trait BaseMotorController {
     fn set(&self, mode: ControlMode, demand0: f64, demand1_type: DemandType, demand1: f64) {
         match mode {
             ControlMode::Follower => {
+                // did caller specify device ID
                 let work = if 0.0 <= demand0 && demand0 <= 62.0 {
                     ((self.get_base_id() as u32 >> 16) << 8) | (demand0 as u32)
                 } else {
                     demand0 as u32
                 };
                 unsafe {
+                    /* single precision guarantees 16bits of integral precision,
+                     *  so float/double cast on work is safe */
                     c_MotController_Set_4(
                         self.get_handle(),
                         mode as _,
@@ -147,9 +150,17 @@ pub trait BaseMotorController {
                 }
             }
             ControlMode::Current => unsafe {
+                // milliamps
                 c_MotController_SetDemand(self.get_handle(), mode as _, (1000.0 * demand0) as _, 0)
             },
-            _ => unsafe {
+            ControlMode::PercentOutput
+            //| ControlMode::TimedPercentOutput
+            | ControlMode::Velocity
+            | ControlMode::Position
+            | ControlMode::MotionMagic
+            //| ControlMode::MotionMagicArc
+            | ControlMode::MotionProfile
+            | ControlMode::MotionProfileArc => unsafe {
                 c_MotController_Set_4(
                     self.get_handle(),
                     mode as _,
@@ -157,6 +168,9 @@ pub trait BaseMotorController {
                     demand1,
                     demand1_type as _,
                 )
+            },
+            ControlMode::Disabled => unsafe {
+                c_MotController_SetDemand(self.get_handle(), mode as _, 0, 0)
             },
         };
     }
