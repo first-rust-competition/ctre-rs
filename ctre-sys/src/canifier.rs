@@ -1,3 +1,5 @@
+//! Enums and functions related to the CANifier.
+
 use std::os::raw::{c_char, c_int};
 use ErrorCode;
 

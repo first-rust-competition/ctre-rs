@@ -1,3 +1,5 @@
+//! Enums and functions related to the Pigeon IMU.
+
 use std::os::raw::{c_char, c_int, c_short};
 use ErrorCode;
 

@@ -1,3 +1,5 @@
+//! Enums, structs, and functions related to motor controllers.
+
 use std::os::raw::{c_char, c_int};
 use ErrorCode;
 
