@@ -1,7 +1,10 @@
+//! CANifier
+
 use ctre_sys::canifier::*;
-pub use ctre_sys::canifier::{CANifierControlFrame as ControlFrame,
-                             CANifierStatusFrame as StatusFrame,
-                             CANifierVelocityMeasPeriod as VelocityMeasPeriod, GeneralPin};
+pub use ctre_sys::canifier::{
+    CANifierControlFrame as ControlFrame, CANifierStatusFrame as StatusFrame,
+    CANifierVelocityMeasPeriod as VelocityMeasPeriod, GeneralPin,
+};
 use {ErrorCode, ParamEnum, Result};
 
 #[repr(u32)]
@@ -25,6 +28,7 @@ pub enum PWMChannel {
 pub const PWM_CHANNEL_COUNT: usize = 4;
 
 #[allow(non_snake_case)]
+/// Structure to hold the pin values.
 #[derive(Default, Debug, Copy, Clone, PartialEq, Eq)]
 pub struct PinValues {
     pub QUAD_IDX: bool,
@@ -55,10 +59,17 @@ impl StickyFaults {
     }
 }
 
+/**
+ * CTRE CANifier
+ *
+ * Device for interfacing common devices to the CAN bus.
+ */
 pub struct CANifier {
     handle: Handle,
 }
 impl CANifier {
+    /// Constructor.
+    /// * `device_number` - The CAN Device ID of the CANifier.
     pub fn new(device_number: i32) -> CANifier {
         let handle = unsafe { c_CANifier_Create1(device_number) };
         CANifier { handle }
@@ -68,9 +79,15 @@ impl CANifier {
         unsafe { c_CANifier_SetLEDOutput(self.handle, duty_cycle, led_channel as u32) }
     }
     pub fn set_led_output(&self, percent_output: f64, led_channel: LEDChannel) -> ErrorCode {
+        // convert float to integral fixed pt
         let duty_cycle = 1023. * percent_output.min(1.).max(0.);
         self._set_led_output(duty_cycle as u32, led_channel)
     }
+    /**
+     * Sets the output of all General Pins
+     * * `output_bits` - A bit mask of all the output states.  LSB->MSB is in the order of the GeneralPin enum.
+     * * `is_output_bits` - A boolean bit mask that sets the pins to be outputs or inputs.  A bit of 1 enables output.
+     */
     pub fn set_general_outputs(&self, outputs_bits: u32, is_output_bits: u32) -> ErrorCode {
         unsafe { c_CANifier_SetGeneralOutputs(self.handle, outputs_bits, is_output_bits) }
     }
@@ -85,16 +102,29 @@ impl CANifier {
         }
     }
 
-    pub fn _set_pwm_output(&self, pwm_channel: PWMChannel, duty_cycle: u32) -> ErrorCode {
-        unsafe { c_CANifier_SetPWMOutput(self.handle, pwm_channel as u32, duty_cycle) }
+    pub fn _set_pwm_output(&self, pwm_channel: u32, duty_cycle: u32) -> ErrorCode {
+        unsafe { c_CANifier_SetPWMOutput(self.handle, pwm_channel, duty_cycle) }
     }
+    /**
+     * Sets the PWM Output
+     * Currently supports PWM 0, PWM 1, and PWM 2
+     * * `pwm_channel` - Index of the PWM channel to output.
+     * * `duty_cycle` - Duty Cycle (0 to 1) to output.  Default period of the signal is 4.2 ms.
+     */
     pub fn set_pwm_output(&self, pwm_channel: PWMChannel, duty_cycle: f64) -> ErrorCode {
         // convert float to integral fixed pt
         let duty_cyc_10bit = 1023. * duty_cycle.max(0.).min(1.);
-        self._set_pwm_output(pwm_channel, duty_cyc_10bit as u32)
+        self._set_pwm_output(pwm_channel as u32, duty_cyc_10bit as u32)
     }
-    pub fn enable_pwm_output(&self, pwm_channel: PWMChannel, b_enable: bool) -> ErrorCode {
-        unsafe { c_CANifier_EnablePWMOutput(self.handle, pwm_channel as u32, b_enable) }
+    pub fn _enable_pwm_output(&self, pwm_channel: u32, b_enable: bool) -> ErrorCode {
+        unsafe { c_CANifier_EnablePWMOutput(self.handle, pwm_channel, b_enable) }
+    }
+    /**
+     * Enables PWM Outputs
+     * Currently supports PWM 0, PWM 1, and PWM 2
+     */
+    pub fn enable_pwm_output(&self, pwm_channel: PWMChannel, enable: bool) -> ErrorCode {
+        self._enable_pwm_output(pwm_channel as u32, enable)
     }
 
     pub fn _get_general_inputs(&self, all_pins: &mut [bool]) -> ErrorCode {
@@ -102,6 +132,7 @@ impl CANifier {
             c_CANifier_GetGeneralInputs(self.handle, all_pins.as_mut_ptr(), all_pins.len() as _)
         }
     }
+    /// Gets the state of all General Pins
     pub fn get_general_inputs(&self) -> Result<PinValues> {
         let mut temp_pins = [false; 11];
         let err = self._get_general_inputs(&mut temp_pins);
@@ -123,6 +154,7 @@ impl CANifier {
             Err(err)
         }
     }
+    /// Gets the state of the specified pin
     pub fn get_general_input(&self, input_pin: GeneralPin) -> Result<bool> {
         cci_get_call!(c_CANifier_GetGeneralInput(self.handle, input_pin as u32, _: bool))
     }

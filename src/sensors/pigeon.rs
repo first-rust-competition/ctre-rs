@@ -1,6 +1,9 @@
+//! Pigeon IMU
+
 use ctre_sys::pigeon::*;
-pub use ctre_sys::pigeon::{PigeonIMU_ControlFrame as ControlFrame,
-                           PigeonIMU_StatusFrame as StatusFrame};
+pub use ctre_sys::pigeon::{
+    PigeonIMU_ControlFrame as ControlFrame, PigeonIMU_StatusFrame as StatusFrame,
+};
 use motor_control::{BaseMotorController, TalonSRX};
 use std::fmt;
 use {ErrorCode, ParamEnum, Result};
@@ -131,7 +134,7 @@ pub struct GeneralStatus {
     pub state: PigeonState,
     /**
      * The currently applied calibration mode if state is in UserCalibration
-     * or if bCalIsBooting is true. Otherwise it holds the last selected
+     * or if `cal_is_booting` is true. Otherwise it holds the last selected
      * calibration mode (when calibrationError was updated).
      */
     pub current_mode: CalibrationMode,
@@ -232,27 +235,49 @@ pub struct PigeonIMU {
     handle: Handle,
 }
 impl PigeonIMU {
+    /// Create a Pigeon object that communicates with Pigeon on CAN Bus.
+    /// * `device_number` - CAN Device Id of Pigeon [0,62]
     pub fn new(device_number: i32) -> PigeonIMU {
         let handle = unsafe { c_PigeonIMU_Create1(device_number) };
         PigeonIMU { handle }
     }
 
+    /**
+     * Sets the Yaw register to the specified value.
+     *
+     * * `angle_deg` - Degree of Yaw [+/- 23040 degrees]
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     pub fn set_yaw(&self, angle_deg: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetYaw(self.handle, angle_deg, timeout_ms) }
     }
+    /// Atomically add to the Yaw register.
     pub fn add_yaw(&self, angle_deg: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_AddYaw(self.handle, angle_deg, timeout_ms) }
     }
+    /// Sets the Yaw register to match the current compass value.
     pub fn set_yaw_to_compass(&self, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetYawToCompass(self.handle, timeout_ms) }
     }
 
+    /**
+     * Sets the Fused Heading to the specified value.
+     *
+     * * `angle_deg` - Degree of heading [+/- 23040 degrees]
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     pub fn set_fused_heading(&self, angle_deg: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetFusedHeading(self.handle, angle_deg, timeout_ms) }
     }
+    /// Atomically add to the Fused Heading register.
     pub fn add_fused_heading(&self, angle_deg: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_AddFusedHeading(self.handle, angle_deg, timeout_ms) }
     }
+    /// Sets the Fused Heading register to match the current compass value.
     pub fn set_fused_heading_to_compass(&self, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetFusedHeadingToCompass(self.handle, timeout_ms) }
     }
@@ -260,6 +285,7 @@ impl PigeonIMU {
         unsafe { c_PigeonIMU_SetAccumZAngle(self.handle, angle_deg, timeout_ms) }
     }
 
+    /// Enable/Disable Temp compensation. Pigeon defaults with this on at boot.
     pub fn config_temperature_compensation_enable(
         &self,
         enable: bool,
@@ -270,9 +296,13 @@ impl PigeonIMU {
         }
     }
 
+    /// Set the declination for compass. Declination is the difference between
+    /// Earth Magnetic north, and the geographic "True North".
     pub fn set_compass_declination(&self, angle_deg_offset: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetCompassDeclination(self.handle, angle_deg_offset, timeout_ms) }
     }
+    /// Sets the compass angle. Although compass is absolute [0,360) degrees, the
+    /// continuous compass register holds the wrap-arounds.
     pub fn set_compass_angle(&self, angle_deg: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetCompassAngle(self.handle, angle_deg, timeout_ms) }
     }
@@ -281,6 +311,7 @@ impl PigeonIMU {
         unsafe { c_PigeonIMU_EnterCalibrationMode(self.handle, cal_mode as _, timeout_ms) }
     }
 
+    /// Get the status of the current (or previousley complete) calibration.
     pub fn get_general_status(&self) -> Result<GeneralStatus> {
         let mut status: GeneralStatus = Default::default();
         let mut state = 0;
@@ -411,13 +442,16 @@ impl PigeonIMU {
         cci_get_call!(c_PigeonIMU_GetFusedHeading1(self.handle, _: f64))
     }
 
-    /// Use [`has_reset_occurred`] instead.
+    // Use `has_reset_occurred` instead.
+    /*
     pub fn get_reset_count(&self) -> Result<i32> {
         cci_get_call!(c_PigeonIMU_GetResetCount(self.handle, _: i32))
     }
+    // XXX: C++ exposes GetResetCount here again, Java exposes neither of these.
     pub fn get_reset_flags(&self) -> Result<i32> {
         cci_get_call!(c_PigeonIMU_GetResetFlags(self.handle, _: i32))
     }
+    */
     pub fn get_firmware_version(&self) -> Result<i32> {
         cci_get_call!(c_PigeonIMU_GetFirmwareVersion(self.handle, _: i32))
     }
@@ -505,6 +539,8 @@ impl PigeonIMU {
     }
 }
 impl<'a> From<&'a TalonSRX> for PigeonIMU {
+    /// Create a Pigeon object that communicates with Pigeon through the
+    /// Gadgeteer ribbon cable connected to a Talon on CAN Bus.
     fn from(talon_srx: &'a TalonSRX) -> PigeonIMU {
         let talon_device_id = talon_srx.get_device_id();
         let handle = unsafe { c_PigeonIMU_Create2(talon_device_id) };

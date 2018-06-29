@@ -1,3 +1,5 @@
+//! Support for motor controllers (Talon SRX and Victor SPX).
+
 use ctre_sys::mot::*;
 pub use ctre_sys::mot::{
     ControlFrame, ControlFrameEnhanced, ControlMode, DemandType, FeedbackDevice, FollowerType,
@@ -44,6 +46,7 @@ impl Faults {
     pub fn remote_loss_of_signal(&self) -> bool {
         self.0 & (1 << 10) != 0
     }
+    /// True iff any of the above flags are true.
     pub fn has_any_fault(&self) -> bool {
         self.0 != 0
     }
@@ -82,13 +85,16 @@ impl StickyFaults {
     pub fn remote_loss_of_signal(&self) -> bool {
         self.0 & (1 << 9) != 0
     }
+    /// True iff any of the above flags are true.
     pub fn has_any_fault(&self) -> bool {
         self.0 != 0
     }
 }
 
+/// Base motor controller features for all CTRE CAN motor controllers.
 pub trait BaseMotorController {
-    /// Constructor for motor controllers.
+    /// Constructor.
+    /// * `device_number` - [0,62]
     fn new(device_number: i32) -> Self;
 
     fn get_handle(&self) -> Handle;
@@ -109,6 +115,8 @@ pub trait BaseMotorController {
      *   * In Follower mode, the output value is the integer device ID of the talon to duplicate.
      * * `demand1Type` - The demand type for demand1.
      * * `demand1` - Supplmental output value.  Units match the set mode.
+     *
+     * # Examples
      *
      * Arcade Drive Example:
      * ```
@@ -190,7 +198,7 @@ pub trait BaseMotorController {
      * Sets the phase of the sensor. Use when controller forward/reverse output
      * doesn't correlate to appropriate forward/reverse reading of sensor.
      * Pick a value so that positive PercentOutput yields a positive change in sensor.
-     * After setting this, user can freely call [`set_inverted`] with any value.
+     * After setting this, user can freely call `set_inverted` with any value.
      *
      * * `phase_sensor` - Indicates whether to invert the phase of the sensor.
      */
@@ -292,7 +300,7 @@ pub trait BaseMotorController {
     fn get_bus_voltage(&self) -> Result<f64> {
         cci_get_call!(c_MotController_GetBusVoltage(self.get_handle(), _: f64))
     }
-    /// Gets the output percentage of the motor controller, in the interval \[-1, +1].
+    /// Gets the output percentage of the motor controller, in the interval [-1, +1].
     fn get_motor_output_percent(&self) -> Result<f64> {
         cci_get_call!(c_MotController_GetMotorOutputPercent(self.get_handle(), _: f64))
     }
@@ -700,7 +708,7 @@ pub trait BaseMotorController {
      * Retrieve just the buffer count for the api-level (top) buffer.
      * This routine performs no CAN or data structure lookups, so its fast and ideal
      * if caller needs to quickly poll the progress of trajectory points being
-     * emptied into motor controller's RAM. Otherwise just use [`get_motion_profile_status`].
+     * emptied into motor controller's RAM. Otherwise just use `get_motion_profile_status`.
      */
     fn get_motion_profile_top_level_buffer_count(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetMotionProfileTopLevelBufferCount(
@@ -728,7 +736,7 @@ pub trait BaseMotorController {
     /**
      * Retrieve just the buffer full for the api-level (top) buffer.
      * This routine performs no CAN or data structure lookups, so its fast and ideal
-     * if caller needs to quickly poll. Otherwise just use [`get_motion_profile_status`].
+     * if caller needs to quickly poll. Otherwise just use `get_motion_profile_status`.
      */
     fn is_motion_profile_top_level_buffer_full(&self) -> Result<bool> {
         cci_get_call!(c_MotController_IsMotionProfileTopLevelBufferFull(
@@ -771,7 +779,7 @@ pub trait BaseMotorController {
         }
     }
     /// Get all motion profile status information.  This returns a new MotionProfileStatus.
-    /// See [`get_motion_profile_status`].
+    /// See `get_motion_profile_status`.
     fn get_new_motion_profile_status(&self) -> Result<MotionProfileStatus> {
         let mut status_to_fill: MotionProfileStatus = Default::default();
         let code = self.get_motion_profile_status(&mut status_to_fill);
@@ -797,14 +805,14 @@ pub trait BaseMotorController {
     }
     /**
      * When trajectory points are processed in the motion profile executer, the MPE determines
-     * how long to apply the active trajectory point by summing baseTrajDurationMs with the
-     * timeDur of the trajectory point (see TrajectoryPoint).
+     * how long to apply the active trajectory point by summing `base_traj_duration_ms` with the
+     * `time_dur` of the trajectory point (see TrajectoryPoint).
      *
      * This allows general selection of the execution rate of the points with 1ms resolution,
      * while allowing some degree of change from point to point.
      *
      * * `base_traj_duration_ms` - The base duration time of every trajectory point.
-     * 	 This is summed with the trajectory points unique timeDur.
+     *   This is summed with the trajectory points unique `time_dur`.
      * * `timeout_ms` - Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
@@ -866,14 +874,11 @@ pub trait BaseMotorController {
      * information in the device. Particularly if the
      * device is part of a subsystem that can be replaced.
      *
-     * @param newValue
-     *            Value for custom parameter.
-     * @param paramIndex
-     *            Index of custom parameter [0,1]
-     * @param timeoutMs
-     *            Timeout value in ms. If nonzero, function will wait for
-     *            config success and report an error if it times out.
-     *            If zero, no blocking or checking is performed.
+     * * `new_value` - Value for custom parameter.
+     * * `param_index` - Index of custom parameter [0,1]
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
      */
     fn config_set_custom_param(
         &self,
@@ -893,12 +898,10 @@ pub trait BaseMotorController {
     /**
      * Gets the value of a custom parameter.
      *
-     * @param paramIndex
-     *            Index of custom parameter [0,1].
-     * @param timeoutMs
-     *            Timeout value in ms. If nonzero, function will wait for
-     *            config success and report an error if it times out.
-     *            If zero, no blocking or checking is performed.
+     * * `param_index` - Index of custom parameter [0,1].
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
      */
     fn config_get_custom_param(&self, param_index: i32, timout_ms: i32) -> Result<i32> {
         cci_get_call!(c_MotController_ConfigGetCustomParam(
@@ -1029,16 +1032,13 @@ pub trait SensorCollection: BaseMotorController {
     }
 }
 
+/// CTRE Talon SRX Motor Controller when used on CAN Bus.
 pub struct TalonSRX {
     handle: Handle,
     arb_id: i32,
 }
 
 impl BaseMotorController for TalonSRX {
-    /**
-     * Constructor
-     * @param deviceNumber [0,62]
-     */
     fn new(device_number: i32) -> TalonSRX {
         let arb_id = device_number | 0x02040000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
@@ -1164,12 +1164,63 @@ impl TalonSRX {
         }
     }
 
+    /**
+     * Configure the peak allowable current (when current limit is enabled).
+     *
+     * Current limit is activated when current exceeds the peak limit for longer
+     * than the peak duration. Then software will limit to the continuous limit.
+     * This ensures current limiting while allowing for momentary excess current
+     * events.
+     *
+     * For simpler current-limiting (single threshold) use
+     * `config_continuous_current_limit()` and set the peak to zero:
+     * `config_peak_current_limit(0)`.
+     *
+     * * `amps` - Amperes to limit.
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     pub fn config_peak_current_limit(&self, amps: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ConfigPeakCurrentLimit(self.handle, amps, timeout_ms) }
     }
+    /**
+     * Configure the peak allowable duration (when current limit is enabled).
+     *
+     * Current limit is activated when current exceeds the peak limit for longer
+     * than the peak duration. Then software will limit to the continuous limit.
+     * This ensures current limiting while allowing for momentary excess current
+     * events.
+     *
+     * For simpler current-limiting (single threshold) use
+     * `config_continuous_current_limit()` and set the peak to zero:
+     * `config_peak_current_limit(0)`.
+     *
+     * * `milliseconds` - How long to allow current-draw past peak limit.
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     pub fn config_peak_current_duration(&self, milliseconds: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ConfigPeakCurrentLimit(self.handle, milliseconds, timeout_ms) }
     }
+    /**
+     * Configure the continuous allowable current-draw (when current limit is enabled).
+     *
+     * Current limit is activated when current exceeds the peak limit for longer
+     * than the peak duration. Then software will limit to the continuous limit.
+     * This ensures current limiting while allowing for momentary excess current
+     * events.
+     *
+     * For simpler current-limiting (single threshold) use
+     * `config_continuous_current_limit()` and set the peak to zero:
+     * `config_peak_current_limit(0)`.
+     *
+     * * `amps` - Amperes to limit.
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     pub fn config_continuous_current_limit(&self, amps: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ConfigContinuousCurrentLimit(self.handle, amps, timeout_ms) }
     }
@@ -1180,16 +1231,13 @@ impl TalonSRX {
 
 impl SensorCollection for TalonSRX {}
 
+/// VEX Victor SPX Motor Controller when used on CAN Bus.
 pub struct VictorSPX {
     handle: Handle,
     arb_id: i32,
 }
 
 impl BaseMotorController for VictorSPX {
-    /**
-     * Constructor
-     * @param deviceNumber [0,62]
-     */
     fn new(device_number: i32) -> VictorSPX {
         let arb_id = device_number | 0x01040000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
