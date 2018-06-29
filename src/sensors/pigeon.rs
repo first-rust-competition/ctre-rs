@@ -262,15 +262,11 @@ impl PigeonIMU {
 
     pub fn config_temperature_compensation_enable(
         &self,
-        b_temp_comp_enable: i32,
+        enable: bool,
         timeout_ms: i32,
     ) -> ErrorCode {
         unsafe {
-            c_PigeonIMU_ConfigTemperatureCompensationEnable(
-                self.handle,
-                b_temp_comp_enable,
-                timeout_ms,
-            )
+            c_PigeonIMU_ConfigTemperatureCompensationEnable(self.handle, enable as _, timeout_ms)
         }
     }
 
@@ -281,8 +277,8 @@ impl PigeonIMU {
         unsafe { c_PigeonIMU_SetCompassAngle(self.handle, angle_deg, timeout_ms) }
     }
 
-    pub fn enter_calibration_mode(&self, cal_mode: i32, timeout_ms: i32) -> ErrorCode {
-        unsafe { c_PigeonIMU_EnterCalibrationMode(self.handle, cal_mode, timeout_ms) }
+    pub fn enter_calibration_mode(&self, cal_mode: CalibrationMode, timeout_ms: i32) -> ErrorCode {
+        unsafe { c_PigeonIMU_EnterCalibrationMode(self.handle, cal_mode as _, timeout_ms) }
     }
 
     pub fn get_general_status(&self) -> Result<GeneralStatus> {
