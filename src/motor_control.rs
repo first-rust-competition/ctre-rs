@@ -751,8 +751,7 @@ pub trait BaseMotorController {
      * motion profile executer.
      */
     fn get_motion_profile_status(&self, status_to_fill: &mut MotionProfileStatus) -> ErrorCode {
-        // let mut status_to_fill: MotionProfileStatus = Default::default();
-        let retval = unsafe {
+        unsafe {
             c_MotController_GetMotionProfileStatus_2(
                 self.get_handle(),
                 &mut status_to_fill.top_buffer_rem,
@@ -767,9 +766,18 @@ pub trait BaseMotorController {
                 &mut status_to_fill.time_dur_ms,
                 &mut status_to_fill.profile_slot_select_1,
             )
-        };
-        // if retval == ErrorCode::OK { Ok(status_to_fill) } else { Err(retval) }
-        retval
+        }
+    }
+    /// Get all motion profile status information.  This returns a new MotionProfileStatus.
+    /// See [`get_motion_profile_status`].
+    fn get_new_motion_profile_status(&self) -> Result<MotionProfileStatus> {
+        let mut status_to_fill: MotionProfileStatus = Default::default();
+        let code = self.get_motion_profile_status(&mut status_to_fill);
+        if code == ErrorCode::OK {
+            Ok(status_to_fill)
+        } else {
+            Err(code)
+        }
     }
     /// Clear the "Has Underrun" flag.
     /// Typically this is called after application has confirmed an underrun had occured.
