@@ -10,5 +10,4 @@ bindgen --disable-name-namespacing --rustified-enum '.*' --whitelist-type 'ctre:
 ```
 
 ## License
-CTRE-derived parts are under the [Phoenix Software License Agreement](LICENSE).
-Rust-specific parts are under the [MIT license](LICENSE-MIT).
+[Phoenix Software License Agreement](LICENSE).
