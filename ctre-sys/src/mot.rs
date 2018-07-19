@@ -220,14 +220,25 @@ pub enum VelocityMeasPeriod {
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum SetValueMotionProfile {
+    Invalid = -1,
     Disable = 0,
     Enable = 1,
     Hold = 2,
 }
+impl From<c_int> for SetValueMotionProfile {
+    fn from(value: c_int) -> SetValueMotionProfile {
+        match value {
+            0 => SetValueMotionProfile::Disable,
+            1 => SetValueMotionProfile::Enable,
+            2 => SetValueMotionProfile::Hold,
+            _ => SetValueMotionProfile::Invalid,
+        }
+    }
+}
 impl Default for SetValueMotionProfile {
     #[inline]
     fn default() -> SetValueMotionProfile {
-        SetValueMotionProfile::Disable
+        SetValueMotionProfile::Invalid
     }
 }
 #[repr(i32)]
@@ -992,7 +1003,7 @@ extern "C" {
         activePointValid: *mut bool,
         isLast: *mut bool,
         profileSlotSelect: *mut c_int,
-        outputEnable: *mut SetValueMotionProfile, // XXX: changed from c_int
+        outputEnable: *mut c_int,
         timeDurMs: *mut c_int,
         profileSlotSelect1: *mut c_int,
     ) -> ErrorCode;

@@ -761,7 +761,8 @@ pub trait BaseMotorController {
      * motion profile executer.
      */
     fn get_motion_profile_status(&self, status_to_fill: &mut MotionProfileStatus) -> ErrorCode {
-        unsafe {
+        let mut output_enable: ::std::os::raw::c_int = 0;
+        let code = unsafe {
             c_MotController_GetMotionProfileStatus_2(
                 self.get_handle(),
                 &mut status_to_fill.top_buffer_rem,
@@ -772,11 +773,13 @@ pub trait BaseMotorController {
                 &mut status_to_fill.active_point_valid,
                 &mut status_to_fill.is_last,
                 &mut status_to_fill.profile_slot_select_0,
-                &mut status_to_fill.output_enable,
+                &mut output_enable,
                 &mut status_to_fill.time_dur_ms,
                 &mut status_to_fill.profile_slot_select_1,
             )
-        }
+        };
+        status_to_fill.output_enable = output_enable.into();
+        code
     }
     /// Get all motion profile status information.  This returns a new MotionProfileStatus.
     /// See `get_motion_profile_status`.
