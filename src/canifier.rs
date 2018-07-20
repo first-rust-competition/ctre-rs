@@ -160,9 +160,9 @@ impl CANifier {
     }
 
     /// Gets the PWM Input.
-    /// Returns a 2-array holding the Duty Cycle [0] and Period [1].
-    pub fn get_pwm_input(&self, pwm_channel: u32) -> Result<[f64; 2]> {
-        cci_get_call_array!(c_CANifier_GetPWMInput(self.handle, pwm_channel, _: [f64; 2]))
+    /// Returns a 2-array holding the Pulse Width (microseconds) [0] and Period (microseconds) [1].
+    pub fn get_pwm_input(&self, pwm_channel: PWMChannel) -> Result<[f64; 2]> {
+        cci_get_call_array!(c_CANifier_GetPWMInput(self.handle, pwm_channel as u32, _: [f64; 2]))
     }
 
     pub fn get_last_error(&self) -> ErrorCode {
@@ -182,8 +182,18 @@ impl CANifier {
         cci_get_call!(c_CANifier_GetQuadratureVelocity(self.handle, _: i32))
     }
 
-    pub fn config_velocity_measurement_period(&self, period: i32, timeout_ms: i32) -> ErrorCode {
-        unsafe { c_CANifier_ConfigVelocityMeasurementPeriod(self.handle, period, timeout_ms) }
+    /**
+     * Configures the period of each velocity sample.
+     * Every 1ms a position value is sampled, and the delta between that sample
+     * and the position sampled kPeriod ms ago is inserted into a filter.
+     * kPeriod is configured with this function.
+     */
+    pub fn config_velocity_measurement_period(
+        &self,
+        period: VelocityMeasPeriod,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe { c_CANifier_ConfigVelocityMeasurementPeriod(self.handle, period as _, timeout_ms) }
     }
     pub fn config_velocity_measurement_window(&self, window: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_CANifier_ConfigVelocityMeasurementWindow(self.handle, window, timeout_ms) }

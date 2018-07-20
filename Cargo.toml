@@ -1,11 +1,13 @@
 [package]
 name = "ctre"
-version = "0.5.1"
+version = "0.6.0"
 authors = ["David Vo <david@vovo.id.au>"]
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/auscompgeek/ctre-rs"
-description = "CTRE Phoenix for FRC library"
+keywords = ["frc", "ctre"]
+categories = ["api-bindings", "embedded", "hardware-support"]
+description = "Bindings for CTR Electronics' Phoenix for FRC libraries"
 
 [dependencies]
 ctre-sys = { path = "ctre-sys", version = "5.3.2" }

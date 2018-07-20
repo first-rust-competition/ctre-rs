@@ -1132,11 +1132,27 @@ impl TalonSRX {
         }
     }
 
+    /**
+     * Configures the forward limit switch for a local/remote source.
+     *
+     * For example, a CAN motor controller may need to monitor the Limit-F pin
+     * of another Talon, CANifier, or local Gadgeteer feedback connector.
+     *
+     * If the sensor is remote, a device ID of zero is assumed.
+     * If that's not desired, use the four parameter version of this function.
+     *
+     * * `type_` - Limit switch source.
+     *   User can choose between the feedback connector, remote Talon SRX, CANifier, or deactivate the feature.
+     * * `normal_open_or_close` - Setting for normally open, normally closed, or disabled.
+     *   This setting matches the web-based configuration drop down.
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     pub fn config_forward_limit_switch_source(
         &self,
         type_: LimitSwitchSource,
         normal_open_or_close: LimitSwitchNormal,
-        device_id: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
         unsafe {
@@ -1144,16 +1160,32 @@ impl TalonSRX {
                 self.handle,
                 type_ as _,
                 normal_open_or_close as _,
-                device_id,
+                0,
                 timeout_ms,
             )
         }
     }
+    /**
+     * Configures the reverse limit switch for a local/remote source.
+     *
+     * For example, a CAN motor controller may need to monitor the Limit-R pin
+     * of another Talon, CANifier, or local Gadgeteer feedback connector.
+     *
+     * If the sensor is remote, a device ID of zero is assumed.
+     * If that's not desired, use the four parameter version of this function.
+     *
+     * * `type_` - Limit switch source.
+     *   User can choose between the feedback connector, remote Talon SRX, CANifier, or deactivate the feature.
+     * * `normal_open_or_close` - Setting for normally open, normally closed, or disabled.
+     *   This setting matches the web-based configuration drop down.
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     pub fn config_reverse_limit_switch_source(
         &self,
         type_: LimitSwitchSource,
         normal_open_or_close: LimitSwitchNormal,
-        device_id: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
         unsafe {
@@ -1161,7 +1193,7 @@ impl TalonSRX {
                 self.handle,
                 type_ as _,
                 normal_open_or_close as _,
-                device_id,
+                0,
                 timeout_ms,
             )
         }
