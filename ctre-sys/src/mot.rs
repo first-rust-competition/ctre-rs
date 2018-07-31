@@ -1,4 +1,5 @@
 //! Enums, structs, and functions related to motor controllers.
+#![allow(non_upper_case_globals)]
 
 use std::os::raw::{c_char, c_int};
 use ErrorCode;
@@ -62,11 +63,10 @@ impl Default for DemandType {
     }
 }
 
-#[allow(non_upper_case_globals)]
-pub const FeedbackDevice_CTRE_MagEncoder_Absolute: FeedbackDevice =
-    FeedbackDevice::PulseWidthEncodedPosition;
-#[allow(non_upper_case_globals)]
-pub const FeedbackDevice_CTRE_MagEncoder_Relative: FeedbackDevice = FeedbackDevice::QuadEncoder;
+impl FeedbackDevice {
+    pub const CTRE_MagEncoder_Absolute: FeedbackDevice = FeedbackDevice::PulseWidthEncodedPosition;
+    pub const CTRE_MagEncoder_Relative: FeedbackDevice = FeedbackDevice::QuadEncoder;
+}
 #[repr(i32)]
 /// Motor controller with gadgeteer connector.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
