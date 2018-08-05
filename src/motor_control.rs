@@ -275,11 +275,24 @@ pub trait BaseMotorController {
         }
     }
 
+    /**
+     * Configures the Voltage Compensation saturation voltage.
+     *
+     * * `voltage` - The max voltage to apply to the hbridge when voltage
+     *   compensation is enabled.  For example, if 10 (volts) is specified
+     *   and a TalonSRX is commanded to 0.5 (PercentOutput, closed-loop, etc)
+     *   then the TalonSRX will attempt to apply a duty-cycle to produce 5V.
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     fn config_voltage_comp_saturation(&self, voltage: f64, timeout_ms: i32) -> ErrorCode {
         unsafe {
             c_MotController_ConfigVoltageCompSaturation(self.get_handle(), voltage, timeout_ms)
         }
     }
+    /// Configures the voltage measurement filter.
+    /// * `filter_window_samples` - Number of samples in the rolling average of voltage measurement.
     fn config_voltage_measurement_filter(
         &self,
         filter_window_samples: i32,
@@ -293,6 +306,8 @@ pub trait BaseMotorController {
             )
         }
     }
+    /// Enable voltage compensation.
+    /// If enabled, voltage compensation works in all control modes.
     fn enable_voltage_compensation(&self, enable: bool) {
         unsafe { c_MotController_EnableVoltageCompensation(self.get_handle(), enable) }
     }
@@ -315,6 +330,16 @@ pub trait BaseMotorController {
         cci_get_call!(c_MotController_GetTemperature(self.get_handle(), _: f64))
     }
 
+    /**
+     * Select the remote feedback device for the motor controller.
+     * Most CTRE CAN motor controllers will support remote sensors over CAN.
+     *
+     * * `feedback_device` - Remote Feedback Device to select.
+     * * `pid_idx` - 0 for Primary closed-loop. 1 for auxiliary closed-loop.
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     fn config_selected_feedback_sensor(
         &self,
         feedback_device: RemoteFeedbackDevice,
@@ -340,6 +365,10 @@ pub trait BaseMotorController {
      *
      * * `coefficient` - Feedback Coefficient value.  Maximum value of 1.
      *   Resolution is 1/(2^16).  Cannot be 0.
+     * * `pid_idx` - 0 for Primary closed-loop. 1 for auxiliary closed-loop.
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
      */
     fn config_selected_feedback_coefficient(
         &self,
@@ -461,6 +490,20 @@ pub trait BaseMotorController {
         ))
     }
 
+    /**
+     * Configures the forward limit switch for a remote source.
+     * For example, a CAN motor controller may need to monitor the Limit-F pin
+     * of another Talon or CANifier.
+     *
+     * * `type_` - Remote limit switch source.
+     *   User can choose between a remote Talon SRX, CANifier, or deactivate the feature.
+     * * `normal_open_or_close` - Setting for normally open, normally closed, or disabled.
+     *   This setting matches the web-based configuration drop down.
+     * * `device_id` - Device ID of remote source (Talon SRX or CANifier device ID).
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     fn config_forward_limit_switch_source(
         &self,
         type_: RemoteLimitSwitchSource,
@@ -478,6 +521,20 @@ pub trait BaseMotorController {
             )
         }
     }
+    /**
+     * Configures the reverse limit switch for a remote source.
+     * For example, a CAN motor controller may need to monitor the Limit-R pin
+     * of another Talon or CANifier.
+     *
+     * * `type_` - Remote limit switch source.
+     *   User can choose between a remote Talon SRX, CANifier, or deactivate the feature.
+     * * `normal_open_or_close` - Setting for normally open, normally closed, or disabled.
+     *   This setting matches the web-based configuration drop down.
+     * * `device_id` - Device ID of remote source (Talon SRX or CANifier device ID).
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     fn config_reverse_limit_switch_source(
         &self,
         type_: RemoteLimitSwitchSource,
@@ -1057,6 +1114,15 @@ impl BaseMotorController for TalonSRX {
 }
 
 impl TalonSRX {
+    /**
+     * Select the feedback device for the motor controller.
+     *
+     * * `feedback_device` - Feedback Device to select.
+     * * `pid_idx` - 0 for Primary closed-loop. 1 for auxiliary closed-loop.
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     pub fn config_selected_feedback_sensor(
         &self,
         feedback_device: FeedbackDevice,

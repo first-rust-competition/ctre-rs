@@ -332,8 +332,8 @@ impl PigeonIMU {
             )
         };
         if err == ErrorCode::OK {
-            status.state = PigeonState::from(state);
-            status.current_mode = CalibrationMode::from(current_mode);
+            status.state = state.into();
+            status.current_mode = current_mode.into();
             status.cal_is_booting = b_cal_is_booting != 0;
             Ok(status)
         } else {
@@ -381,9 +381,7 @@ impl PigeonIMU {
         cci_get_call!(c_PigeonIMU_GetTemp(self.handle, _: f64))
     }
     pub fn get_state(&self) -> Result<PigeonState> {
-        Ok(PigeonState::from(
-            cci_get_call!(c_PigeonIMU_GetState(self.handle, _: i32))?,
-        ))
+        Ok(cci_get_call!(c_PigeonIMU_GetState(self.handle, _: i32))?.into())
     }
     pub fn get_up_time(&self) -> Result<i32> {
         cci_get_call!(c_PigeonIMU_GetUpTime(self.handle, _: i32))
@@ -459,6 +457,19 @@ impl PigeonIMU {
         cci_get_call!(c_PigeonIMU_HasResetOccurred(self.handle, _: bool))
     }
 
+    /**
+     * Sets the value of a custom parameter. This is for arbitrary use.
+     *
+     * Sometimes it is necessary to save calibration/declination/offset
+     * information in the device. Particularly if the
+     * device is part of a subsystem that can be replaced.
+     *
+     * * `new_value` - Value for custom parameter.
+     * * `param_index` - Index of custom parameter [0,1]
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     pub fn config_set_custom_param(
         &self,
         new_value: i32,
@@ -467,6 +478,14 @@ impl PigeonIMU {
     ) -> ErrorCode {
         unsafe { c_PigeonIMU_ConfigSetCustomParam(self.handle, new_value, param_index, timeout_ms) }
     }
+    /**
+     * Gets the value of a custom parameter. This is for arbitrary use.
+     *
+     * * `param_index` - Index of custom parameter [0,1].
+     * * `timeout_ms` - Timeout value in ms.
+     *   If nonzero, function will wait for config success and report an error if it times out.
+     *   If zero, no blocking or checking is performed.
+     */
     pub fn config_get_custom_param(&self, param_index: i32, timout_ms: i32) -> Result<i32> {
         cci_get_call!(c_PigeonIMU_ConfigGetCustomParam(
             self.handle,
@@ -475,6 +494,13 @@ impl PigeonIMU {
             timout_ms,
         ))
     }
+    /**
+     * Sets a parameter. Generally this is not used.
+     * This can be utilized in
+     * - Using new features without updating API installation.
+     * - Errata workarounds to circumvent API implementation.
+     * - Allows for rapid testing / unit testing of firmware.
+     */
     pub fn config_set_parameter(
         &self,
         param: ParamEnum,
