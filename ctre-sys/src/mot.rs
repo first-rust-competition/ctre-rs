@@ -428,7 +428,7 @@ pub struct MotionProfileStatus {
     pub top_buffer_cnt: c_int,
     /// The number of points in the low level Talon buffer.
     pub btm_buffer_cnt: c_int,
-    /// Set if [`is_underrun`] ever gets set.
+    /// Set if `is_underrun` ever gets set.
     /// Only is cleared by clearMotionProfileHasUnderrun() to ensure
     /// robot logic can react or instrument it.
     /// @see clearMotionProfileHasUnderrun()
