@@ -1,13 +1,14 @@
 {% for header in headers %}
 {% for c in header.classes %}
+#[derive(Debug, Copy, Clone)]
 pub struct {{ c.name }}(i32);
 impl {{ c.name }} {
     {% for prop in c.properties.public %}
-    pub fn {{ prop.snake_name }}(&self) -> bool {
+    pub fn {{ prop.snake_name }}(self) -> bool {
         self.0 & (1 << {{ loop.index0 }}) != 0
     }
     {% endfor %}
-    pub fn has_any_faults(&self) -> bool {
+    pub fn has_any_faults(self) -> bool {
         self.0 != 0
     }
 }

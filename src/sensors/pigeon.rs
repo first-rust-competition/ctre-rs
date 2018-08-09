@@ -212,17 +212,17 @@ impl fmt::Display for GeneralStatus {
     }
 }
 
-#[derive(Default, Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Faults(i32);
 impl Faults {
-    pub fn has_any_fault(&self) -> bool {
+    pub fn has_any_fault(self) -> bool {
         self.0 != 0
     }
 }
-#[derive(Default, Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct StickyFaults(i32);
 impl StickyFaults {
-    pub fn has_any_fault(&self) -> bool {
+    pub fn has_any_fault(self) -> bool {
         self.0 != 0
     }
 }

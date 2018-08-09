@@ -10,83 +10,83 @@ pub use ctre_sys::mot::{
 use motion::{MotionProfileStatus, TrajectoryPoint};
 use {ErrorCode, ParamEnum, Result};
 
-#[derive(Default, Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Faults(i32);
 impl Faults {
-    pub fn under_voltage(&self) -> bool {
+    pub fn under_voltage(self) -> bool {
         self.0 & (1 << 0) != 0
     }
-    pub fn forward_limit_switch(&self) -> bool {
+    pub fn forward_limit_switch(self) -> bool {
         self.0 & (1 << 1) != 0
     }
-    pub fn reverse_limit_switch(&self) -> bool {
+    pub fn reverse_limit_switch(self) -> bool {
         self.0 & (1 << 2) != 0
     }
-    pub fn forward_soft_limit(&self) -> bool {
+    pub fn forward_soft_limit(self) -> bool {
         self.0 & (1 << 3) != 0
     }
-    pub fn reverse_soft_limit(&self) -> bool {
+    pub fn reverse_soft_limit(self) -> bool {
         self.0 & (1 << 4) != 0
     }
-    pub fn hardware_failure(&self) -> bool {
+    pub fn hardware_failure(self) -> bool {
         self.0 & (1 << 5) != 0
     }
-    pub fn reset_during_en(&self) -> bool {
+    pub fn reset_during_en(self) -> bool {
         self.0 & (1 << 6) != 0
     }
-    pub fn sensor_overflow(&self) -> bool {
+    pub fn sensor_overflow(self) -> bool {
         self.0 & (1 << 7) != 0
     }
-    pub fn sensor_out_of_phase(&self) -> bool {
+    pub fn sensor_out_of_phase(self) -> bool {
         self.0 & (1 << 8) != 0
     }
-    pub fn hardware_esd_reset(&self) -> bool {
+    pub fn hardware_esd_reset(self) -> bool {
         self.0 & (1 << 9) != 0
     }
-    pub fn remote_loss_of_signal(&self) -> bool {
+    pub fn remote_loss_of_signal(self) -> bool {
         self.0 & (1 << 10) != 0
     }
     /// True iff any of the above flags are true.
-    pub fn has_any_fault(&self) -> bool {
+    pub fn has_any_fault(self) -> bool {
         self.0 != 0
     }
 }
 
-#[derive(Default, Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct StickyFaults(i32);
 impl StickyFaults {
-    pub fn under_voltage(&self) -> bool {
+    pub fn under_voltage(self) -> bool {
         self.0 & (1 << 0) != 0
     }
-    pub fn forward_limit_switch(&self) -> bool {
+    pub fn forward_limit_switch(self) -> bool {
         self.0 & (1 << 1) != 0
     }
-    pub fn reverse_limit_switch(&self) -> bool {
+    pub fn reverse_limit_switch(self) -> bool {
         self.0 & (1 << 2) != 0
     }
-    pub fn forward_soft_limit(&self) -> bool {
+    pub fn forward_soft_limit(self) -> bool {
         self.0 & (1 << 3) != 0
     }
-    pub fn reverse_soft_limit(&self) -> bool {
+    pub fn reverse_soft_limit(self) -> bool {
         self.0 & (1 << 4) != 0
     }
-    pub fn reset_during_en(&self) -> bool {
+    pub fn reset_during_en(self) -> bool {
         self.0 & (1 << 5) != 0
     }
-    pub fn sensor_overflow(&self) -> bool {
+    pub fn sensor_overflow(self) -> bool {
         self.0 & (1 << 6) != 0
     }
-    pub fn sensor_out_of_phase(&self) -> bool {
+    pub fn sensor_out_of_phase(self) -> bool {
         self.0 & (1 << 7) != 0
     }
-    pub fn hardware_esd_reset(&self) -> bool {
+    pub fn hardware_esd_reset(self) -> bool {
         self.0 & (1 << 8) != 0
     }
-    pub fn remote_loss_of_signal(&self) -> bool {
+    pub fn remote_loss_of_signal(self) -> bool {
         self.0 & (1 << 9) != 0
     }
     /// True iff any of the above flags are true.
-    pub fn has_any_fault(&self) -> bool {
+    pub fn has_any_fault(self) -> bool {
         self.0 != 0
     }
 }
