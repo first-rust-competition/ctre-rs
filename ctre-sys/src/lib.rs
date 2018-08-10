@@ -8,13 +8,68 @@ pub mod logger;
 pub mod mot;
 pub mod pigeon;
 
-impl Into<Result<(), ErrorCode>> for ErrorCode {
-    /// Take an ErrorCode and return an `Ok(())` if there is no error, or an `Err` otherwise.
-    fn into(self) -> Result<(), ErrorCode> {
-        if self == ErrorCode::OK {
-            Ok(())
-        } else {
-            Err(self)
+use std::fmt;
+
+impl ErrorCode {
+    /// Returns `true` if the error code is `OK`.
+    #[inline]
+    pub fn is_ok(self) -> bool {
+        self == ErrorCode::OK
+    }
+
+    /// Returns `true` if the error code is not `OK`.
+    #[inline]
+    pub fn is_err(self) -> bool {
+        self != ErrorCode::OK
+    }
+
+    /// Returns `err` if `self` is `OK`, otherwise returns `self`.
+    /// Intended for use by the `ctre` crate only.
+    pub fn or(self, err: Self) -> Self {
+        match self {
+            ErrorCode::OK => err,
+            _ => self,
         }
+    }
+
+    /// Returns an `Ok` if the error code is `OK`, or an `Err` otherwise.
+    pub fn into_res(self) -> Result<(), Self> {
+        match self {
+            ErrorCode::OK => Ok(()),
+            _ => Err(self),
+        }
+    }
+}
+
+impl std::error::Error for ErrorCode {
+    fn description(&self) -> &str {
+        "Error in CTRE Phoenix"
+    }
+}
+
+impl fmt::Display for ErrorCode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // yeah uhm CTRE pls fix your Logger CCI
+        write!(f, "{:?}", self)
+    }
+}
+
+#[cfg(feature = "try_trait")]
+impl std::ops::Try for ErrorCode {
+    type Ok = ();
+    type Error = Self;
+
+    fn into_result(self) -> Result<(), Self> {
+        match self {
+            ErrorCode::OK => Ok(()),
+            _ => Err(self),
+        }
+    }
+
+    fn from_error(v: Self) -> Self {
+        v
+    }
+    fn from_ok(v: ()) -> Self {
+        ErrorCode::OK
     }
 }
