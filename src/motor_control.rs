@@ -92,7 +92,9 @@ impl StickyFaults {
 }
 
 /// Base motor controller features for all CTRE CAN motor controllers.
-pub trait BaseMotorController {
+///
+/// This trait is sealed and cannot be implemented for types outside this crate.
+pub trait BaseMotorController: private::Sealed {
     /// Constructor.
     /// * `device_number` - [0,62]
     fn new(device_number: i32) -> Self;
@@ -1351,4 +1353,11 @@ impl BaseMotorController for VictorSPX {
     fn get_base_id(&self) -> i32 {
         self.arb_id
     }
+}
+
+// Prevent users from implementing the BaseMotorController trait.
+mod private {
+    pub trait Sealed {}
+    impl Sealed for super::TalonSRX {}
+    impl Sealed for super::VictorSPX {}
 }
