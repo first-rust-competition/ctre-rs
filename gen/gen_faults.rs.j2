@@ -8,6 +8,7 @@ impl {{ c.name }} {
         self.0 & (1 << {{ loop.index0 }}) != 0
     }
     {% endfor %}
+    /// True iff any of the above flags are true.
     pub fn has_any_faults(self) -> bool {
         self.0 != 0
     }

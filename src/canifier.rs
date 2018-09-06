@@ -138,8 +138,8 @@ impl CANifier {
     pub fn get_general_inputs(&self) -> Result<PinValues> {
         let mut temp_pins = [false; 11];
         let err = self._get_general_inputs(&mut temp_pins);
-        if err == ErrorCode::OK {
-            Ok(PinValues {
+        match err {
+            ErrorCode::OK => Ok(PinValues {
                 LIMF: temp_pins[GeneralPin::LIMF as usize],
                 LIMR: temp_pins[GeneralPin::LIMR as usize],
                 QUAD_A: temp_pins[GeneralPin::QUAD_A as usize],
@@ -151,9 +151,8 @@ impl CANifier {
                 SPI_MOSI_PWM1: temp_pins[GeneralPin::SPI_MOSI_PWM1P as usize],
                 SPI_MISO_PWM2: temp_pins[GeneralPin::SPI_MISO_PWM2P as usize],
                 SPI_CS_PWM3: temp_pins[GeneralPin::SPI_CS as usize],
-            })
-        } else {
-            Err(err)
+            }),
+            _ => Err(err),
         }
     }
     /// Gets the state of the specified pin

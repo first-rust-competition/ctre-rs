@@ -1,6 +1,6 @@
 // use std::env;
 
-const LIB_LIST: &'static [&'static str] = &[
+const LIB_LIST: &[&str] = &[
     "FRC_NetworkCommunication",
     "NiFpga",
     "NiFpgaLv",
@@ -13,7 +13,7 @@ const LIB_LIST: &'static [&'static str] = &[
 
 fn main() {
     println!("cargo:rustc-link-lib=static=CTRE_PhoenixCCI");
-    for lib in LIB_LIST.iter() {
+    for lib in LIB_LIST {
         println!("cargo:rustc-link-lib=dylib={}", lib);
     }
     println!("cargo:rustc-link-lib=stdc++");

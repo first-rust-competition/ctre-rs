@@ -1,11 +1,11 @@
-use ctre::{ErrorCode, ParamEnum, Result};
 use ctre_sys::{{ mod_name.lower() }}::*;
+use ::{ErrorCode, ParamEnum, Result};
 
 pub struct {{ mod_name }} {
     handle: Handle,
 }
 impl {{ mod_name }} {
-    fn get_handle(&self) -> Handle {
+    fn handle(&self) -> Handle {
         self.handle
     }
 
@@ -25,7 +25,7 @@ impl {{ mod_name }} {
         ))
     {% else %}
         unsafe {
-            {{ fn.name }}({% if fn.handle_param_idx == 0 %}self.get_handle(), {% endif %}{{ fn.in_params | join(', ', attribute='snake_name') }})
+            {{ fn.name }}({% if fn.handle_param_idx == 0 %}self.handle(), {% endif %}{{ fn.in_params | join(', ', attribute='snake_name') }})
         }
     {% endif %}
     }
