@@ -13,33 +13,33 @@ pub type Handle = *mut _Handle;
 /// Enumerated type for status frame types.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum CANifierControlFrame {
-    C1_General = 50593792,
-    C2_PwmOutput = 50593856,
+    Control_1_General = 50593792,
+    Control_2_PwmOutput = 50593856,
 }
 #[repr(i32)]
 /// Enumerated type for status frame types.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum CANifierStatusFrame {
-    S1_General = 267264,
-    S2_General = 267328,
-    S3_PwmInputs0 = 267392,
-    S4_PwmInputs1 = 267456,
-    S5_PwmInputs2 = 267520,
-    S6_PwmInputs3 = 267584,
-    S8_Misc = 267712,
+    Status_1_General = 267264,
+    Status_2_General = 267328,
+    Status_3_PwmInputs0 = 267392,
+    Status_4_PwmInputs1 = 267456,
+    Status_5_PwmInputs2 = 267520,
+    Status_6_PwmInputs3 = 267584,
+    Status_8_Misc = 267712,
 }
 
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum CANifierVelocityMeasPeriod {
-    P1Ms = 1,
-    P2Ms = 2,
-    P5Ms = 5,
-    P10Ms = 10,
-    P20Ms = 20,
-    P25Ms = 25,
-    P50Ms = 50,
-    P100Ms = 100,
+    Period_1Ms = 1,
+    Period_2Ms = 2,
+    Period_5Ms = 5,
+    Period_10Ms = 10,
+    Period_20Ms = 20,
+    Period_25Ms = 25,
+    Period_50Ms = 50,
+    Period_100Ms = 100,
 }
 
 #[repr(u32)]

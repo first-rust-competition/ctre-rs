@@ -1,6 +1,5 @@
 //! Enums and functions related to the Pigeon IMU.
-#![allow(non_camel_case_types)]
-#![allow(non_upper_case_globals)]
+#![allow(non_camel_case_types, non_upper_case_globals)]
 
 use std::os::raw::{c_char, c_int, c_short};
 use ErrorCode;
