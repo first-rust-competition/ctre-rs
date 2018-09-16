@@ -1,5 +1,9 @@
 //! Rust bindings for the CTRE Phoenix CCI libraries.
 
+#[cfg(feature = "serde")]
+#[macro_use]
+extern crate serde;
+
 mod enums;
 pub use enums::*;
 

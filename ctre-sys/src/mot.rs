@@ -241,6 +241,7 @@ impl Default for SetValueMotionProfile {
 /// This time unit is ADDED to the existing base time set by
 /// ConfigMotionProfileTrajectoryPeriod().
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum TrajectoryDuration {
     T0ms = 0,
     T5ms = 5,
@@ -261,6 +262,7 @@ impl Default for TrajectoryDuration {
 /// This is simply a data transfer object.
 #[repr(C)]
 #[derive(Default, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct TrajectoryPoint {
     /// The position to servo to.
     pub position: f64,

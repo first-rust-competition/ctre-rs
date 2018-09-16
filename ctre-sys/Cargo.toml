@@ -12,3 +12,4 @@ categories = ["external-ffi-bindings", "embedded", "hardware-support"]
 description = "FFI bindings to CTR Electronics' Phoenix FRC libraries"
 
 [dependencies]
+serde = { version = "1.0", optional = true, features = ["derive"] }
