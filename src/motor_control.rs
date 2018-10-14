@@ -1069,6 +1069,7 @@ pub trait SensorCollection: BaseMotorController {
 }
 
 /// CTRE Talon SRX Motor Controller when used on CAN Bus.
+#[derive(Debug)]
 pub struct TalonSRX {
     handle: Handle,
     arb_id: i32,
@@ -1310,6 +1311,7 @@ impl TalonSRX {
 impl SensorCollection for TalonSRX {}
 
 /// VEX Victor SPX Motor Controller when used on CAN Bus.
+#[derive(Debug)]
 pub struct VictorSPX {
     handle: Handle,
     arb_id: i32,

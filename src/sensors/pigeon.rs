@@ -231,6 +231,7 @@ impl StickyFaults {
  * Pigeon IMU Class.
  * Class supports communicating over CANbus and over ribbon-cable (CAN Talon SRX).
  */
+#[derive(Debug)]
 pub struct PigeonIMU {
     handle: Handle,
 }

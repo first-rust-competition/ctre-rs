@@ -64,6 +64,7 @@ impl StickyFaults {
  *
  * Device for interfacing common devices to the CAN bus.
  */
+#[derive(Debug)]
 pub struct CANifier {
     handle: Handle,
 }
