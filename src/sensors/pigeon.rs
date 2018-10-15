@@ -4,9 +4,14 @@ use ctre_sys::pigeon::*;
 pub use ctre_sys::pigeon::{
     PigeonIMU_ControlFrame as ControlFrame, PigeonIMU_StatusFrame as StatusFrame,
 };
-use motor_control::{BaseMotorController, TalonSRX};
 use std::fmt;
-use {ErrorCode, ParamEnum, Result};
+#[cfg(feature = "usage-reporting")]
+use wpilib::report_usage;
+
+use super::super::{
+    motor_control::{BaseMotorController, TalonSRX},
+    ErrorCode, ParamEnum, Result,
+};
 
 /// Data object for holding fusion information.
 #[derive(Default, Debug)]

@@ -1,7 +1,12 @@
 //! CTRE Phoenix bindings for Rust
 
 extern crate ctre_sys;
+#[cfg(feature = "usage-reporting")]
+extern crate wpilib;
+
 pub use ctre_sys::{ErrorCode, ParamEnum};
+
+/// A specialised `Result` for CTRE methods.
 pub type Result<T> = std::result::Result<T, ErrorCode>;
 
 #[macro_use]
@@ -12,4 +17,4 @@ pub mod motion;
 pub mod motor_control;
 pub mod sensors;
 
-pub use canifier::CANifier;
+pub use self::canifier::CANifier;

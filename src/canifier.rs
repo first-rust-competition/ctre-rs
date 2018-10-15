@@ -5,7 +5,10 @@ pub use ctre_sys::canifier::{
     CANifierControlFrame as ControlFrame, CANifierStatusFrame as StatusFrame,
     CANifierVelocityMeasPeriod as VelocityMeasPeriod, GeneralPin,
 };
-use {ErrorCode, ParamEnum, Result};
+#[cfg(feature = "usage-reporting")]
+use wpilib::report_usage;
+
+use super::{ErrorCode, ParamEnum, Result};
 
 #[repr(u32)]
 /// Enum for the LED Output Channels
@@ -73,6 +76,9 @@ impl CANifier {
     /// * `device_number` - The CAN Device ID of the CANifier.
     pub fn new(device_number: i32) -> CANifier {
         let handle = unsafe { c_CANifier_Create1(device_number) };
+        // kResourceType_CANifier
+        #[cfg(feature = "usage-reporting")]
+        report_usage(63, device_number as u32 + 1);
         CANifier { handle }
     }
 
