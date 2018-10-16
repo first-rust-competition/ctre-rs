@@ -10,6 +10,7 @@ const NI_LIB_LIST: &[&str] = &[
     "RoboRIO_FRC_ChipObject",
     "visa",
 ];
+const SIM_LIB_LIST: &[&str] = &["CTRE_PhoenixCanutils", "CTRE_PhoenixPlatform_sim"];
 
 fn main() {
     println!("cargo:rustc-link-lib=static=CTRE_PhoenixCCI");
@@ -24,9 +25,23 @@ fn main() {
         for lib in NI_LIB_LIST {
             println!("cargo:rustc-link-lib=dylib={}", lib);
         }
-    // } else if target.starts_with("x86_64") {
-    //     println!("cargo:rustc-link-search={}/lib/x86-64", path.display());
     } else {
-        panic!("Unsupported target!");
+        // assume simulation
+        println!(
+            "cargo:rustc-link-search={}/lib/{}",
+            path.display(),
+            match target.as_ref() {
+                "arm-unknown-linux-gnueabihf" => "armhf",
+                "aarch64-unknown-linux-gnu" => "aarch64",
+                _ => if target.starts_with("x86_64") {
+                    "x86_64"
+                } else {
+                    panic!("Unsupported target for ctre-sys!")
+                },
+            }
+        );
+        for lib in SIM_LIB_LIST {
+            println!("cargo:rustc-link-lib=static={}", lib);
+        }
     }
 }
