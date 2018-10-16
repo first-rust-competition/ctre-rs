@@ -11,5 +11,7 @@ keywords = ["frc", "ctre"]
 categories = ["external-ffi-bindings", "embedded", "hardware-support"]
 description = "FFI bindings to CTR Electronics' Phoenix FRC libraries"
 
+include = ["src/**/*", "Cargo.toml", "lib/**/*"]
+
 [dependencies]
 serde = { version = "1.0", optional = true, features = ["derive"] }
