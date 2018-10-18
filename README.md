@@ -19,5 +19,12 @@ It builds and links when linking with the WPILib HAL, so it should work.
 ¯\\\_(ツ)\_/¯
 
 ## License
-CTRE-derived parts are under the [Phoenix Software License Agreement](LICENSE).
-Rust-specific parts are under the [MIT license](LICENSE-MIT).
+Due to licensing restrictions, with the default features enabled, the `ctre`
+crate falls under a crayon license: all restrictions of the
+[Phoenix Software License Agreement][] and GPLv3.
+
+Otherwise (without the default features enabled):
+- CTRE-derived parts are under the [Phoenix Software License Agreement][].
+- Rust-specific parts are under the [MIT license](LICENSE-MIT).
+
+[Phoenix Software License Agreement]: LICENSE
