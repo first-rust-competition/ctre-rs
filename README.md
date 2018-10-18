@@ -10,10 +10,13 @@ The `gen_rust.j2` and `hooks.py` were used with [header2whatever](https://github
 to quickly generate the initial modules.
 
 ## How do I actually use this?
-Beats me.
+I haven't published this to crates.io yet, but in the meantime you should be
+able to add a git dependency in your Cargo.toml. (Currently waiting for a usable
+wpilib crate to be published on crates.io.)
 
 ## Does this actually work?
-¯\\\_(ツ)_/¯
+It builds and links when linking with the WPILib HAL, so it should work.
+¯\\\_(ツ)\_/¯
 
 ## License
 CTRE-derived parts are under the [Phoenix Software License Agreement](LICENSE).
