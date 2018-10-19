@@ -6,7 +6,7 @@ pub use ctre_sys::pigeon::{
 };
 use std::fmt;
 #[cfg(feature = "usage-reporting")]
-use wpilib::report_usage;
+use wpilib_sys::usage::report_usage;
 
 use super::super::{
     motor_control::{BaseMotorController, TalonSRX},
@@ -245,6 +245,9 @@ impl PigeonIMU {
     /// * `device_number` - CAN Device Id of Pigeon [0,62]
     pub fn new(device_number: i32) -> PigeonIMU {
         let handle = unsafe { c_PigeonIMU_Create1(device_number) };
+        // kResourceType_PigeonIMU
+        #[cfg(feature = "usage-reporting")]
+        report_usage(61, device_number as u32 + 1);
         PigeonIMU { handle }
     }
 
@@ -576,6 +579,14 @@ impl<'a> From<&'a TalonSRX> for PigeonIMU {
     fn from(talon_srx: &'a TalonSRX) -> PigeonIMU {
         let talon_device_id = talon_srx.get_device_id();
         let handle = unsafe { c_PigeonIMU_Create2(talon_device_id) };
+        #[cfg(feature = "usage-reporting")]
+        {
+            let instance_number = talon_device_id as u32 + 1;
+            // kResourceType_PigeonIMU
+            report_usage(61, instance_number);
+            // kResourceType_CTRE_future0
+            report_usage(64, instance_number); // record as Pigeon-via-Uart
+        }
         PigeonIMU { handle }
     }
 }

@@ -2,7 +2,7 @@
 
 extern crate ctre_sys;
 #[cfg(feature = "usage-reporting")]
-extern crate wpilib;
+extern crate wpilib_sys;
 
 pub use ctre_sys::{ErrorCode, ParamEnum};
 

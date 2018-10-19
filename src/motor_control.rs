@@ -7,6 +7,8 @@ pub use ctre_sys::mot::{
     RemoteLimitSwitchSource, RemoteSensorSource, SensorTerm, StatusFrame, StatusFrameEnhanced,
     VelocityMeasPeriod,
 };
+#[cfg(feature = "usage-reporting")]
+use wpilib_sys::usage::report_usage;
 
 use super::{
     motion::{MotionProfileStatus, TrajectoryPoint},
@@ -1079,6 +1081,9 @@ impl BaseMotorController for TalonSRX {
     fn new(device_number: i32) -> TalonSRX {
         let arb_id = device_number | 0x02040000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
+        // kResourceType_CANTalonSRX
+        #[cfg(feature = "usage-reporting")]
+        report_usage(52, device_number as u32 + 1);
         TalonSRX { handle, arb_id }
     }
 
@@ -1321,6 +1326,9 @@ impl BaseMotorController for VictorSPX {
     fn new(device_number: i32) -> VictorSPX {
         let arb_id = device_number | 0x01040000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
+        // kResourceType_CTRE_future1
+        #[cfg(feature = "usage-reporting")]
+        report_usage(65, device_number as u32 + 1);
         VictorSPX { handle, arb_id }
     }
 

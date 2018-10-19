@@ -6,7 +6,7 @@ pub use ctre_sys::canifier::{
     CANifierVelocityMeasPeriod as VelocityMeasPeriod, GeneralPin,
 };
 #[cfg(feature = "usage-reporting")]
-use wpilib::report_usage;
+use wpilib_sys::usage::report_usage;
 
 use super::{ErrorCode, ParamEnum, Result};
 
