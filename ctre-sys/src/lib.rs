@@ -5,7 +5,7 @@
 extern crate serde;
 
 mod enums;
-pub use enums::*;
+pub use self::enums::*;
 
 pub mod canifier;
 pub mod logger;

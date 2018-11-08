@@ -2,7 +2,8 @@
 #![allow(non_camel_case_types)]
 
 use std::os::raw::{c_char, c_int};
-use ErrorCode;
+
+use super::ErrorCode;
 
 pub enum _Handle {}
 pub type Handle = *mut _Handle;

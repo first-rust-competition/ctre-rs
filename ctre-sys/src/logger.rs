@@ -1,5 +1,6 @@
 use std::os::raw::{c_char, c_int};
-use ErrorCode;
+
+use super::ErrorCode;
 
 extern "C" {
     pub fn c_Logger_Close();
