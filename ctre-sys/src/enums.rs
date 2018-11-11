@@ -1,5 +1,5 @@
 //! Enums common to all CTRE Phoenix devices.
-#![allow(non_camel_case_types)]
+#![allow(non_camel_case_types, non_upper_case_globals)]
 
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -60,7 +60,8 @@ pub enum ErrorCode {
 
     // Firmware Versions
     FeatureRequiresHigherFirm = -700,
-    TalonFeatureRequiresHigherFirm = -701,
+    MotorControllerFeatureRequiresHigherFirm = -701,
+    ConfigFactoryDefaultRequiresHigherFirm = -702,
 
     // CAN Related
     /// Special Code for "isSensorPresent"
@@ -77,11 +78,16 @@ pub enum ErrorCode {
     FeaturesNotAvailableYet = 104,
     /// Current control mode of motor controller not valid for this call
     ControlModeNotValid = 105,
+
     ControlModeNotSupportedYet = 106,
     AuxiliaryPIDNotSupportedYet = 107,
     RemoteSensorsNotSupportedYet = 108,
     MotProfFirmThreshold = 109,
     MotProfFirmThreshold2 = 110,
+}
+impl ErrorCode {
+    pub const TalonFeatureRequiresHigherFirm: ErrorCode =
+        ErrorCode::MotorControllerFeatureRequiresHigherFirm;
 }
 
 #[repr(u32)]
