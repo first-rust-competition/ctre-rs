@@ -106,6 +106,7 @@ pub trait BaseMotorController: private::Sealed {
     where
         Self: Sized;
 
+    #[doc(hidden)]
     fn handle(&self) -> Handle;
     fn get_base_id(&self) -> i32;
     fn get_device_id(&self) -> i32 {
@@ -1089,6 +1090,7 @@ impl BaseMotorController for TalonSRX {
         TalonSRX { handle, arb_id }
     }
 
+    #[doc(hidden)]
     fn handle(&self) -> Handle {
         self.handle
     }
@@ -1334,6 +1336,7 @@ impl BaseMotorController for VictorSPX {
         VictorSPX { handle, arb_id }
     }
 
+    #[doc(hidden)]
     fn handle(&self) -> Handle {
         self.handle
     }
