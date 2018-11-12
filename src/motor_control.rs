@@ -102,7 +102,9 @@ impl StickyFaults {
 pub trait BaseMotorController: private::Sealed {
     /// Constructor.
     /// * `device_number` - [0,62]
-    fn new(device_number: i32) -> Self;
+    fn new(device_number: i32) -> Self
+    where
+        Self: Sized;
 
     fn handle(&self) -> Handle;
     fn get_base_id(&self) -> i32;
