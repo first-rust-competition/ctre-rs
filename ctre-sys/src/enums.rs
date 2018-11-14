@@ -97,10 +97,13 @@ pub enum ParamEnum {
     OnBoot_BrakeMode = 31,
     QuadFilterEn = 91,
     QuadIdxPolarity = 108,
+    #[deprecated(note = "Use `ParamEnum::ClearPositionOnQuadIdx` instead")]
     ClearPositionOnIdx = 100,
     MotionProfileHasUnderrunErr = 119,
     MotionProfileTrajectoryPointDurationMs = 120,
+    #[deprecated(note = "Use `ParamEnum::ClearPositionOnLimitF` instead")]
     ClearPosOnLimitF = 144,
+    #[deprecated(note = "Use `ParamEnum::ClearPositionOnLimitR` instead")]
     ClearPosOnLimitR = 145,
 
     StatusFramePeriod = 300,
