@@ -224,6 +224,7 @@ impl Faults {
         self.0 != 0
     }
 }
+impl_binary_fmt!(Faults);
 #[derive(Debug, Copy, Clone)]
 pub struct StickyFaults(i32);
 impl StickyFaults {
@@ -231,6 +232,7 @@ impl StickyFaults {
         self.0 != 0
     }
 }
+impl_binary_fmt!(StickyFaults);
 
 /**
  * Pigeon IMU Class.

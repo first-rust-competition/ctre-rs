@@ -24,3 +24,28 @@ macro_rules! cci_get_call_array {
         if error == ErrorCode::OK { Ok(value) } else { Err(error) }
     })
 }
+
+macro_rules! impl_binary_fmt {
+    ($type:ty) => {
+        impl ::std::fmt::Binary for $type {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                self.0.fmt(f)
+            }
+        }
+        impl ::std::fmt::Octal for $type {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                self.0.fmt(f)
+            }
+        }
+        impl ::std::fmt::LowerHex for $type {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                self.0.fmt(f)
+            }
+        }
+        impl ::std::fmt::UpperHex for $type {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                self.0.fmt(f)
+            }
+        }
+    };
+}

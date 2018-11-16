@@ -19,7 +19,7 @@ use super::{
 pub struct Faults(i32);
 impl Faults {
     pub fn under_voltage(self) -> bool {
-        self.0 & (1 << 0) != 0
+        self.0 & 1 != 0
     }
     pub fn forward_limit_switch(self) -> bool {
         self.0 & (1 << 1) != 0
@@ -56,12 +56,13 @@ impl Faults {
         self.0 != 0
     }
 }
+impl_binary_fmt!(Faults);
 
 #[derive(Debug, Copy, Clone)]
 pub struct StickyFaults(i32);
 impl StickyFaults {
     pub fn under_voltage(self) -> bool {
-        self.0 & (1 << 0) != 0
+        self.0 & 1 != 0
     }
     pub fn forward_limit_switch(self) -> bool {
         self.0 & (1 << 1) != 0
@@ -95,6 +96,7 @@ impl StickyFaults {
         self.0 != 0
     }
 }
+impl_binary_fmt!(StickyFaults);
 
 /// Base motor controller features for all CTRE CAN motor controllers.
 ///

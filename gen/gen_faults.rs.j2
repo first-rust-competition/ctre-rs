@@ -5,7 +5,7 @@ pub struct {{ c.name }}(i32);
 impl {{ c.name }} {
     {% for prop in c.properties.public %}
     pub fn {{ prop.snake_name }}(self) -> bool {
-        self.0 & (1 << {{ loop.index0 }}) != 0
+        self.0 & {% if loop.index0 %}(1 << {{ loop.index0 }}){% else %}1{% endif %} != 0
     }
     {% endfor %}
     /// True iff any of the above flags are true.
@@ -13,5 +13,6 @@ impl {{ c.name }} {
         self.0 != 0
     }
 }
+impl_binary_fmt!({{ c.name }});
 {% endfor %}
 {% endfor %}
