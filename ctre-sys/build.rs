@@ -31,7 +31,7 @@ fn main() {
             "cargo:rustc-link-search={}/lib/{}",
             path.display(),
             match target.as_ref() {
-                "arm-unknown-linux-gnueabihf" => "armhf",
+                "arm-unknown-linux-gnueabihf" | "armv7-unknown-linux-gnueabihf" => "armhf",
                 "aarch64-unknown-linux-gnu" => "aarch64",
                 _ => if target.starts_with("x86_64") {
                     "x86_64"
