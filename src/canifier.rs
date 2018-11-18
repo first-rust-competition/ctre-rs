@@ -199,13 +199,13 @@ impl CANifier {
      * kPeriod is configured with this function.
      */
     pub fn config_velocity_measurement_period(
-        &self,
+        &mut self,
         period: VelocityMeasPeriod,
         timeout_ms: i32,
     ) -> ErrorCode {
         unsafe { c_CANifier_ConfigVelocityMeasurementPeriod(self.handle, period as _, timeout_ms) }
     }
-    pub fn config_velocity_measurement_window(&self, window: i32, timeout_ms: i32) -> ErrorCode {
+    pub fn config_velocity_measurement_window(&mut self, window: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_CANifier_ConfigVelocityMeasurementWindow(self.handle, window, timeout_ms) }
     }
 
@@ -217,7 +217,7 @@ impl CANifier {
      * - Allows for rapid testing / unit testing of firmware.
      */
     pub fn config_set_parameter(
-        &self,
+        &mut self,
         param: ParamEnum,
         value: f64,
         sub_value: i32,
@@ -263,7 +263,7 @@ impl CANifier {
      *   If zero, no blocking or checking is performed.
      */
     pub fn config_set_custom_param(
-        &self,
+        &mut self,
         new_value: i32,
         param_index: i32,
         timeout_ms: i32,

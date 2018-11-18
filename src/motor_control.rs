@@ -235,7 +235,7 @@ pub trait BaseMotorController: private::Sealed {
     }
 
     fn config_openloop_ramp(
-        &self,
+        &mut self,
         seconds_from_neutral_to_full: f64,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -248,7 +248,7 @@ pub trait BaseMotorController: private::Sealed {
         }
     }
     fn config_closedloop_ramp(
-        &self,
+        &mut self,
         seconds_from_neutral_to_full: f64,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -261,25 +261,25 @@ pub trait BaseMotorController: private::Sealed {
         }
     }
 
-    fn config_peak_output_forward(&self, percent_out: f64, timeout_ms: i32) -> ErrorCode {
+    fn config_peak_output_forward(&mut self, percent_out: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ConfigPeakOutputForward(self.handle(), percent_out, timeout_ms) }
     }
-    fn config_peak_output_reverse(&self, percent_out: f64, timeout_ms: i32) -> ErrorCode {
+    fn config_peak_output_reverse(&mut self, percent_out: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ConfigPeakOutputReverse(self.handle(), percent_out, timeout_ms) }
     }
 
-    fn config_nominal_output_forward(&self, percent_out: f64, timeout_ms: i32) -> ErrorCode {
+    fn config_nominal_output_forward(&mut self, percent_out: f64, timeout_ms: i32) -> ErrorCode {
         unsafe {
             c_MotController_ConfigNominalOutputForward(self.handle(), percent_out, timeout_ms)
         }
     }
-    fn config_nominal_output_reverse(&self, percent_out: f64, timeout_ms: i32) -> ErrorCode {
+    fn config_nominal_output_reverse(&mut self, percent_out: f64, timeout_ms: i32) -> ErrorCode {
         unsafe {
             c_MotController_ConfigNominalOutputReverse(self.handle(), percent_out, timeout_ms)
         }
     }
 
-    fn config_neutral_deadband(&self, percent_deadband: f64, timeout_ms: i32) -> ErrorCode {
+    fn config_neutral_deadband(&mut self, percent_deadband: f64, timeout_ms: i32) -> ErrorCode {
         unsafe {
             c_MotController_ConfigNeutralDeadband(self.handle(), percent_deadband, timeout_ms)
         }
@@ -296,13 +296,13 @@ pub trait BaseMotorController: private::Sealed {
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
-    fn config_voltage_comp_saturation(&self, voltage: f64, timeout_ms: i32) -> ErrorCode {
+    fn config_voltage_comp_saturation(&mut self, voltage: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ConfigVoltageCompSaturation(self.handle(), voltage, timeout_ms) }
     }
     /// Configures the voltage measurement filter.
     /// * `filter_window_samples` - Number of samples in the rolling average of voltage measurement.
     fn config_voltage_measurement_filter(
-        &self,
+        &mut self,
         filter_window_samples: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -349,7 +349,7 @@ pub trait BaseMotorController: private::Sealed {
      *   If zero, no blocking or checking is performed.
      */
     fn config_selected_feedback_sensor(
-        &self,
+        &mut self,
         feedback_device: RemoteFeedbackDevice,
         pid_idx: i32,
         timeout_ms: i32,
@@ -379,7 +379,7 @@ pub trait BaseMotorController: private::Sealed {
      *   If zero, no blocking or checking is performed.
      */
     fn config_selected_feedback_coefficient(
-        &self,
+        &mut self,
         coefficient: f64,
         pid_idx: i32,
         timeout_ms: i32,
@@ -400,7 +400,7 @@ pub trait BaseMotorController: private::Sealed {
      * as a PID source for closed-loop features.
      */
     fn config_remote_feedback_filter(
-        &self,
+        &mut self,
         device_id: i32,
         remote_sensor_source: RemoteSensorSource,
         remote_ordinal: i32,
@@ -425,7 +425,7 @@ pub trait BaseMotorController: private::Sealed {
      * can be selected for closed-looping.
      */
     fn config_sensor_term(
-        &self,
+        &mut self,
         sensor_term: SensorTerm,
         feedback_device: FeedbackDevice,
         timeout_ms: i32,
@@ -505,7 +505,7 @@ pub trait BaseMotorController: private::Sealed {
      *   If zero, no blocking or checking is performed.
      */
     fn config_forward_limit_switch_source(
-        &self,
+        &mut self,
         type_: RemoteLimitSwitchSource,
         normal_open_or_close: LimitSwitchNormal,
         device_id: i32,
@@ -536,7 +536,7 @@ pub trait BaseMotorController: private::Sealed {
      *   If zero, no blocking or checking is performed.
      */
     fn config_reverse_limit_switch_source(
-        &self,
+        &mut self,
         type_: RemoteLimitSwitchSource,
         normal_open_or_close: LimitSwitchNormal,
         device_id: i32,
@@ -557,7 +557,7 @@ pub trait BaseMotorController: private::Sealed {
     }
 
     fn config_forward_soft_limit_threshold(
-        &self,
+        &mut self,
         forward_sensor_limit: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -570,7 +570,7 @@ pub trait BaseMotorController: private::Sealed {
         }
     }
     fn config_reverse_soft_limit_threshold(
-        &self,
+        &mut self,
         reverse_sensor_limit: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -582,10 +582,10 @@ pub trait BaseMotorController: private::Sealed {
             )
         }
     }
-    fn config_forward_soft_limit_enable(&self, enable: bool, timeout_ms: i32) -> ErrorCode {
+    fn config_forward_soft_limit_enable(&mut self, enable: bool, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ConfigForwardSoftLimitEnable(self.handle(), enable, timeout_ms) }
     }
-    fn config_reverse_soft_limit_enable(&self, enable: bool, timeout_ms: i32) -> ErrorCode {
+    fn config_reverse_soft_limit_enable(&mut self, enable: bool, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ConfigReverseSoftLimitEnable(self.handle(), enable, timeout_ms) }
     }
     fn override_soft_limits_enable(&self, enable: bool) {
@@ -594,19 +594,19 @@ pub trait BaseMotorController: private::Sealed {
 
     // current limiting is Talon-specific
 
-    fn config_kp(&self, slot_idx: i32, value: f64, timeout_ms: i32) -> ErrorCode {
+    fn config_kp(&mut self, slot_idx: i32, value: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_Config_kP(self.handle(), slot_idx, value, timeout_ms) }
     }
-    fn config_ki(&self, slot_idx: i32, value: f64, timeout_ms: i32) -> ErrorCode {
+    fn config_ki(&mut self, slot_idx: i32, value: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_Config_kI(self.handle(), slot_idx, value, timeout_ms) }
     }
-    fn config_kd(&self, slot_idx: i32, value: f64, timeout_ms: i32) -> ErrorCode {
+    fn config_kd(&mut self, slot_idx: i32, value: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_Config_kD(self.handle(), slot_idx, value, timeout_ms) }
     }
-    fn config_kf(&self, slot_idx: i32, value: f64, timeout_ms: i32) -> ErrorCode {
+    fn config_kf(&mut self, slot_idx: i32, value: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_Config_kF(self.handle(), slot_idx, value, timeout_ms) }
     }
-    fn config_integral_zone(&self, slot_idx: i32, izone: i32, timeout_ms: i32) -> ErrorCode {
+    fn config_integral_zone(&mut self, slot_idx: i32, izone: i32, timeout_ms: i32) -> ErrorCode {
         unsafe {
             c_MotController_Config_IntegralZone(
                 self.handle(),
@@ -617,7 +617,7 @@ pub trait BaseMotorController: private::Sealed {
         }
     }
     fn config_allowable_closedloop_error(
-        &self,
+        &mut self,
         slot_idx: i32,
         allowable_closed_loop_error: i32,
         timeout_ms: i32,
@@ -632,7 +632,7 @@ pub trait BaseMotorController: private::Sealed {
         }
     }
     fn config_max_integral_accumulator(
-        &self,
+        &mut self,
         slot_idx: i32,
         iaccum: f64,
         timeout_ms: i32,
@@ -647,7 +647,7 @@ pub trait BaseMotorController: private::Sealed {
         }
     }
     fn config_closed_loop_peak_output(
-        &self,
+        &mut self,
         slot_idx: i32,
         percent_out: f64,
         timeout_ms: i32,
@@ -662,7 +662,7 @@ pub trait BaseMotorController: private::Sealed {
         }
     }
     fn config_closed_loop_period(
-        &self,
+        &mut self,
         slot_idx: i32,
         loop_time_ms: i32,
         timeout_ms: i32,
@@ -676,7 +676,7 @@ pub trait BaseMotorController: private::Sealed {
             )
         }
     }
-    fn config_aux_pid_polarity(&self, invert: bool, timeout_ms: i32) -> ErrorCode {
+    fn config_aux_pid_polarity(&mut self, invert: bool, timeout_ms: i32) -> ErrorCode {
         self.config_set_parameter(
             ParamEnum::PIDLoopPolarity,
             invert as i8 as f64,
@@ -724,7 +724,7 @@ pub trait BaseMotorController: private::Sealed {
     /// Sets the Motion Magic Cruise Velocity.
     /// This is the peak target velocity that the motion magic curve generator can use.
     fn config_motion_cruise_velocity(
-        &self,
+        &mut self,
         sensor_units_per_100ms: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -739,7 +739,7 @@ pub trait BaseMotorController: private::Sealed {
     /// Sets the Motion Magic Acceleration.
     /// This is the target acceleration that the motion magic curve generator can use.
     fn config_motion_acceleration(
-        &self,
+        &mut self,
         sensor_units_per_100ms_per_sec: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -873,7 +873,7 @@ pub trait BaseMotorController: private::Sealed {
      * [`TrajectoryPoint`]: ../motion/struct.TrajectoryPoint.html
      */
     fn config_motion_profile_trajectory_period(
-        &self,
+        &mut self,
         base_traj_duration_ms: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -936,7 +936,7 @@ pub trait BaseMotorController: private::Sealed {
      *   If zero, no blocking or checking is performed.
      */
     fn config_set_custom_param(
-        &self,
+        &mut self,
         new_value: i32,
         param_index: i32,
         timeout_ms: i32,
@@ -967,7 +967,7 @@ pub trait BaseMotorController: private::Sealed {
      * - Allows for rapid testing / unit testing of firmware.
      */
     fn config_set_parameter(
-        &self,
+        &mut self,
         param: ParamEnum,
         value: f64,
         sub_value: u8,
@@ -1117,7 +1117,7 @@ impl TalonSRX {
      *   If zero, no blocking or checking is performed.
      */
     pub fn config_selected_feedback_sensor(
-        &self,
+        &mut self,
         feedback_device: FeedbackDevice,
         pid_idx: i32,
         timeout_ms: i32,
@@ -1169,7 +1169,7 @@ impl TalonSRX {
      * kPeriod is configured with this function.
      */
     pub fn config_velocity_measurement_period(
-        &self,
+        &mut self,
         period: VelocityMeasPeriod,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -1179,7 +1179,7 @@ impl TalonSRX {
     }
     /// Sets the number of velocity samples used in the rolling average velocity measurement.
     pub fn config_velocity_measurement_window(
-        &self,
+        &mut self,
         window_size: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -1206,7 +1206,7 @@ impl TalonSRX {
      *   If zero, no blocking or checking is performed.
      */
     pub fn config_forward_limit_switch_source(
-        &self,
+        &mut self,
         type_: LimitSwitchSource,
         normal_open_or_close: LimitSwitchNormal,
         timeout_ms: i32,
@@ -1239,7 +1239,7 @@ impl TalonSRX {
      *   If zero, no blocking or checking is performed.
      */
     pub fn config_reverse_limit_switch_source(
-        &self,
+        &mut self,
         type_: LimitSwitchSource,
         normal_open_or_close: LimitSwitchNormal,
         timeout_ms: i32,
@@ -1274,7 +1274,7 @@ impl TalonSRX {
      *
      * [`config_continuous_current_limit`]: #method.config_continuous_current_limit
      */
-    pub fn config_peak_current_limit(&self, amps: i32, timeout_ms: i32) -> ErrorCode {
+    pub fn config_peak_current_limit(&mut self, amps: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ConfigPeakCurrentLimit(self.handle, amps, timeout_ms) }
     }
     /**
@@ -1296,7 +1296,11 @@ impl TalonSRX {
      *
      * [`config_continuous_current_limit`]: #method.config_continuous_current_limit
      */
-    pub fn config_peak_current_duration(&self, milliseconds: i32, timeout_ms: i32) -> ErrorCode {
+    pub fn config_peak_current_duration(
+        &mut self,
+        milliseconds: i32,
+        timeout_ms: i32,
+    ) -> ErrorCode {
         unsafe { c_MotController_ConfigPeakCurrentLimit(self.handle, milliseconds, timeout_ms) }
     }
     /**
@@ -1316,7 +1320,7 @@ impl TalonSRX {
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
-    pub fn config_continuous_current_limit(&self, amps: i32, timeout_ms: i32) -> ErrorCode {
+    pub fn config_continuous_current_limit(&mut self, amps: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ConfigContinuousCurrentLimit(self.handle, amps, timeout_ms) }
     }
     pub fn enable_current_limit(&self, enable: bool) {

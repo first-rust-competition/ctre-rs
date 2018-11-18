@@ -498,7 +498,7 @@ impl PigeonIMU {
      *   If zero, no blocking or checking is performed.
      */
     pub fn config_set_custom_param(
-        &self,
+        &mut self,
         new_value: i32,
         param_index: i32,
         timeout_ms: i32,
@@ -529,7 +529,7 @@ impl PigeonIMU {
      * - Allows for rapid testing / unit testing of firmware.
      */
     pub fn config_set_parameter(
-        &self,
+        &mut self,
         param: ParamEnum,
         value: f64,
         sub_value: i32,
