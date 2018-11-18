@@ -101,7 +101,7 @@ impl_binary_fmt!(StickyFaults);
 /// Base motor controller features for all CTRE CAN motor controllers.
 ///
 /// This trait is sealed and cannot be implemented for types outside this crate.
-pub trait BaseMotorController: private::Sealed {
+pub trait MotorController: private::Sealed {
     /// Constructor.
     /// * `device_number` - [0,62]
     fn new(device_number: i32) -> Self
@@ -1005,7 +1005,7 @@ pub trait BaseMotorController: private::Sealed {
      *   Use AuxOutput1 to follow the master device's auxiliary output 1.
      *   Use PercentOutput for standard follower mode.
      */
-    fn follow(&self, master_to_follow: &impl BaseMotorController, follower_type: FollowerType) {
+    fn follow(&self, master_to_follow: &impl MotorController, follower_type: FollowerType) {
         let base_id = master_to_follow.get_base_id();
         let id24: i32 = ((base_id >> 0x10) << 8) | (base_id & 0xFF);
 
@@ -1021,7 +1021,7 @@ pub trait BaseMotorController: private::Sealed {
 }
 
 /// An interface for getting and setting raw sensor values.
-pub trait SensorCollection: BaseMotorController {
+pub trait SensorCollection: MotorController {
     fn get_analog_in(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetAnalogIn(self.handle(), _: i32))
     }
@@ -1082,7 +1082,7 @@ pub struct TalonSRX {
     arb_id: i32,
 }
 
-impl BaseMotorController for TalonSRX {
+impl MotorController for TalonSRX {
     fn new(device_number: i32) -> TalonSRX {
         let arb_id = device_number | 0x02040000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
@@ -1337,7 +1337,7 @@ pub struct VictorSPX {
     arb_id: i32,
 }
 
-impl BaseMotorController for VictorSPX {
+impl MotorController for VictorSPX {
     fn new(device_number: i32) -> VictorSPX {
         let arb_id = device_number | 0x01040000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
@@ -1356,7 +1356,7 @@ impl BaseMotorController for VictorSPX {
     }
 }
 
-// Prevent users from implementing the BaseMotorController trait.
+// Prevent users from implementing the MotorController trait.
 mod private {
     pub trait Sealed {}
     impl Sealed for super::TalonSRX {}

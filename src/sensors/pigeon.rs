@@ -9,7 +9,7 @@ use std::fmt;
 use wpilib_sys::usage::report_usage;
 
 use super::super::{
-    motor_control::{BaseMotorController, TalonSRX},
+    motor_control::{MotorController, TalonSRX},
     ErrorCode, ParamEnum, Result,
 };
 
