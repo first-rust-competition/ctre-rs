@@ -1058,20 +1058,20 @@ pub trait SensorCollection: BaseMotorController {
     fn get_pulse_width_rise_to_rise_us(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetPulseWidthRiseToRiseUs(self.handle(), _: i32))
     }
-    fn get_pin_state_quad_a(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetPinStateQuadA(self.handle(), _: i32))
+    fn get_pin_state_quad_a(&self) -> Result<bool> {
+        Ok(cci_get_call!(c_MotController_GetPinStateQuadA(self.handle(), _: i32))? != 0)
     }
-    fn get_pin_state_quad_b(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetPinStateQuadB(self.handle(), _: i32))
+    fn get_pin_state_quad_b(&self) -> Result<bool> {
+        Ok(cci_get_call!(c_MotController_GetPinStateQuadB(self.handle(), _: i32))? != 0)
     }
-    fn get_pin_state_quad_idx(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetPinStateQuadIdx(self.handle(), _: i32))
+    fn get_pin_state_quad_idx(&self) -> Result<bool> {
+        Ok(cci_get_call!(c_MotController_GetPinStateQuadIdx(self.handle(), _: i32))? != 0)
     }
-    fn is_fwd_limit_switch_closed(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_IsFwdLimitSwitchClosed(self.handle(), _: i32))
+    fn is_fwd_limit_switch_closed(&self) -> Result<bool> {
+        Ok(cci_get_call!(c_MotController_IsFwdLimitSwitchClosed(self.handle(), _: i32))? != 0)
     }
-    fn is_rev_limit_switch_closed(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_IsRevLimitSwitchClosed(self.handle(), _: i32))
+    fn is_rev_limit_switch_closed(&self) -> Result<bool> {
+        Ok(cci_get_call!(c_MotController_IsRevLimitSwitchClosed(self.handle(), _: i32))? != 0)
     }
 }
 
