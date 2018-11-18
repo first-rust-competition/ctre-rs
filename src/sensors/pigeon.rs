@@ -253,6 +253,22 @@ impl PigeonIMU {
         PigeonIMU { handle }
     }
 
+    /// Create a Pigeon object that communicates with Pigeon through the
+    /// Gadgeteer ribbon cable connected to a Talon on CAN Bus.
+    pub fn with_talon_srx(talon_srx: &TalonSRX) -> PigeonIMU {
+        let talon_device_id = talon_srx.get_device_id();
+        let handle = unsafe { c_PigeonIMU_Create2(talon_device_id) };
+        #[cfg(feature = "usage-reporting")]
+        {
+            let instance_number = talon_device_id as u32 + 1;
+            // kResourceType_PigeonIMU
+            report_usage(61, instance_number);
+            // kResourceType_CTRE_future0
+            report_usage(64, instance_number); // record as Pigeon-via-Uart
+        }
+        PigeonIMU { handle }
+    }
+
     /**
      * Sets the Yaw register to the specified value.
      *
@@ -576,19 +592,10 @@ impl PigeonIMU {
     }
 }
 impl<'a> From<&'a TalonSRX> for PigeonIMU {
-    /// Create a Pigeon object that communicates with Pigeon through the
-    /// Gadgeteer ribbon cable connected to a Talon on CAN Bus.
+    /// Soft-deprecated. Use [`PigeonIMU::with_talon_srx`] instead.
+    ///
+    /// [`PigeonIMU::with_talon_srx`]: #method.with_talon_srx
     fn from(talon_srx: &'a TalonSRX) -> PigeonIMU {
-        let talon_device_id = talon_srx.get_device_id();
-        let handle = unsafe { c_PigeonIMU_Create2(talon_device_id) };
-        #[cfg(feature = "usage-reporting")]
-        {
-            let instance_number = talon_device_id as u32 + 1;
-            // kResourceType_PigeonIMU
-            report_usage(61, instance_number);
-            // kResourceType_CTRE_future0
-            report_usage(64, instance_number); // record as Pigeon-via-Uart
-        }
-        PigeonIMU { handle }
+        PigeonIMU::with_talon_srx(talon_srx)
     }
 }
