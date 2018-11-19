@@ -330,9 +330,9 @@ pub trait BaseMotorController: private::Sealed {
     fn get_motor_output_voltage(&self) -> Result<f64> {
         Ok(self.get_bus_voltage()? * self.get_motor_output_percent()?)
     }
-    fn get_output_current(&self) -> Result<f64> {
-        cci_get_call!(c_MotController_GetOutputCurrent(self.handle(), _: f64))
-    }
+
+    // output current moved to TalonSRX
+
     /// Gets the temperature of the motor controller in degrees Celsius.
     fn get_temperature(&self) -> Result<f64> {
         cci_get_call!(c_MotController_GetTemperature(self.handle(), _: f64))
@@ -1102,6 +1102,11 @@ impl BaseMotorController for TalonSRX {
 }
 
 impl TalonSRX {
+    /// Gets the output current of the motor controller in amps.
+    pub fn get_output_current(&self) -> Result<f64> {
+        cci_get_call!(c_MotController_GetOutputCurrent(self.handle, _: f64))
+    }
+
     /**
      * Select the feedback device for the motor controller.
      *
