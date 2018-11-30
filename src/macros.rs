@@ -1,8 +1,8 @@
 /// Convenience wrapper for making simple get calls.
 macro_rules! cci_get_call {
     ($function:ident($($arg0:expr,)+ _: $type:ty $(, $arg1:expr)*$(,)*)) => ({
-        let mut value: $type = Default::default();
-        let error = unsafe { $function($($arg0,)* &mut value, $($arg1,)*) };
+        let mut value: $type = unsafe { ::std::mem::uninitialized() };
+        let error = unsafe { $function($($arg0,)* &mut value, $($arg1),* ) };
         if error == ErrorCode::OK { Ok(value) } else { Err(error) }
     })
 }
