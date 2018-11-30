@@ -19,7 +19,7 @@ ctre-sys = { path = "ctre-sys", version = "5.5.0" }
 
 [dependencies.wpilib-sys]
 optional = true
-version = "0.2.3"
+version = "0.3.0"
 
 [workspace]
 members = [".", "ctre-sys"]
