@@ -103,11 +103,10 @@ extern "C" {
         measuredInput: *mut bool,
     ) -> ErrorCode;
 
-    /// dutyCycleAndPeriod takes an array of length 2
     pub fn c_CANifier_GetPWMInput(
         handle: Handle,
         pwmChannel: u32,
-        dutyCycleAndPeriod: *mut f64,
+        pulseWidthAndPeriod: &mut [f64; 2],
     ) -> ErrorCode;
 
     pub fn c_CANifier_GetLastError(handle: Handle) -> ErrorCode;

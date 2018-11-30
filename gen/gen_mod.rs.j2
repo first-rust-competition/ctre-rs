@@ -1,3 +1,4 @@
+pub use ctre_data::{{ mod_name.lower() }}::*;
 use ctre_sys::{{ mod_name.lower() }}::*;
 use ::{ErrorCode, ParamEnum, Result};
 
@@ -13,8 +14,8 @@ impl {{ mod_name }} {
 {% for fn in header.functions %}
     pub fn {{ fn.meth_name }}({% if fn.handle_param_idx == 0 %}&self, {% endif %}{{ fn.in_params | join(', ', attribute='rust_decl') }}){% if fn.rust_returns %} -> {{ fn.rust_returns }}{% endif %} {
     {% if fn.out_params %}
-        cci_get_call{% if fn.num_array_params %}_array{% endif %}!({{ fn.name }}(
-            self.get_handle(),
+        cci_get_call!({{ fn.name }}(
+            self.handle(),
             {% for p in fn.parameters[1:] %}
             {% if p.pointer or p.array %}
             _: {{ p.rust_type }}, // {{ p.snake_name }}

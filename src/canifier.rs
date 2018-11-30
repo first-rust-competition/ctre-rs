@@ -172,7 +172,7 @@ impl CANifier {
     /// Gets the PWM Input.
     /// Returns a 2-array holding the Pulse Width (microseconds) [0] and Period (microseconds) [1].
     pub fn get_pwm_input(&self, pwm_channel: PWMChannel) -> Result<[f64; 2]> {
-        cci_get_call_array!(c_CANifier_GetPWMInput(self.handle, pwm_channel as u32, _: [f64; 2]))
+        cci_get_call!(c_CANifier_GetPWMInput(self.handle, pwm_channel as u32, _: [f64; 2]))
     }
 
     pub fn get_last_error(&self) -> ErrorCode {

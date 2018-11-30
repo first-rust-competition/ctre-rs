@@ -374,13 +374,13 @@ impl PigeonIMU {
 
     /// Get 6d Quaternion data.
     /// Returns an array of the wxyz quaternion data.
-    pub fn get6d_quaternion(&self) -> Result<[f64; 4]> {
-        cci_get_call_array!(c_PigeonIMU_Get6dQuaternion(self.handle, _: [f64; 4]))
+    pub fn get_6d_quaternion(&self) -> Result<[f64; 4]> {
+        cci_get_call!(c_PigeonIMU_Get6dQuaternion(self.handle, _: [f64; 4]))
     }
     /// Get Yaw, Pitch, and Roll data.
     /// Returns an array with yaw, pitch, and roll, in that order.
     pub fn get_yaw_pitch_roll(&self) -> Result<[f64; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetYawPitchRoll(self.handle, _: [f64; 3]))
+        cci_get_call!(c_PigeonIMU_GetYawPitchRoll(self.handle, _: [f64; 3]))
     }
     /**
      * Get AccumGyro data.
@@ -389,7 +389,7 @@ impl PigeonIMU {
      * Returns an array `xyz_deg`.
      */
     pub fn get_accum_gyro(&self) -> Result<[f64; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetAccumGyro(self.handle, _: [f64; 3]))
+        cci_get_call!(c_PigeonIMU_GetAccumGyro(self.handle, _: [f64; 3]))
     }
     /// Get the absolute compass heading, in the interval [0, 360) degrees.
     pub fn get_absolute_compass_heading(&self) -> Result<f64> {
@@ -417,27 +417,27 @@ impl PigeonIMU {
     /// Get Raw Magnetometer data.
     /// Returns an array `rm_xyz`.  Number is equal to 0.6 microteslas per unit.
     pub fn get_raw_magnetometer(&self) -> Result<[i16; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetRawMagnetometer(self.handle, _: [i16; 3]))
+        cci_get_call!(c_PigeonIMU_GetRawMagnetometer(self.handle, _: [i16; 3]))
     }
     /// Get Biased Magnetometer data.
     /// Returns an array `bm_xyz`.  Number is equal to 0.6 microteslas per unit.
     pub fn get_biased_magnetometer(&self) -> Result<[i16; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetBiasedMagnetometer(self.handle, _: [i16; 3]))
+        cci_get_call!(c_PigeonIMU_GetBiasedMagnetometer(self.handle, _: [i16; 3]))
     }
     /// Get Biased Accelerometer data.
     /// Returns an array `ba_xyz`.  These are in fixed point notation Q2.14.  eg. 16384 = 1G
     pub fn get_biased_accelerometer(&self) -> Result<[i16; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetBiasedAccelerometer(self.handle, _: [i16; 3]))
+        cci_get_call!(c_PigeonIMU_GetBiasedAccelerometer(self.handle, _: [i16; 3]))
     }
     /// Get Raw Gyro data.
     /// Returns an array `xyz_dps`, with data in degrees per second.
     pub fn get_raw_gyro(&self) -> Result<[f64; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetRawGyro(self.handle, _: [f64; 3]))
+        cci_get_call!(c_PigeonIMU_GetRawGyro(self.handle, _: [f64; 3]))
     }
     /// Get Accelerometer tilt angles.
     /// Returns a 3-array of x, y, z angles in degrees.
     pub fn get_accelerometer_angles(&self) -> Result<[f64; 3]> {
-        cci_get_call_array!(c_PigeonIMU_GetAccelerometerAngles(self.handle, _: [f64; 3]))
+        cci_get_call!(c_PigeonIMU_GetAccelerometerAngles(self.handle, _: [f64; 3]))
     }
 
     /// Get the current Fusion Status (including fused heading)

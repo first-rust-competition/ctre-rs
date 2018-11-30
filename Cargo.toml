@@ -15,7 +15,7 @@ serde = ["ctre-sys/serde"]
 usage-reporting = ["wpilib-sys"]
 
 [dependencies]
-ctre-sys = { path = "ctre-sys", version = "5.4.0" }
+ctre-sys = { path = "ctre-sys", version = "5.5.0" }
 
 [dependencies.wpilib-sys]
 optional = true
