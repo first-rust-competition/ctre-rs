@@ -1,7 +1,7 @@
 //! Enums and functions related to the Pigeon IMU.
 #![allow(non_camel_case_types, non_upper_case_globals)]
 
-use std::os::raw::{c_char, c_int, c_short};
+use std::os::raw;
 
 use super::ErrorCode;
 
@@ -39,106 +39,116 @@ pub enum PigeonIMU_StatusFrame {
 }
 
 extern "C" {
-    pub fn c_PigeonIMU_Create2(talonDeviceID: c_int) -> Handle;
+    pub fn c_PigeonIMU_Create2(talonDeviceID: raw::c_int) -> Handle;
 
-    pub fn c_PigeonIMU_Create1(deviceNumber: c_int) -> Handle;
+    pub fn c_PigeonIMU_Create1(deviceNumber: raw::c_int) -> Handle;
 
     pub fn c_PigeonIMU_GetDescription(
         handle: Handle,
-        toFill: *mut c_char,
-        toFillByteSz: c_int,
-        numBytesFilled: *mut c_int,
+        toFill: *mut raw::c_char,
+        toFillByteSz: raw::c_int,
+        numBytesFilled: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_ConfigSetParameter(
         handle: Handle,
-        param: c_int,
+        param: raw::c_int,
         value: f64,
-        subValue: c_int,
-        ordinal: c_int,
-        timeoutMs: c_int,
+        subValue: raw::c_int,
+        ordinal: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_ConfigGetParameter(
         handle: Handle,
-        param: c_int,
+        param: raw::c_int,
         value: *mut f64,
-        ordinal: c_int,
-        timeoutMs: c_int,
+        ordinal: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_ConfigSetCustomParam(
         handle: Handle,
-        newValue: c_int,
-        paramIndex: c_int,
-        timeoutMs: c_int,
+        newValue: raw::c_int,
+        paramIndex: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_ConfigGetCustomParam(
         handle: Handle,
-        readValue: *mut c_int,
-        paramIndex: c_int,
-        timoutMs: c_int,
+        readValue: *mut raw::c_int,
+        paramIndex: raw::c_int,
+        timoutMs: raw::c_int,
     ) -> ErrorCode;
 
-    pub fn c_PigeonIMU_SetYaw(handle: Handle, angleDeg: f64, timeoutMs: c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_SetYaw(handle: Handle, angleDeg: f64, timeoutMs: raw::c_int) -> ErrorCode;
 
-    pub fn c_PigeonIMU_AddYaw(handle: Handle, angleDeg: f64, timeoutMs: c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_AddYaw(handle: Handle, angleDeg: f64, timeoutMs: raw::c_int) -> ErrorCode;
 
-    pub fn c_PigeonIMU_SetYawToCompass(handle: Handle, timeoutMs: c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_SetYawToCompass(handle: Handle, timeoutMs: raw::c_int) -> ErrorCode;
 
     pub fn c_PigeonIMU_SetFusedHeading(
         handle: Handle,
         angleDeg: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_AddFusedHeading(
         handle: Handle,
         angleDeg: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
-    pub fn c_PigeonIMU_SetFusedHeadingToCompass(handle: Handle, timeoutMs: c_int) -> ErrorCode;
-
-    pub fn c_PigeonIMU_SetAccumZAngle(handle: Handle, angleDeg: f64, timeoutMs: c_int)
+    pub fn c_PigeonIMU_SetFusedHeadingToCompass(handle: Handle, timeoutMs: raw::c_int)
         -> ErrorCode;
+
+    pub fn c_PigeonIMU_SetAccumZAngle(
+        handle: Handle,
+        angleDeg: f64,
+        timeoutMs: raw::c_int,
+    ) -> ErrorCode;
 
     pub fn c_PigeonIMU_ConfigTemperatureCompensationEnable(
         handle: Handle,
-        bTempCompEnable: c_int,
-        timeoutMs: c_int,
+        bTempCompEnable: raw::c_int,
+        timeoutMs: raw::c_int,
+    ) -> ErrorCode;
+
+    pub fn c_PigeonIMU_SetTemperatureCompensationDisable(
+        handle: Handle,
+        bTempCompDisable: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_SetCompassDeclination(
         handle: Handle,
         angleDegOffset: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_SetCompassAngle(
         handle: Handle,
         angleDeg: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_EnterCalibrationMode(
         handle: Handle,
-        calMode: c_int,
-        timeoutMs: c_int,
+        calMode: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetGeneralStatus(
         handle: Handle,
-        state: *mut c_int,
-        currentMode: *mut c_int,
-        calibrationError: *mut c_int,
-        bCalIsBooting: *mut c_int,
+        state: *mut raw::c_int,
+        currentMode: *mut raw::c_int,
+        calibrationError: *mut raw::c_int,
+        bCalIsBooting: *mut raw::c_int,
         tempC: *mut f64,
-        upTimeSec: *mut c_int,
-        noMotionBiasCount: *mut c_int,
-        tempCompensationCount: *mut c_int,
-        lastError: *mut c_int,
+        upTimeSec: *mut raw::c_int,
+        noMotionBiasCount: *mut raw::c_int,
+        tempCompensationCount: *mut raw::c_int,
+        lastError: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetLastError(handle: Handle) -> ErrorCode;
@@ -157,23 +167,23 @@ extern "C" {
 
     pub fn c_PigeonIMU_GetTemp(handle: Handle, value: *mut f64) -> ErrorCode;
 
-    pub fn c_PigeonIMU_GetState(handle: Handle, state: *mut c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_GetState(handle: Handle, state: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_PigeonIMU_GetUpTime(handle: Handle, value: *mut c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_GetUpTime(handle: Handle, value: *mut raw::c_int) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetRawMagnetometer(
         handle: Handle,
-        rm_xyz: &mut [c_short; 3],
+        rm_xyz: &mut [raw::c_short; 3],
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetBiasedMagnetometer(
         handle: Handle,
-        bm_xyz: &mut [c_short; 3],
+        bm_xyz: &mut [raw::c_short; 3],
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetBiasedAccelerometer(
         handle: Handle,
-        ba_xyz: &mut [c_short; 3],
+        ba_xyz: &mut [raw::c_short; 3],
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetRawGyro(handle: Handle, xyz_dps: &mut [f64; 3]) -> ErrorCode;
@@ -185,47 +195,50 @@ extern "C" {
 
     pub fn c_PigeonIMU_GetFusedHeading2(
         handle: Handle,
-        bIsFusing: *mut c_int,
-        bIsValid: *mut c_int,
+        bIsFusing: *mut raw::c_int,
+        bIsValid: *mut raw::c_int,
         value: *mut f64,
-        lastError: *mut c_int,
+        lastError: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetFusedHeading1(handle: Handle, value: *mut f64) -> ErrorCode;
 
-    pub fn c_PigeonIMU_GetResetCount(handle: Handle, value: *mut c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_GetResetCount(handle: Handle, value: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_PigeonIMU_GetResetFlags(handle: Handle, value: *mut c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_GetResetFlags(handle: Handle, value: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_PigeonIMU_GetFirmwareVersion(handle: Handle, firmwareVers: *mut c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_GetFirmwareVersion(
+        handle: Handle,
+        firmwareVers: *mut raw::c_int,
+    ) -> ErrorCode;
 
     pub fn c_PigeonIMU_HasResetOccurred(handle: Handle, hasReset: *mut bool) -> ErrorCode;
 
-    pub fn c_PigeonIMU_SetLastError(handle: Handle, value: c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_SetLastError(handle: Handle, value: raw::c_int) -> ErrorCode;
 
-    pub fn c_PigeonIMU_GetFaults(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_GetFaults(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_PigeonIMU_GetStickyFaults(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_GetStickyFaults(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_PigeonIMU_ClearStickyFaults(handle: Handle, timeoutMs: c_int) -> ErrorCode;
+    pub fn c_PigeonIMU_ClearStickyFaults(handle: Handle, timeoutMs: raw::c_int) -> ErrorCode;
 
     pub fn c_PigeonIMU_SetStatusFramePeriod(
         handle: Handle,
-        frame: c_int,
-        periodMs: c_int,
-        timeoutMs: c_int,
+        frame: raw::c_int,
+        periodMs: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetStatusFramePeriod(
         handle: Handle,
-        frame: c_int,
-        periodMs: *mut c_int,
-        timeoutMs: c_int,
+        frame: raw::c_int,
+        periodMs: *mut raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_SetControlFramePeriod(
         handle: Handle,
-        frame: c_int,
-        periodMs: c_int,
+        frame: raw::c_int,
+        periodMs: raw::c_int,
     ) -> ErrorCode;
 }

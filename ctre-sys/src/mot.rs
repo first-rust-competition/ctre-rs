@@ -1,7 +1,7 @@
 //! Enums, structs, and functions related to motor controllers.
 #![allow(non_camel_case_types, non_upper_case_globals)]
 
-use std::os::raw::{c_char, c_int};
+use std::os::raw;
 
 use super::ErrorCode;
 
@@ -223,8 +223,8 @@ pub enum SetValueMotionProfile {
     Enable = 1,
     Hold = 2,
 }
-impl From<c_int> for SetValueMotionProfile {
-    fn from(value: c_int) -> SetValueMotionProfile {
+impl From<raw::c_int> for SetValueMotionProfile {
+    fn from(value: raw::c_int) -> SetValueMotionProfile {
         match value {
             0 => SetValueMotionProfile::Disable,
             1 => SetValueMotionProfile::Enable,
@@ -423,11 +423,11 @@ pub struct MotionProfileStatus {
     /// The robot API holds a "top buffer" of trajectory points, so your applicaion
     /// can dump several points at once.  The API will then stream them into the Talon's
     /// low-level buffer, allowing the Talon to act on them.
-    pub top_buffer_rem: c_int,
+    pub top_buffer_rem: raw::c_int,
     /// The number of points in the top trajectory buffer.
-    pub top_buffer_cnt: c_int,
+    pub top_buffer_cnt: raw::c_int,
     /// The number of points in the low level Talon buffer.
-    pub btm_buffer_cnt: c_int,
+    pub btm_buffer_cnt: raw::c_int,
     /// Set if `is_underrun` ever gets set.
     /// Only is cleared by clearMotionProfileHasUnderrun() to ensure
     /// robot logic can react or instrument it.
@@ -442,15 +442,15 @@ pub struct MotionProfileStatus {
     pub active_point_valid: bool,
     pub is_last: bool,
     /// Selected slot for PID Loop 0
-    pub profile_slot_select_0: c_int,
+    pub profile_slot_select_0: raw::c_int,
     /// Selected slot for PID Loop 0
-    pub profile_slot_select_1: c_int,
+    pub profile_slot_select_1: raw::c_int,
     /// The current output mode of the motion profile executer (disabled, enabled, or hold).
     /// When changing the set() value in MP mode, it's important to check this signal to
     /// confirm the change takes effect before interacting with the top buffer.
     pub output_enable: SetValueMotionProfile,
     /// The applied duration of the active trajectory point
-    pub time_dur_ms: c_int,
+    pub time_dur_ms: raw::c_int,
 }
 #[test]
 fn bindgen_test_layout_MotionProfileStatus() {
@@ -595,90 +595,96 @@ fn bindgen_test_layout_MotionProfileStatus() {
 }
 
 extern "C" {
-    pub fn c_MotController_Create1(baseArbId: c_int) -> Handle;
+    pub fn c_MotController_Create1(baseArbId: raw::c_int) -> Handle;
 
-    pub fn c_MotController_GetDeviceNumber(handle: Handle, deviceNumber: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetDeviceNumber(
+        handle: Handle,
+        deviceNumber: *mut raw::c_int,
+    ) -> ErrorCode;
 
     pub fn c_MotController_GetDescription(
         handle: Handle,
-        toFill: *mut c_char,
-        toFillByteSz: c_int,
-        numBytesFilled: *mut c_int,
+        toFill: *mut raw::c_char,
+        toFillByteSz: raw::c_int,
+        numBytesFilled: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_SetDemand(
         handle: Handle,
-        mode: c_int,
-        demand0: c_int,
-        demand1: c_int,
+        mode: raw::c_int,
+        demand0: raw::c_int,
+        demand1: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_Set_4(
         handle: Handle,
-        mode: c_int,
+        mode: raw::c_int,
         demand0: f64,
         demand1: f64,
-        demand1Type: c_int,
+        demand1Type: raw::c_int,
     ) -> ErrorCode;
 
-    pub fn c_MotController_SetNeutralMode(handle: Handle, neutralMode: c_int);
+    pub fn c_MotController_SetNeutralMode(handle: Handle, neutralMode: raw::c_int);
 
     pub fn c_MotController_SetSensorPhase(handle: Handle, PhaseSensor: bool);
 
     pub fn c_MotController_SetInverted(handle: Handle, invert: bool);
 
+    pub fn c_MotController_ConfigFactoryDefault(handle: Handle, timeoutMs: raw::c_int)
+        -> ErrorCode;
+
     pub fn c_MotController_ConfigOpenLoopRamp(
         handle: Handle,
         secondsFromNeutralToFull: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigClosedLoopRamp(
         handle: Handle,
         secondsFromNeutralToFull: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigPeakOutputForward(
         handle: Handle,
         percentOut: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigPeakOutputReverse(
         handle: Handle,
         percentOut: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigNominalOutputForward(
         handle: Handle,
         percentOut: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigNominalOutputReverse(
         handle: Handle,
         percentOut: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigNeutralDeadband(
         handle: Handle,
         percentDeadband: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigVoltageCompSaturation(
         handle: Handle,
         voltage: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigVoltageMeasurementFilter(
         handle: Handle,
-        filterWindowSamples: c_int,
-        timeoutMs: c_int,
+        filterWindowSamples: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_EnableVoltageCompensation(handle: Handle, enable: bool);
@@ -696,230 +702,230 @@ extern "C" {
 
     pub fn c_MotController_ConfigSelectedFeedbackSensor(
         handle: Handle,
-        feedbackDevice: c_int,
-        pidIdx: c_int,
-        timeoutMs: c_int,
+        feedbackDevice: raw::c_int,
+        pidIdx: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigSelectedFeedbackCoefficient(
         handle: Handle,
         coefficient: f64,
-        pidIdx: c_int,
-        timeoutMs: c_int,
+        pidIdx: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigRemoteFeedbackFilter(
         handle: Handle,
-        deviceID: c_int,
-        remoteSensorSource: c_int,
-        remoteOrdinal: c_int,
-        timeoutMs: c_int,
+        deviceID: raw::c_int,
+        remoteSensorSource: raw::c_int,
+        remoteOrdinal: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigSensorTerm(
         handle: Handle,
-        sensorTerm: c_int,
-        feedbackDevice: c_int,
-        timeoutMs: c_int,
+        sensorTerm: raw::c_int,
+        feedbackDevice: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetSelectedSensorPosition(
         handle: Handle,
-        param: *mut c_int,
-        pidIdx: c_int,
+        param: *mut raw::c_int,
+        pidIdx: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetSelectedSensorVelocity(
         handle: Handle,
-        param: *mut c_int,
-        pidIdx: c_int,
+        param: *mut raw::c_int,
+        pidIdx: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_SetSelectedSensorPosition(
         handle: Handle,
-        sensorPos: c_int,
-        pidIdx: c_int,
-        timeoutMs: c_int,
+        sensorPos: raw::c_int,
+        pidIdx: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_SetControlFramePeriod(
         handle: Handle,
-        frame: c_int,
-        periodMs: c_int,
+        frame: raw::c_int,
+        periodMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_SetStatusFramePeriod(
         handle: Handle,
-        frame: c_int,
-        periodMs: c_int,
-        timeoutMs: c_int,
+        frame: raw::c_int,
+        periodMs: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetStatusFramePeriod(
         handle: Handle,
-        frame: c_int,
-        periodMs: *mut c_int,
-        timeoutMs: c_int,
+        frame: raw::c_int,
+        periodMs: *mut raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigVelocityMeasurementPeriod(
         handle: Handle,
-        period: c_int,
-        timeoutMs: c_int,
+        period: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigVelocityMeasurementWindow(
         handle: Handle,
-        windowSize: c_int,
-        timeoutMs: c_int,
+        windowSize: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigForwardLimitSwitchSource(
         handle: Handle,
-        type_: c_int,
-        normalOpenOrClose: c_int,
-        deviceID: c_int,
-        timeoutMs: c_int,
+        type_: raw::c_int,
+        normalOpenOrClose: raw::c_int,
+        deviceID: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigReverseLimitSwitchSource(
         handle: Handle,
-        type_: c_int,
-        normalOpenOrClose: c_int,
-        deviceID: c_int,
-        timeoutMs: c_int,
+        type_: raw::c_int,
+        normalOpenOrClose: raw::c_int,
+        deviceID: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_OverrideLimitSwitchesEnable(handle: Handle, enable: bool);
 
     pub fn c_MotController_ConfigForwardSoftLimitThreshold(
         handle: Handle,
-        forwardSensorLimit: c_int,
-        timeoutMs: c_int,
+        forwardSensorLimit: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigReverseSoftLimitThreshold(
         handle: Handle,
-        reverseSensorLimit: c_int,
-        timeoutMs: c_int,
+        reverseSensorLimit: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigForwardSoftLimitEnable(
         handle: Handle,
         enable: bool,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigReverseSoftLimitEnable(
         handle: Handle,
         enable: bool,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_OverrideSoftLimitsEnable(handle: Handle, enable: bool);
 
     pub fn c_MotController_Config_kP(
         handle: Handle,
-        slotIdx: c_int,
+        slotIdx: raw::c_int,
         value: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_Config_kI(
         handle: Handle,
-        slotIdx: c_int,
+        slotIdx: raw::c_int,
         value: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_Config_kD(
         handle: Handle,
-        slotIdx: c_int,
+        slotIdx: raw::c_int,
         value: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_Config_kF(
         handle: Handle,
-        slotIdx: c_int,
+        slotIdx: raw::c_int,
         value: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_Config_IntegralZone(
         handle: Handle,
-        slotIdx: c_int,
+        slotIdx: raw::c_int,
         izone: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigAllowableClosedloopError(
         handle: Handle,
-        slotIdx: c_int,
-        allowableClosedLoopError: c_int,
-        timeoutMs: c_int,
+        slotIdx: raw::c_int,
+        allowableClosedLoopError: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigMaxIntegralAccumulator(
         handle: Handle,
-        slotIdx: c_int,
+        slotIdx: raw::c_int,
         iaccum: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigClosedLoopPeakOutput(
         handle: Handle,
-        slotIdx: c_int,
+        slotIdx: raw::c_int,
         percentOut: f64,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigClosedLoopPeriod(
         handle: Handle,
-        slotIdx: c_int,
-        loopTimeMs: c_int,
-        timeoutMs: c_int,
+        slotIdx: raw::c_int,
+        loopTimeMs: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_SetIntegralAccumulator(
         handle: Handle,
         iaccum: f64,
-        pidIdx: c_int,
-        timeoutMs: c_int,
+        pidIdx: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetClosedLoopError(
         handle: Handle,
-        closedLoopError: *mut c_int,
-        pidIdx: c_int,
+        closedLoopError: *mut raw::c_int,
+        pidIdx: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetIntegralAccumulator(
         handle: Handle,
         iaccum: *mut f64,
-        pidIdx: c_int,
+        pidIdx: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetErrorDerivative(
         handle: Handle,
         derror: *mut f64,
-        pidIdx: c_int,
+        pidIdx: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_SelectProfileSlot(
         handle: Handle,
-        slotIdx: c_int,
-        pidIdx: c_int,
+        slotIdx: raw::c_int,
+        pidIdx: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetActiveTrajectoryPosition(
         handle: Handle,
-        param: *mut c_int,
+        param: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetActiveTrajectoryVelocity(
         handle: Handle,
-        param: *mut c_int,
+        param: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetActiveTrajectoryHeading(handle: Handle, param: *mut f64)
@@ -927,28 +933,28 @@ extern "C" {
 
     pub fn c_MotController_GetActiveTrajectoryAll(
         handle: Handle,
-        vel: *mut c_int,
-        pos: *mut c_int,
+        vel: *mut raw::c_int,
+        pos: *mut raw::c_int,
         heading: *mut f64,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigMotionCruiseVelocity(
         handle: Handle,
-        sensorUnitsPer100ms: c_int,
-        timeoutMs: c_int,
+        sensorUnitsPer100ms: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigMotionAcceleration(
         handle: Handle,
-        sensorUnitsPer100msPerSec: c_int,
-        timeoutMs: c_int,
+        sensorUnitsPer100msPerSec: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ClearMotionProfileTrajectories(handle: Handle) -> ErrorCode;
 
     pub fn c_MotController_GetMotionProfileTopLevelBufferCount(
         handle: Handle,
-        value: *mut c_int,
+        value: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_PushMotionProfileTrajectory(
@@ -956,7 +962,7 @@ extern "C" {
         position: f64,
         velocity: f64,
         headingDeg: f64,
-        profileSlotSelect: c_int,
+        profileSlotSelect: raw::c_int,
         isLastPoint: bool,
         zeroPos: bool,
     ) -> ErrorCode;
@@ -966,11 +972,11 @@ extern "C" {
         position: f64,
         velocity: f64,
         headingDeg: f64,
-        profileSlotSelect0: c_int,
-        profileSlotSelect1: c_int,
+        profileSlotSelect0: raw::c_int,
+        profileSlotSelect1: raw::c_int,
         isLastPoint: bool,
         zeroPos: bool,
-        durationMs: c_int,
+        durationMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_IsMotionProfileTopLevelBufferFull(
@@ -982,208 +988,226 @@ extern "C" {
 
     pub fn c_MotController_GetMotionProfileStatus(
         handle: Handle,
-        topBufferRem: *mut c_int,
-        topBufferCnt: *mut c_int,
-        btmBufferCnt: *mut c_int,
+        topBufferRem: *mut raw::c_int,
+        topBufferCnt: *mut raw::c_int,
+        btmBufferCnt: *mut raw::c_int,
         hasUnderrun: *mut bool,
         isUnderrun: *mut bool,
         activePointValid: *mut bool,
         isLast: *mut bool,
-        profileSlotSelect: *mut c_int,
-        outputEnable: *mut c_int,
+        profileSlotSelect: *mut raw::c_int,
+        outputEnable: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetMotionProfileStatus_2(
         handle: Handle,
-        topBufferRem: *mut c_int,
-        topBufferCnt: *mut c_int,
-        btmBufferCnt: *mut c_int,
+        topBufferRem: *mut raw::c_int,
+        topBufferCnt: *mut raw::c_int,
+        btmBufferCnt: *mut raw::c_int,
         hasUnderrun: *mut bool,
         isUnderrun: *mut bool,
         activePointValid: *mut bool,
         isLast: *mut bool,
-        profileSlotSelect: *mut c_int,
-        outputEnable: *mut c_int,
-        timeDurMs: *mut c_int,
-        profileSlotSelect1: *mut c_int,
+        profileSlotSelect: *mut raw::c_int,
+        outputEnable: *mut raw::c_int,
+        timeDurMs: *mut raw::c_int,
+        profileSlotSelect1: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ClearMotionProfileHasUnderrun(
         handle: Handle,
-        timeoutMs: c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ChangeMotionControlFramePeriod(
         handle: Handle,
-        periodMs: c_int,
+        periodMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigMotionProfileTrajectoryPeriod(
         handle: Handle,
-        durationMs: c_int,
-        timeoutMs: c_int,
+        durationMs: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetLastError(handle: Handle) -> ErrorCode;
 
-    pub fn c_MotController_GetFirmwareVersion(handle: Handle, arg1: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetFirmwareVersion(handle: Handle, arg1: *mut raw::c_int) -> ErrorCode;
 
     pub fn c_MotController_HasResetOccurred(handle: Handle, arg1: *mut bool) -> ErrorCode;
 
     pub fn c_MotController_ConfigSetCustomParam(
         handle: Handle,
-        newValue: c_int,
-        paramIndex: c_int,
-        timeoutMs: c_int,
+        newValue: raw::c_int,
+        paramIndex: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigGetCustomParam(
         handle: Handle,
-        readValue: *mut c_int,
-        paramIndex: c_int,
-        timoutMs: c_int,
+        readValue: *mut raw::c_int,
+        paramIndex: raw::c_int,
+        timoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigSetParameter(
         handle: Handle,
-        param: c_int,
+        param: raw::c_int,
         value: f64,
-        subValue: c_int,
-        ordinal: c_int,
-        timeoutMs: c_int,
+        subValue: raw::c_int,
+        ordinal: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigGetParameter(
         handle: Handle,
-        param: c_int,
+        param: raw::c_int,
         value: *mut f64,
-        ordinal: c_int,
-        timeoutMs: c_int,
+        ordinal: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigPeakCurrentLimit(
         handle: Handle,
-        amps: c_int,
-        timeoutMs: c_int,
+        amps: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigPeakCurrentDuration(
         handle: Handle,
-        milliseconds: c_int,
-        timeoutMs: c_int,
+        milliseconds: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_ConfigContinuousCurrentLimit(
         handle: Handle,
-        amps: c_int,
-        timeoutMs: c_int,
+        amps: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_EnableCurrentLimit(handle: Handle, enable: bool) -> ErrorCode;
 
-    pub fn c_MotController_SetLastError(handle: Handle, error: c_int) -> ErrorCode;
+    pub fn c_MotController_SetLastError(handle: Handle, error: raw::c_int) -> ErrorCode;
 
-    pub fn c_MotController_GetAnalogIn(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetAnalogIn(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
     pub fn c_MotController_SetAnalogPosition(
         handle: Handle,
-        newPosition: c_int,
-        timeoutMs: c_int,
+        newPosition: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
-    pub fn c_MotController_GetAnalogInRaw(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetAnalogInRaw(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_MotController_GetAnalogInVel(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetAnalogInVel(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_MotController_GetQuadraturePosition(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetQuadraturePosition(
+        handle: Handle,
+        param: *mut raw::c_int,
+    ) -> ErrorCode;
 
     pub fn c_MotController_SetQuadraturePosition(
         handle: Handle,
-        newPosition: c_int,
-        timeoutMs: c_int,
+        newPosition: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
-    pub fn c_MotController_GetQuadratureVelocity(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetQuadratureVelocity(
+        handle: Handle,
+        param: *mut raw::c_int,
+    ) -> ErrorCode;
 
-    pub fn c_MotController_GetPulseWidthPosition(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetPulseWidthPosition(
+        handle: Handle,
+        param: *mut raw::c_int,
+    ) -> ErrorCode;
 
     pub fn c_MotController_SetPulseWidthPosition(
         handle: Handle,
-        newPosition: c_int,
-        timeoutMs: c_int,
+        newPosition: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
-    pub fn c_MotController_GetPulseWidthVelocity(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetPulseWidthVelocity(
+        handle: Handle,
+        param: *mut raw::c_int,
+    ) -> ErrorCode;
 
     pub fn c_MotController_GetPulseWidthRiseToFallUs(
         handle: Handle,
-        param: *mut c_int,
+        param: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetPulseWidthRiseToRiseUs(
         handle: Handle,
-        param: *mut c_int,
+        param: *mut raw::c_int,
     ) -> ErrorCode;
 
-    pub fn c_MotController_GetPinStateQuadA(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetPinStateQuadA(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_MotController_GetPinStateQuadB(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetPinStateQuadB(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_MotController_GetPinStateQuadIdx(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetPinStateQuadIdx(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_MotController_IsFwdLimitSwitchClosed(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_IsFwdLimitSwitchClosed(
+        handle: Handle,
+        param: *mut raw::c_int,
+    ) -> ErrorCode;
 
-    pub fn c_MotController_IsRevLimitSwitchClosed(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_IsRevLimitSwitchClosed(
+        handle: Handle,
+        param: *mut raw::c_int,
+    ) -> ErrorCode;
 
-    pub fn c_MotController_GetFaults(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetFaults(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_MotController_GetStickyFaults(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_MotController_GetStickyFaults(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_MotController_ClearStickyFaults(handle: Handle, timeoutMs: c_int) -> ErrorCode;
+    pub fn c_MotController_ClearStickyFaults(handle: Handle, timeoutMs: raw::c_int) -> ErrorCode;
 
     pub fn c_MotController_SelectDemandType(handle: Handle, enable: bool) -> ErrorCode;
 
-    pub fn c_MotController_SetMPEOutput(handle: Handle, MpeOutput: c_int) -> ErrorCode;
+    pub fn c_MotController_SetMPEOutput(handle: Handle, MpeOutput: raw::c_int) -> ErrorCode;
 
     pub fn c_MotController_EnableHeadingHold(handle: Handle, enable: bool) -> ErrorCode;
 
     pub fn c_MotController_GetAnalogInAll(
         handle: Handle,
-        withOv: *mut c_int,
-        raw: *mut c_int,
-        vel: *mut c_int,
+        withOv: *mut raw::c_int,
+        raw: *mut raw::c_int,
+        vel: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetQuadratureSensor(
         handle: Handle,
-        pos: *mut c_int,
-        vel: *mut c_int,
+        pos: *mut raw::c_int,
+        vel: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetPulseWidthAll(
         handle: Handle,
-        pos: *mut c_int,
-        vel: *mut c_int,
-        riseToRiseUs: *mut c_int,
-        riseToFallUs: *mut c_int,
+        pos: *mut raw::c_int,
+        vel: *mut raw::c_int,
+        riseToRiseUs: *mut raw::c_int,
+        riseToFallUs: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetQuadPinStates(
         handle: Handle,
-        quadA: *mut c_int,
-        quadB: *mut c_int,
-        quadIdx: *mut c_int,
+        quadA: *mut raw::c_int,
+        quadB: *mut raw::c_int,
+        quadIdx: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetLimitSwitchState(
         handle: Handle,
-        isFwdClosed: *mut c_int,
-        isRevClosed: *mut c_int,
+        isFwdClosed: *mut raw::c_int,
+        isRevClosed: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_MotController_GetClosedLoopTarget(
         handle: Handle,
-        value: *mut c_int,
-        pidIdx: c_int,
+        value: *mut raw::c_int,
+        pidIdx: raw::c_int,
     ) -> ErrorCode;
 }

@@ -1,7 +1,7 @@
 //! Enums and functions related to the CANifier.
 #![allow(non_camel_case_types)]
 
-use std::os::raw::{c_char, c_int};
+use std::os::raw;
 
 use super::ErrorCode;
 
@@ -63,13 +63,13 @@ pub enum GeneralPin {
 }
 
 extern "C" {
-    pub fn c_CANifier_Create1(deviceNumber: c_int) -> Handle;
+    pub fn c_CANifier_Create1(deviceNumber: raw::c_int) -> Handle;
 
     pub fn c_CANifier_GetDescription(
         handle: Handle,
-        toFill: *mut c_char,
-        toFillByteSz: c_int,
-        numBytesFilled: *mut c_int,
+        toFill: *mut raw::c_char,
+        toFillByteSz: raw::c_int,
+        numBytesFilled: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_CANifier_SetLEDOutput(handle: Handle, dutyCycle: u32, ledChannel: u32) -> ErrorCode;
@@ -113,94 +113,97 @@ extern "C" {
 
     pub fn c_CANifier_GetBusVoltage(handle: Handle, batteryVoltage: *mut f64) -> ErrorCode;
 
-    pub fn c_CANifier_GetQuadraturePosition(handle: Handle, pos: *mut c_int) -> ErrorCode;
+    pub fn c_CANifier_GetQuadraturePosition(handle: Handle, pos: *mut raw::c_int) -> ErrorCode;
 
     pub fn c_CANifier_SetQuadraturePosition(
         handle: Handle,
-        pos: c_int,
-        timeoutMs: c_int,
+        pos: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
-    pub fn c_CANifier_GetQuadratureVelocity(handle: Handle, vel: *mut c_int) -> ErrorCode;
+    pub fn c_CANifier_GetQuadratureVelocity(handle: Handle, vel: *mut raw::c_int) -> ErrorCode;
 
     pub fn c_CANifier_GetQuadratureSensor(
         handle: Handle,
-        pos: *mut c_int,
-        vel: *mut c_int,
+        pos: *mut raw::c_int,
+        vel: *mut raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_CANifier_ConfigVelocityMeasurementPeriod(
         handle: Handle,
-        period: c_int,
-        timeoutMs: c_int,
+        period: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_CANifier_ConfigVelocityMeasurementWindow(
         handle: Handle,
-        window: c_int,
-        timeoutMs: c_int,
+        window: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
-    pub fn c_CANifier_SetLastError(handle: Handle, error: c_int);
+    pub fn c_CANifier_SetLastError(handle: Handle, error: raw::c_int);
 
     pub fn c_CANifier_ConfigSetParameter(
         handle: Handle,
-        param: c_int,
+        param: raw::c_int,
         value: f64,
-        subValue: c_int,
-        ordinal: c_int,
-        timeoutMs: c_int,
+        subValue: raw::c_int,
+        ordinal: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_CANifier_ConfigGetParameter(
         handle: Handle,
-        param: c_int,
+        param: raw::c_int,
         value: *mut f64,
-        ordinal: c_int,
-        timeoutMs: c_int,
+        ordinal: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_CANifier_ConfigSetCustomParam(
         handle: Handle,
-        newValue: c_int,
-        paramIndex: c_int,
-        timeoutMs: c_int,
+        newValue: raw::c_int,
+        paramIndex: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_CANifier_ConfigGetCustomParam(
         handle: Handle,
-        readValue: *mut c_int,
-        paramIndex: c_int,
-        timoutMs: c_int,
+        readValue: *mut raw::c_int,
+        paramIndex: raw::c_int,
+        timoutMs: raw::c_int,
     ) -> ErrorCode;
 
-    pub fn c_CANifier_GetFaults(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_CANifier_GetFaults(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_CANifier_GetStickyFaults(handle: Handle, param: *mut c_int) -> ErrorCode;
+    pub fn c_CANifier_GetStickyFaults(handle: Handle, param: *mut raw::c_int) -> ErrorCode;
 
-    pub fn c_CANifier_ClearStickyFaults(handle: Handle, timeoutMs: c_int) -> ErrorCode;
+    pub fn c_CANifier_ClearStickyFaults(handle: Handle, timeoutMs: raw::c_int) -> ErrorCode;
 
-    pub fn c_CANifier_GetFirmwareVersion(handle: Handle, firmwareVers: *mut c_int) -> ErrorCode;
+    pub fn c_CANifier_GetFirmwareVersion(
+        handle: Handle,
+        firmwareVers: *mut raw::c_int,
+    ) -> ErrorCode;
 
     pub fn c_CANifier_HasResetOccurred(handle: Handle, hasReset: *mut bool) -> ErrorCode;
 
     pub fn c_CANifier_SetStatusFramePeriod(
         handle: Handle,
-        frame: c_int,
-        periodMs: c_int,
-        timeoutMs: c_int,
+        frame: raw::c_int,
+        periodMs: raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_CANifier_GetStatusFramePeriod(
         handle: Handle,
-        frame: c_int,
-        periodMs: *mut c_int,
-        timeoutMs: c_int,
+        frame: raw::c_int,
+        periodMs: *mut raw::c_int,
+        timeoutMs: raw::c_int,
     ) -> ErrorCode;
 
     pub fn c_CANifier_SetControlFramePeriod(
         handle: Handle,
-        frame: c_int,
-        periodMs: c_int,
+        frame: raw::c_int,
+        periodMs: raw::c_int,
     ) -> ErrorCode;
 }
