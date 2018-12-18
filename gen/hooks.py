@@ -18,7 +18,6 @@ def function_hook(fn, data):
     assert m, f"unexpected function {fn['name']}"
 
     snake_name = to_snake_case(m.group(1))
-    fn['meth_name'] = snake_name
 
     handle_idx = -1
     in_params = []
@@ -53,9 +52,12 @@ def function_hook(fn, data):
     elif len(rust_return_types) == 1:
         fn['rust_returns'] = 'Result<%s>' % rust_return_types[0]
         fn['simple_getter'] = True
+        if snake_name.startswith('get_'):
+            snake_name = snake_name[4:]
     else:
         fn['rust_returns'] = 'Result<(%s)>' % ', '.join(rust_return_types)
 
+    fn['meth_name'] = snake_name
     fn['handle_param_idx'] = handle_idx
     fn['in_params'] = in_params
     fn['out_params'] = out_params

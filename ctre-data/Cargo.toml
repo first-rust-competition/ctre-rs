@@ -1,0 +1,26 @@
+[package]
+name = "ctre-data"
+version = "0.5.7"
+authors = ["David Vo <david@vovo.id.au>"]
+repository = "https://github.com/auscompgeek/ctre-rs"
+license-file = "LICENSE"
+keywords = ["frc", "ctre"]
+categories = ["embedded", "hardware-support"]
+description = "Enums and structs for CTR Electronics' Phoenix libraries"
+
+[package.metadata.docs.rs]
+features = ["serde", "num"]
+
+[dependencies]
+num-derive = { version = "0.2", optional = true }
+num-traits = { version = "0.2", optional = true, default-features = false }
+smart-default = "0.2"
+
+[dependencies.serde]
+version = "1.0"
+optional = true
+default-features = false
+features = ["derive"]
+
+[features]
+num = ["num-derive", "num-traits"]

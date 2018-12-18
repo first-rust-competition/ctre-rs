@@ -12,18 +12,20 @@ impl {{ mod_name }} {
 
 {% for header in headers %}
 {% for fn in header.functions %}
-    pub fn {{ fn.meth_name }}({% if fn.handle_param_idx == 0 %}&self, {% endif %}{{ fn.in_params | join(', ', attribute='rust_decl') }}){% if fn.rust_returns %} -> {{ fn.rust_returns }}{% endif %} {
+    pub fn {{ fn.meth_name }}({% if fn.handle_param_idx == 0 %}&{% if not fn.simple_getter %}mut {% endif %}self, {% endif %}{{ fn.in_params | join(', ', attribute='rust_decl') }}){% if fn.rust_returns %} -> {{ fn.rust_returns }}{% endif %} {
     {% if fn.out_params %}
-        cci_get_call!({{ fn.name }}(
-            self.handle(),
-            {% for p in fn.parameters[1:] %}
-            {% if p.pointer or p.array %}
-            _: {{ p.rust_type }}, // {{ p.snake_name }}
-            {% else %}
-            {{ p.snake_name }},
-            {% endif %}
-            {% endfor %}
-        ))
+        cci_get_call!(
+			{{ fn.name }}(
+				self.handle(),
+				{% for p in fn.parameters[1:] %}
+				{% if p.pointer or p.array %}
+				_: {{ p.rust_type }}, // {{ p.snake_name }}
+				{% else %}
+				{{ p.snake_name }},
+				{% endif %}
+				{% endfor %}
+			)
+		)
     {% else %}
         unsafe {
             {{ fn.name }}({% if fn.handle_param_idx == 0 %}self.handle(), {% endif %}{{ fn.in_params | join(', ', attribute='snake_name') }})

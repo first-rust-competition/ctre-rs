@@ -1,9 +1,14 @@
-//! Enums, structs, and functions related to motor controllers.
+//! Low-level enums and functions related to motor controllers.
 #![allow(non_camel_case_types, non_upper_case_globals)]
 
 use std::os::raw;
 
 use super::ErrorCode;
+
+transmute_from! {
+    ControlFrame => ControlFrameEnhanced,
+    StatusFrame => StatusFrameEnhanced,
+}
 
 #[doc(hidden)]
 pub enum _Handle {}
@@ -15,583 +20,51 @@ pub type Handle = *mut _Handle;
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ControlFrame {
-    Control_3_General = 262272,
-    Control_4_Advanced = 262336,
-    Control_6_MotProfAddTrajPoint = 262464,
+    Control_3_General = 0x040080,
+    Control_4_Advanced = 0x0400C0,
+    Control_6_MotProfAddTrajPoint = 0x040140,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ControlFrameEnhanced {
-    Control_3_General = 262272,
-    Control_4_Advanced = 262336,
-    Control_5_FeedbackOutputOverride = 262400,
-    Control_6_MotProfAddTrajPoint = 262464,
-}
-
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ControlMode {
-    PercentOutput = 0,
-    Position = 1,
-    Velocity = 2,
-    Current = 3,
-    Follower = 5,
-    MotionProfile = 6,
-    MotionMagic = 7,
-    MotionProfileArc = 10,
-    Disabled = 15,
-}
-#[repr(i32)]
-/// How to interpret a demand value.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum DemandType {
-    /// Ignore the demand value and apply neutral/no-change.
-    Neutral = 0,
-    /**
-     * When closed-looping, set the target of the aux PID loop to the demand value.
-     *
-     * When following, follow the processed output of the combined
-     * primary/aux PID output.  The demand value is ignored.
-     */
-    AuxPID = 1,
-    /// Simply add to the output
-    ArbitraryFeedForward = 2,
-}
-impl Default for DemandType {
-    #[inline]
-    fn default() -> DemandType {
-        DemandType::Neutral
-    }
-}
-
-impl FeedbackDevice {
-    pub const CTRE_MagEncoder_Absolute: FeedbackDevice = FeedbackDevice::PulseWidthEncodedPosition;
-    pub const CTRE_MagEncoder_Relative: FeedbackDevice = FeedbackDevice::QuadEncoder;
-}
-#[repr(i32)]
-/// Motor controller with gadgeteer connector.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FeedbackDevice {
-    None = -1,
-    QuadEncoder = 0,
-    Analog = 2,
-    Tachometer = 4,
-    PulseWidthEncodedPosition = 8,
-    SensorSum = 9,
-    SensorDifference = 10,
-    RemoteSensor0 = 11,
-    RemoteSensor1 = 12,
-    SoftwareEmulatedSensor = 15,
-}
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum RemoteFeedbackDevice {
-    None = -1,
-    SensorSum = 9,
-    SensorDifference = 10,
-    RemoteSensor0 = 11,
-    RemoteSensor1 = 12,
-    SoftwareEmulatedSensor = 15,
-}
-
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FollowerType {
-    PercentOutput = 0,
-    AuxOutput1 = 1,
-}
-impl Default for FollowerType {
-    #[inline]
-    fn default() -> FollowerType {
-        FollowerType::PercentOutput
-    }
-}
-
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum LimitSwitchSource {
-    FeedbackConnector = 0,
-    RemoteTalonSRX = 1,
-    RemoteCANifier = 2,
-    Deactivated = 3,
-}
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum RemoteLimitSwitchSource {
-    RemoteTalonSRX = 1,
-    RemoteCANifier = 2,
-    Deactivated = 3,
-}
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum LimitSwitchNormal {
-    NormallyOpen = 0,
-    NormallyClosed = 1,
-    Disabled = 2,
-}
-
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum NeutralMode {
-    /// Use the NeutralMode that is set by the jumper wire on the CAN device
-    EEPROMSetting = 0,
-    /// Stop the motor's rotation by applying a force.
-    Coast = 1,
-    /// Stop the motor's rotation by applying a force.
-    Brake = 2,
-}
-
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum RemoteSensorSource {
-    Off = 0,
-    TalonSRX_SelectedSensor = 1,
-    Pigeon_Yaw = 2,
-    Pigeon_Pitch = 3,
-    Pigeon_Roll = 4,
-    CANifier_Quadrature = 5,
-    CANifier_PWMInput0 = 6,
-    CANifier_PWMInput1 = 7,
-    CANifier_PWMInput2 = 8,
-    CANifier_PWMInput3 = 9,
-    GadgeteerPigeon_Yaw = 10,
-    GadgeteerPigeon_Pitch = 11,
-    GadgeteerPigeon_Roll = 12,
-}
-
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum SensorTerm {
-    Sum0 = 0,
-    Sum1 = 1,
-    Diff0 = 2,
-    Diff1 = 3,
+    Control_3_General = 0x040080,
+    Control_4_Advanced = 0x0400C0,
+    Control_5_FeedbackOutputOverride = 0x040100,
+    Control_6_MotProfAddTrajPoint = 0x040140,
 }
 
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum StatusFrameEnhanced {
-    Status_1_General = 5120,
-    Status_2_Feedback0 = 5184,
-    Status_4_AinTempVbat = 5312,
-    Status_6_Misc = 5440,
-    Status_7_CommStatus = 5504,
-    Status_9_MotProfBuffer = 5632,
-    Status_10_Targets = 5696,
-    Status_12_Feedback1 = 5824,
-    Status_13_Base_PIDF0 = 5888,
-    Status_14_Turn_PIDF1 = 5952,
-    Status_15_FirmareApiStatus = 6016,
-    Status_3_Quadrature = 5248,
-    Status_8_PulseWidth = 5568,
-    Status_11_UartGadgeteer = 5760,
+    Status_1_General = 0x1400,
+    Status_2_Feedback0 = 0x1440,
+    Status_4_AinTempVbat = 0x14C0,
+    Status_6_Misc = 0x1540,
+    Status_7_CommStatus = 0x1580,
+    Status_9_MotProfBuffer = 0x1600,
+    Status_10_Targets = 0x1640,
+    Status_12_Feedback1 = 0x16C0,
+    Status_13_Base_PIDF0 = 0x1700,
+    Status_14_Turn_PIDF1 = 0x1740,
+    Status_15_FirmareApiStatus = 0x1780,
+    Status_3_Quadrature = 0x1480,
+    Status_8_PulseWidth = 0x15C0,
+    Status_11_UartGadgeteer = 0x1680,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum StatusFrame {
-    Status_1_General = 5120,
-    Status_2_Feedback0 = 5184,
-    Status_4_AinTempVbat = 5312,
-    Status_6_Misc = 5440,
-    Status_7_CommStatus = 5504,
-    Status_9_MotProfBuffer = 5632,
-    Status_10_Targets = 5696,
-    Status_12_Feedback1 = 5824,
-    Status_13_Base_PIDF0 = 5888,
-    Status_14_Turn_PIDF1 = 5952,
-    Status_15_FirmareApiStatus = 6016,
-}
-
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum VelocityMeasPeriod {
-    Period_1Ms = 1,
-    Period_2Ms = 2,
-    Period_5Ms = 5,
-    Period_10Ms = 10,
-    Period_20Ms = 20,
-    Period_25Ms = 25,
-    Period_50Ms = 50,
-    Period_100Ms = 100,
-}
-
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum SetValueMotionProfile {
-    Invalid = -1,
-    Disable = 0,
-    Enable = 1,
-    Hold = 2,
-}
-impl From<raw::c_int> for SetValueMotionProfile {
-    fn from(value: raw::c_int) -> SetValueMotionProfile {
-        match value {
-            0 => SetValueMotionProfile::Disable,
-            1 => SetValueMotionProfile::Enable,
-            2 => SetValueMotionProfile::Hold,
-            _ => SetValueMotionProfile::Invalid,
-        }
-    }
-}
-impl Default for SetValueMotionProfile {
-    #[inline]
-    fn default() -> SetValueMotionProfile {
-        SetValueMotionProfile::Invalid
-    }
-}
-#[repr(i32)]
-/// Duration to apply to a particular trajectory pt.
-/// This time unit is ADDED to the existing base time set by
-/// ConfigMotionProfileTrajectoryPeriod().
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub enum TrajectoryDuration {
-    T0ms = 0,
-    T5ms = 5,
-    T10ms = 10,
-    T20ms = 20,
-    T30ms = 30,
-    T40ms = 40,
-    T50ms = 50,
-    T100ms = 100,
-}
-impl Default for TrajectoryDuration {
-    #[inline]
-    fn default() -> TrajectoryDuration {
-        TrajectoryDuration::T0ms
-    }
-}
-/// Motion Profile Trajectory Point
-/// This is simply a data transfer object.
-#[repr(C)]
-#[derive(Default, Debug)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct TrajectoryPoint {
-    /// The position to servo to.
-    pub position: f64,
-    /// The velocity to feed-forward.
-    pub velocity: f64,
-    /// Not used.  Use auxiliary_pos instead.
-    heading_deg: f64,
-    /// The position for auxiliary PID to target.
-    pub auxiliary_pos: f64,
-    /// Which slot to get PIDF gains.
-    /// PID is used for position servo.
-    /// F is used as the Kv constant for velocity feed-forward.
-    /// Typically this is hard-coded
-    /// to a particular slot, but you are free to gain schedule if need be.
-    /// gain schedule if need be.
-    /// Choose from [0,3].
-    pub profile_slot_select_0: u32,
-    /// Which slot to get PIDF gains for auxiliary PID.
-    /// This only has impact during MotionProfileArc Control mode.
-    /// Choose from [0,1].
-    pub profile_slot_select_1: u32,
-    /// Set to true to signal Talon that this is the final point, so do not
-    /// attempt to pop another trajectory point from out of the Talon buffer.
-    /// Instead continue processing this way point.  Typically the velocity
-    /// member variable should be zero so that the motor doesn't spin indefinitely.
-    pub is_last_point: bool,
-    /// Set to true to signal Talon to zero the selected sensor.
-    /// When generating MPs, one simple method is to make the first target position zero,
-    /// and the final target position the target distance from the current position.
-    /// Then when you fire the MP, the current position gets set to zero.
-    /// If this is the intent, you can set zeroPos on the first trajectory point.
-    ///
-    /// Otherwise you can leave this false for all points, and offset the positions
-    /// of all trajectory points so they are correct.
-    pub zero_pos: bool,
-    /// Duration to apply this trajectory pt.
-    /// This time unit is ADDED to the existing base time set by
-    /// ConfigMotionProfileTrajectoryPeriod().
-    pub time_dur: TrajectoryDuration,
-}
-#[test]
-fn bindgen_test_layout_TrajectoryPoint() {
-    assert_eq!(
-        ::std::mem::size_of::<TrajectoryPoint>(),
-        48usize,
-        concat!("Size of: ", stringify!(TrajectoryPoint))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<TrajectoryPoint>(),
-        8usize,
-        concat!("Alignment of ", stringify!(TrajectoryPoint))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).position as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(TrajectoryPoint),
-            "::",
-            stringify!(position)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).velocity as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(TrajectoryPoint),
-            "::",
-            stringify!(velocity)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).heading_deg as *const _ as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(TrajectoryPoint),
-            "::",
-            stringify!(heading_deg)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).auxiliary_pos as *const _ as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(TrajectoryPoint),
-            "::",
-            stringify!(auxiliary_pos)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<TrajectoryPoint>())).profile_slot_select_0 as *const _ as usize
-        },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(TrajectoryPoint),
-            "::",
-            stringify!(profile_slot_select_0)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<TrajectoryPoint>())).profile_slot_select_1 as *const _ as usize
-        },
-        36usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(TrajectoryPoint),
-            "::",
-            stringify!(profile_slot_select1)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).is_last_point as *const _ as usize },
-        40usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(TrajectoryPoint),
-            "::",
-            stringify!(is_last_point)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).zero_pos as *const _ as usize },
-        41usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(TrajectoryPoint),
-            "::",
-            stringify!(zero_pos)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<TrajectoryPoint>())).time_dur as *const _ as usize },
-        44usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(TrajectoryPoint),
-            "::",
-            stringify!(time_dur)
-        )
-    );
-}
-/// Motion Profile Status
-/// This is simply a data transer object.
-#[repr(C)]
-#[derive(Default, Debug, PartialEq, Eq)]
-pub struct MotionProfileStatus {
-    /// The available empty slots in the trajectory buffer.
-    ///
-    /// The robot API holds a "top buffer" of trajectory points, so your applicaion
-    /// can dump several points at once.  The API will then stream them into the Talon's
-    /// low-level buffer, allowing the Talon to act on them.
-    pub top_buffer_rem: raw::c_int,
-    /// The number of points in the top trajectory buffer.
-    pub top_buffer_cnt: raw::c_int,
-    /// The number of points in the low level Talon buffer.
-    pub btm_buffer_cnt: raw::c_int,
-    /// Set if `is_underrun` ever gets set.
-    /// Only is cleared by clearMotionProfileHasUnderrun() to ensure
-    /// robot logic can react or instrument it.
-    /// @see clearMotionProfileHasUnderrun()
-    pub has_underrun: bool,
-    /// This is set if Talon needs to shift a point from its buffer into
-    /// the active trajectory point however the buffer is empty. This gets cleared
-    /// automatically when is resolved.
-    pub is_underrun: bool,
-    /// True if the active trajectory point has not empty, false otherwise.
-    /// The members in activePoint are only valid if this signal is set.
-    pub active_point_valid: bool,
-    pub is_last: bool,
-    /// Selected slot for PID Loop 0
-    pub profile_slot_select_0: raw::c_int,
-    /// Selected slot for PID Loop 0
-    pub profile_slot_select_1: raw::c_int,
-    /// The current output mode of the motion profile executer (disabled, enabled, or hold).
-    /// When changing the set() value in MP mode, it's important to check this signal to
-    /// confirm the change takes effect before interacting with the top buffer.
-    pub output_enable: SetValueMotionProfile,
-    /// The applied duration of the active trajectory point
-    pub time_dur_ms: raw::c_int,
-}
-#[test]
-fn bindgen_test_layout_MotionProfileStatus() {
-    assert_eq!(
-        ::std::mem::size_of::<MotionProfileStatus>(),
-        32usize,
-        concat!("Size of: ", stringify!(MotionProfileStatus))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<MotionProfileStatus>(),
-        4usize,
-        concat!("Alignment of ", stringify!(MotionProfileStatus))
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<MotionProfileStatus>())).top_buffer_rem as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(MotionProfileStatus),
-            "::",
-            stringify!(top_buffer_rem)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<MotionProfileStatus>())).top_buffer_cnt as *const _ as usize
-        },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(MotionProfileStatus),
-            "::",
-            stringify!(top_buffer_cnt)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<MotionProfileStatus>())).btm_buffer_cnt as *const _ as usize
-        },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(MotionProfileStatus),
-            "::",
-            stringify!(btm_buffer_cnt)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<MotionProfileStatus>())).has_underrun as *const _ as usize
-        },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(MotionProfileStatus),
-            "::",
-            stringify!(has_underrun)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<MotionProfileStatus>())).is_underrun as *const _ as usize },
-        13usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(MotionProfileStatus),
-            "::",
-            stringify!(is_underrun)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<MotionProfileStatus>())).active_point_valid as *const _ as usize
-        },
-        14usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(MotionProfileStatus),
-            "::",
-            stringify!(active_point_valid)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<MotionProfileStatus>())).is_last as *const _ as usize },
-        15usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(MotionProfileStatus),
-            "::",
-            stringify!(is_last)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<MotionProfileStatus>())).profile_slot_select_0 as *const _
-                as usize
-        },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(MotionProfileStatus),
-            "::",
-            stringify!(profile_slot_select_0)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<MotionProfileStatus>())).profile_slot_select_1 as *const _
-                as usize
-        },
-        20usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(MotionProfileStatus),
-            "::",
-            stringify!(profile_slot_select_1)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<MotionProfileStatus>())).output_enable as *const _ as usize
-        },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(MotionProfileStatus),
-            "::",
-            stringify!(output_enable)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<MotionProfileStatus>())).time_dur_ms as *const _ as usize },
-        28usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(MotionProfileStatus),
-            "::",
-            stringify!(time_dur_ms)
-        )
-    );
+    Status_1_General = 0x1400,
+    Status_2_Feedback0 = 0x1440,
+    Status_4_AinTempVbat = 0x14C0,
+    Status_6_Misc = 0x1540,
+    Status_7_CommStatus = 0x1580,
+    Status_9_MotProfBuffer = 0x1600,
+    Status_10_Targets = 0x1640,
+    Status_12_Feedback1 = 0x16C0,
+    Status_13_Base_PIDF0 = 0x1700,
+    Status_14_Turn_PIDF1 = 0x1740,
+    Status_15_FirmareApiStatus = 0x1780,
 }
 
 extern "C" {

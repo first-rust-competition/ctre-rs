@@ -1,14 +1,16 @@
 //! CANifier
 
+pub use ctre_data::canifier::*;
 use ctre_sys::canifier::*;
-pub use ctre_sys::canifier::{
-    CANifierControlFrame as ControlFrame, CANifierStatusFrame as StatusFrame,
-    CANifierVelocityMeasPeriod as VelocityMeasPeriod, GeneralPin,
-};
+pub use ctre_sys::canifier::{CANifierControlFrame, CANifierStatusFrame, GeneralPin};
+use std::mem;
 #[cfg(feature = "usage-reporting")]
 use wpilib_sys::usage::report_usage;
 
-use super::{ErrorCode, ParamEnum, Result};
+use super::{CustomParam, CustomParamConfiguration, ErrorCode, ParamEnum, Result};
+
+pub type ControlFrame = CANifierControlFrame;
+pub type StatusFrame = CANifierStatusFrame;
 
 #[repr(u32)]
 /// Enum for the LED Output Channels
@@ -29,23 +31,6 @@ pub enum PWMChannel {
     P3 = 3,
 }
 pub const PWM_CHANNEL_COUNT: usize = 4;
-
-#[allow(non_snake_case)]
-/// Structure to hold the pin values.
-#[derive(Default, Debug, Copy, Clone, PartialEq, Eq)]
-pub struct PinValues {
-    pub QUAD_IDX: bool,
-    pub QUAD_B: bool,
-    pub QUAD_A: bool,
-    pub LIMR: bool,
-    pub LIMF: bool,
-    pub SDA: bool,
-    pub SCL: bool,
-    pub SPI_CS_PWM3: bool,
-    pub SPI_MISO_PWM2: bool,
-    pub SPI_MOSI_PWM1: bool,
-    pub SPI_CLK_PWM0: bool,
-}
 
 #[derive(Debug, Copy, Clone)]
 pub struct Faults(i32);
@@ -84,23 +69,25 @@ impl CANifier {
         CANifier { handle }
     }
 
-    pub fn _set_led_output(&self, duty_cycle: u32, led_channel: LEDChannel) -> ErrorCode {
+    pub fn set_led_output_unchecked(&self, duty_cycle: u32, led_channel: LEDChannel) -> ErrorCode {
         unsafe { c_CANifier_SetLEDOutput(self.handle, duty_cycle, led_channel as u32) }
     }
     pub fn set_led_output(&self, percent_output: f64, led_channel: LEDChannel) -> ErrorCode {
         // convert float to integral fixed pt
         let duty_cycle = 1023. * percent_output.min(1.).max(0.);
-        self._set_led_output(duty_cycle as u32, led_channel)
+        self.set_led_output_unchecked(duty_cycle as u32, led_channel)
     }
     /**
      * Sets the output of all General Pins
      * * `output_bits` - A bit mask of all the output states.
-     *   LSB->MSB is in the order of the GeneralPin enum.
+     *   LSB->MSB is in the order of the [GeneralPin] enum.
      * * `is_output_bits` - A boolean bit mask that sets the pins to be outputs or inputs.
      *   A bit of 1 enables output.
+     *
+     * [GeneralPin]: enum.GeneralPin.html
      */
-    pub fn set_general_outputs(&self, outputs_bits: u32, is_output_bits: u32) -> ErrorCode {
-        unsafe { c_CANifier_SetGeneralOutputs(self.handle, outputs_bits, is_output_bits) }
+    pub fn set_general_outputs(&self, output_bits: u32, is_output_bits: u32) -> ErrorCode {
+        unsafe { c_CANifier_SetGeneralOutputs(self.handle, output_bits, is_output_bits) }
     }
     pub fn set_general_output(
         &self,
@@ -113,7 +100,7 @@ impl CANifier {
         }
     }
 
-    pub fn _set_pwm_output(&self, pwm_channel: u32, duty_cycle: u32) -> ErrorCode {
+    pub fn set_pwm_output_unchecked(&self, pwm_channel: u32, duty_cycle: u32) -> ErrorCode {
         unsafe { c_CANifier_SetPWMOutput(self.handle, pwm_channel, duty_cycle) }
     }
     /**
@@ -125,8 +112,9 @@ impl CANifier {
      */
     pub fn set_pwm_output(&self, pwm_channel: PWMChannel, duty_cycle: f64) -> ErrorCode {
         let duty_cyc_10bit = 1023. * duty_cycle.max(0.).min(1.);
-        self._set_pwm_output(pwm_channel as u32, duty_cyc_10bit as u32)
+        self.set_pwm_output_unchecked(pwm_channel as u32, duty_cyc_10bit as u32)
     }
+    #[doc(hidden)]
     pub fn _enable_pwm_output(&self, pwm_channel: u32, b_enable: bool) -> ErrorCode {
         unsafe { c_CANifier_EnablePWMOutput(self.handle, pwm_channel, b_enable) }
     }
@@ -138,15 +126,16 @@ impl CANifier {
         self._enable_pwm_output(pwm_channel as u32, enable)
     }
 
-    pub fn _get_general_inputs(&self, all_pins: &mut [bool]) -> ErrorCode {
+    /// Read pin states into an array.
+    pub fn general_inputs_into(&self, all_pins: &mut [bool]) -> ErrorCode {
         unsafe {
             c_CANifier_GetGeneralInputs(self.handle, all_pins.as_mut_ptr(), all_pins.len() as _)
         }
     }
     /// Gets the state of all General Pins
-    pub fn get_general_inputs(&self) -> Result<PinValues> {
-        let mut temp_pins = [false; 11];
-        let err = self._get_general_inputs(&mut temp_pins);
+    pub fn general_inputs(&self) -> Result<PinValues> {
+        let mut temp_pins: [bool; 11] = unsafe { mem::uninitialized() };
+        let err = self.general_inputs_into(&mut temp_pins);
         match err {
             ErrorCode::OK => Ok(PinValues {
                 LIMF: temp_pins[GeneralPin::LIMF as usize],
@@ -165,30 +154,30 @@ impl CANifier {
         }
     }
     /// Gets the state of the specified pin
-    pub fn get_general_input(&self, input_pin: GeneralPin) -> Result<bool> {
+    pub fn general_input(&self, input_pin: GeneralPin) -> Result<bool> {
         cci_get_call!(c_CANifier_GetGeneralInput(self.handle, input_pin as u32, _: bool))
     }
 
     /// Gets the PWM Input.
-    /// Returns a 2-array holding the Pulse Width (microseconds) [0] and Period (microseconds) [1].
-    pub fn get_pwm_input(&self, pwm_channel: PWMChannel) -> Result<[f64; 2]> {
+    /// Returns a 2-array holding the Pulse Width (microseconds) and Period (microseconds).
+    pub fn pwm_input(&self, pwm_channel: PWMChannel) -> Result<[f64; 2]> {
         cci_get_call!(c_CANifier_GetPWMInput(self.handle, pwm_channel as u32, _: [f64; 2]))
     }
 
-    pub fn get_last_error(&self) -> ErrorCode {
+    pub fn last_error(&self) -> ErrorCode {
         unsafe { c_CANifier_GetLastError(self.handle) }
     }
-    pub fn get_bus_voltage(&self) -> Result<f64> {
+    pub fn bus_voltage(&self) -> Result<f64> {
         cci_get_call!(c_CANifier_GetBusVoltage(self.handle, _: f64))
     }
 
-    pub fn get_quadrature_position(&self) -> Result<i32> {
+    pub fn quadrature_position(&self) -> Result<i32> {
         cci_get_call!(c_CANifier_GetQuadraturePosition(self.handle, _: i32))
     }
     pub fn set_quadrature_position(&self, pos: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_CANifier_SetQuadraturePosition(self.handle, pos, timeout_ms) }
     }
-    pub fn get_quadrature_velocity(&self) -> Result<i32> {
+    pub fn quadrature_velocity(&self) -> Result<i32> {
         cci_get_call!(c_CANifier_GetQuadratureVelocity(self.handle, _: i32))
     }
 
@@ -205,7 +194,11 @@ impl CANifier {
     ) -> ErrorCode {
         unsafe { c_CANifier_ConfigVelocityMeasurementPeriod(self.handle, period as _, timeout_ms) }
     }
-    pub fn config_velocity_measurement_window(&mut self, window: i32, timeout_ms: i32) -> ErrorCode {
+    pub fn config_velocity_measurement_window(
+        &mut self,
+        window: i32,
+        timeout_ms: i32,
+    ) -> ErrorCode {
         unsafe { c_CANifier_ConfigVelocityMeasurementWindow(self.handle, window, timeout_ms) }
     }
 
@@ -241,13 +234,9 @@ impl CANifier {
         ordinal: i32,
         timeout_ms: i32,
     ) -> Result<f64> {
-        cci_get_call!(c_CANifier_ConfigGetParameter(
-            self.handle,
-            param as _,
-            _: f64,
-            ordinal,
-            timeout_ms,
-        ))
+        cci_get_call!(
+            c_CANifier_ConfigGetParameter(self.handle, param as _, _: f64, ordinal, timeout_ms)
+        )
     }
     /**
      * Sets the value of a custom parameter. This is for arbitrary use.
@@ -282,21 +271,21 @@ impl CANifier {
         cci_get_call!(c_CANifier_ConfigGetCustomParam(self.handle, _: i32, param_index, timout_ms))
     }
 
-    pub fn get_faults(&self) -> Result<Faults> {
+    pub fn faults(&self) -> Result<Faults> {
         Ok(Faults(
             cci_get_call!(c_CANifier_GetFaults(self.handle, _: i32))?,
         ))
     }
-    pub fn get_sticky_faults(&self) -> Result<StickyFaults> {
+    pub fn sticky_faults(&self) -> Result<StickyFaults> {
         Ok(StickyFaults(
             cci_get_call!(c_CANifier_GetStickyFaults(self.handle, _: i32))?,
         ))
     }
-    pub fn clear_sticky_faults(&self, timeout_ms: i32) -> ErrorCode {
+    pub fn clear_sticky_faults(&mut self, timeout_ms: i32) -> ErrorCode {
         unsafe { c_CANifier_ClearStickyFaults(self.handle, timeout_ms) }
     }
 
-    pub fn get_firmware_version(&self) -> Result<i32> {
+    pub fn firmware_version(&self) -> Result<i32> {
         cci_get_call!(c_CANifier_GetFirmwareVersion(self.handle, _: i32))
     }
     pub fn has_reset_occurred(&self) -> Result<bool> {

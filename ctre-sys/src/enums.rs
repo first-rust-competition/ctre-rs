@@ -1,4 +1,4 @@
-//! Enums common to all CTRE Phoenix devices.
+//! Low-level enums common to all CTRE Phoenix devices.
 #![allow(non_camel_case_types, non_upper_case_globals)]
 
 #[repr(i32)]
@@ -140,6 +140,7 @@ pub enum ParamEnum {
     RemoteSensorDeviceID = 334,
     SensorTerm = 335, // feedbackDevice_t (ordinal is the register)
     RemoteSensorClosedLoopDisableNeutralOnLOS = 336,
+    /// auxPIDPolarity
     PIDLoopPolarity = 337,
     PIDLoopPeriod = 338,
     SelectedSensorCoefficient = 339,
@@ -149,7 +150,9 @@ pub enum ParamEnum {
     ForwardSoftLimitEnable = 342,
     ReverseSoftLimitEnable = 343,
 
+    /// voltageCompSaturation
     NominalBatteryVoltage = 350,
+    /// voltageMeasurementFilter
     BatteryVoltageFilterSize = 351,
 
     ContinuousCurrentLimitAmps = 360,
@@ -199,4 +202,6 @@ pub enum ParamEnum {
     MotionMeas_shake_reject_thresh = 178,
     MotionMeas_shake_reject_time = 179,
     MotionMeas_shake_reject_timeout = 180,
+
+    DefaultConfig = 500,
 }

@@ -1,6 +1,6 @@
 [package]
 name = "ctre"
-version = "0.6.1"
+version = "0.7.0"
 authors = ["David Vo <david@vovo.id.au>"]
 license-file = "LICENSE"
 readme = "README.md"
@@ -11,15 +11,18 @@ description = "Bindings for CTR Electronics' Phoenix for FRC libraries"
 
 [features]
 default = ["usage-reporting"]
-serde = ["ctre-sys/serde"]
+serde = ["ctre-data/serde"]
 usage-reporting = ["wpilib-sys"]
 
 [dependencies]
+ctre-data = { path = "ctre-data", version = "0.5.7", features = ["num"] }
 ctre-sys = { path = "ctre-sys", version = "5.5.0" }
+num-traits = "0.2"
+smart-default = "0.2"
 
 [dependencies.wpilib-sys]
 optional = true
 version = "0.3.0"
 
 [workspace]
-members = [".", "ctre-sys"]
+members = [".", "ctre-sys", "ctre-data"]

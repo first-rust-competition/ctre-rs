@@ -1,4 +1,4 @@
-//! Enums and functions related to the CANifier.
+//! Low-level enums and functions related to the CANifier.
 #![allow(non_camel_case_types)]
 
 use std::os::raw;
@@ -16,33 +16,20 @@ pub type Handle = *mut _Handle;
 /// Enumerated type for status frame types.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum CANifierControlFrame {
-    Control_1_General = 50593792,
-    Control_2_PwmOutput = 50593856,
+    Control_1_General = 0x03040000,
+    Control_2_PwmOutput = 0x03040040,
 }
 #[repr(i32)]
 /// Enumerated type for status frame types.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum CANifierStatusFrame {
-    Status_1_General = 267264,
-    Status_2_General = 267328,
-    Status_3_PwmInputs0 = 267392,
-    Status_4_PwmInputs1 = 267456,
-    Status_5_PwmInputs2 = 267520,
-    Status_6_PwmInputs3 = 267584,
-    Status_8_Misc = 267712,
-}
-
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CANifierVelocityMeasPeriod {
-    Period_1Ms = 1,
-    Period_2Ms = 2,
-    Period_5Ms = 5,
-    Period_10Ms = 10,
-    Period_20Ms = 20,
-    Period_25Ms = 25,
-    Period_50Ms = 50,
-    Period_100Ms = 100,
+    Status_1_General = 0x041400,
+    Status_2_General = 0x041440,
+    Status_3_PwmInputs0 = 0x041480,
+    Status_4_PwmInputs1 = 0x0414C0,
+    Status_5_PwmInputs2 = 0x041500,
+    Status_6_PwmInputs3 = 0x041540,
+    Status_8_Misc = 0x0415C0,
 }
 
 #[repr(u32)]
