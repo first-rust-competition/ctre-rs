@@ -18,7 +18,7 @@ macro_rules! cci_get_call {
 /// Convenience wrapper for making simple get calls, ignoring the ErrorCode.
 macro_rules! cci_get_only {
     ($function:ident($($arg0:expr,)+ _: $type:ty $(, $arg1:expr)*$(,)*)) => ({
-        let mut value: $type = unsafe { ::std::mem::uninitialized() };
+        let mut value: $type = Default::default();
         unsafe { $function($($arg0,)* &mut value, $($arg1,)*) };
         value
     });
@@ -49,24 +49,10 @@ macro_rules! make_cci_getter {
 }
 */
 
-macro_rules! impl_binary_fmt {
-    ($type:ty) => {
-        impl ::std::fmt::Binary for $type {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                self.0.fmt(f)
-            }
-        }
-        impl ::std::fmt::Octal for $type {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                self.0.fmt(f)
-            }
-        }
-        impl ::std::fmt::LowerHex for $type {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                self.0.fmt(f)
-            }
-        }
-        impl ::std::fmt::UpperHex for $type {
+/// Implement a `std::fmt` trait for a tuple newtype.
+macro_rules! impl_fmt {
+    ($trait:ident, $type:ty) => {
+        impl ::std::fmt::$trait for $type {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
                 self.0.fmt(f)
             }
@@ -74,8 +60,20 @@ macro_rules! impl_binary_fmt {
     };
 }
 
+/// Implement the binary number formatting traits for a tuple newtype.
+macro_rules! impl_binary_fmt {
+    ($type:ty) => {
+        impl_fmt!(Binary, $type);
+        impl_fmt!(Octal, $type);
+        impl_fmt!(LowerHex, $type);
+        impl_fmt!(UpperHex, $type);
+    };
+}
+
+/// Convert an f64 into an enum using FromPrimitive, using the enum's
+/// default if there is no corresponding variant.
 macro_rules! f64_to_enum {
     ($expr:expr => $enum:ty) => {
-        <$enum as ::num_traits::cast::FromPrimitive>::from_f64($expr).unwrap_or(Default::default())
+        <$enum as ::num_traits::FromPrimitive>::from_f64($expr).unwrap_or(Default::default())
     };
 }
