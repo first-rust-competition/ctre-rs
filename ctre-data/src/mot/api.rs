@@ -3,11 +3,11 @@
 // These enums are defined by ctre-rs to convey information with type safety.
 // These are required for configuration or motion profiling.
 
-defaults! {
+enum_defaults! {
     /// Returns the factory default of standard polarity.
-    AuxPIDPolarity => AuxPIDPolarity::Standard,
+    AuxPIDPolarity::Standard;
     /// Returns a default of slot 0.
-    PIDSlot => PIDSlot::S0,
+    PIDSlot::S0;
 }
 
 /**

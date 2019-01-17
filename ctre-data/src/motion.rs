@@ -2,9 +2,9 @@
 
 use super::mot::api::PIDSlot;
 
-defaults! {
+enum_defaults! {
     /// Returns a default duration of 100 ms (not recommended).
-    TrajectoryDuration => TrajectoryDuration::T100ms,
+    TrajectoryDuration::T100ms;
 }
 
 impl From<i32> for SetValueMotionProfile {

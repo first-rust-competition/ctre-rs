@@ -3,23 +3,24 @@
 
 use core::mem;
 
-defaults! {
-    DemandType => DemandType::Neutral,
-    FollowerType => FollowerType::PercentOutput,
+enum_defaults! {
+    DemandType::Neutral;
+    FollowerType::PercentOutput;
 
-    FeedbackDevice => FeedbackDevice::QuadEncoder,
+    FeedbackDevice::QuadEncoder;
     /// Returns the default value of `RemoteSensor0`.
     ///
     /// NOTE: while the factory default value is 0, this value can't
     /// be set by the API. Thus, RemoteSensor0 is the default
-    RemoteFeedbackDevice => RemoteFeedbackDevice::RemoteSensor0,
+    RemoteFeedbackDevice::RemoteSensor0;
 
-    LimitSwitchSource => LimitSwitchSource::FeedbackConnector,
-    RemoteLimitSwitchSource => RemoteLimitSwitchSource::Deactivated,
-    LimitSwitchNormal => LimitSwitchNormal::NormallyOpen,
+    LimitSwitchSource::FeedbackConnector;
+    RemoteLimitSwitchSource::Deactivated;
+    LimitSwitchNormal::NormallyOpen;
 
-    RemoteSensorSource => RemoteSensorSource::Off,
-    VelocityMeasPeriod => VelocityMeasPeriod::Period_100Ms,
+    RemoteSensorSource::Off;
+    /// Returns the default measurement period of 100 ms.
+    VelocityMeasPeriod::Period_100Ms;
 }
 
 impl From<RemoteFeedbackDevice> for FeedbackDevice {

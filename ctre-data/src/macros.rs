@@ -1,29 +1,32 @@
-/// Macro to create simple default implementations.
-// TODO: Can we avoid the repetition of the type name for enums?
-macro_rules! defaults {
+/*
+ * This file is licensed under MIT.
+ */
+
+/// Macro to create simple Default implementations for data-less enums.
+macro_rules! enum_defaults {
     () => {};
-    ($(#[$attr:meta])* $type:ty => $default:expr) => {
+    ($(#[$attr:meta])* $type:ident :: $default:ident) => {
         impl Default for $type {
             #[inline]
             $(#[$attr])*
             fn default() -> Self {
-                $default
+                $type::$default
             }
         }
     };
-    ($(#[$attr:meta])* $type:ty => $default:expr, $($rest:tt)*) => {
-        defaults!($(#[$attr])* $type => $default);
-        defaults!($($rest)*);
+    ($(#[$attr:meta])* $type:ident :: $default:ident; $($rest:tt)*) => {
+        enum_defaults!($(#[$attr])* $type::$default);
+        enum_defaults!($($rest)*);
     };
 }
 
-/// Macro to create a public data-less enum that uses its primitive
+/// Macro to create a data-less enum that uses its primitive
 /// values as its serialisation.  Appropriated from the serde docs.
 macro_rules! enum_number {
-    ($(#[$attr:meta])* pub enum $name:ident { $($(#[$var_attr:meta])* $variant:ident = $value:expr,)* }) => {
+    ($(#[$attr:meta])* $vis:vis enum $name:ident { $($(#[$var_attr:meta])* $variant:ident = $value:expr,)* }) => {
         #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, PartialOrd, Ord)]
         $(#[$attr])*
-        pub enum $name {
+        $vis enum $name {
             $( $(#[$var_attr])* $variant = $value, )*
         }
 
