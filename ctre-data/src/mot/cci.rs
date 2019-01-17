@@ -108,6 +108,7 @@ pub enum FeedbackDevice {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum RemoteFeedbackDevice {
     // NOTE: None removed as it doesn't exist in firmware
+    FactoryDefaultOff = 0,
     SensorSum = 9,
     SensorDifference = 10,
     RemoteSensor0 = 11,
