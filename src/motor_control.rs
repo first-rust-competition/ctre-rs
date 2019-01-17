@@ -1104,15 +1104,18 @@ pub trait MotorController: private::Sealed {
                 slot_idx,
                 slot.allowable_closed_loop_error,
                 timeout_ms,
-            )).or(self.config_max_integral_accumulator(
+            ))
+            .or(self.config_max_integral_accumulator(
                 slot_idx,
                 slot.max_integral_accumulator,
                 timeout_ms,
-            )).or(self.config_closed_loop_peak_output(
+            ))
+            .or(self.config_closed_loop_peak_output(
                 slot_idx,
                 slot.closed_loop_peak_output,
                 timeout_ms,
-            )).or(self.config_closed_loop_period(slot_idx, slot.closed_loop_period, timeout_ms))
+            ))
+            .or(self.config_closed_loop_period(slot_idx, slot.closed_loop_period, timeout_ms))
     }
     /// Gets all slot persistent settings.
     fn get_slot_configs(&self, slot_idx: PIDSlot, timeout_ms: i32) -> Result<SlotConfiguration> {
@@ -1222,7 +1225,6 @@ pub trait MotorController: private::Sealed {
         timeout_ms: i32,
     ) -> ErrorCode {
         self.config_factory_default(timeout_ms)
-
             // general output shaping
             .or(self.config_open_loop_ramp(all_configs.open_loop_ramp, timeout_ms))
             .or(self.config_closed_loop_ramp(all_configs.closed_loop_ramp, timeout_ms))
@@ -1231,44 +1233,59 @@ pub trait MotorController: private::Sealed {
             .or(self.config_nominal_output_forward(all_configs.nominal_output_forward, timeout_ms))
             .or(self.config_nominal_output_reverse(all_configs.nominal_output_reverse, timeout_ms))
             .or(self.config_neutral_deadband(all_configs.neutral_deadband, timeout_ms))
-
             // voltage compensation
-            .or(self.config_voltage_comp_saturation(all_configs.voltage_comp_saturation, timeout_ms))
-            .or(self.config_voltage_measurement_filter(all_configs.voltage_measurement_filter, timeout_ms))
-
+            .or(self
+                .config_voltage_comp_saturation(all_configs.voltage_comp_saturation, timeout_ms))
+            .or(self.config_voltage_measurement_filter(
+                all_configs.voltage_measurement_filter,
+                timeout_ms,
+            ))
             // velocity signal conditioning
-            .or(self.config_velocity_measurement_period(all_configs.velocity_measurement_period, timeout_ms))
-            .or(self.config_velocity_measurement_window(all_configs.velocity_measurement_window, timeout_ms))
-
+            .or(self.config_velocity_measurement_period(
+                all_configs.velocity_measurement_period,
+                timeout_ms,
+            ))
+            .or(self.config_velocity_measurement_window(
+                all_configs.velocity_measurement_window,
+                timeout_ms,
+            ))
             // soft limit
-            .or(self.config_forward_soft_limit_threshold(all_configs.forward_soft_limit_threshold, timeout_ms))
-            .or(self.config_reverse_soft_limit_threshold(all_configs.reverse_soft_limit_threshold, timeout_ms))
-            .or(self.config_forward_soft_limit_enable(all_configs.forward_soft_limit_enable, timeout_ms))
-            .or(self.config_reverse_soft_limit_enable(all_configs.reverse_soft_limit_enable, timeout_ms))
-
+            .or(self.config_forward_soft_limit_threshold(
+                all_configs.forward_soft_limit_threshold,
+                timeout_ms,
+            ))
+            .or(self.config_reverse_soft_limit_threshold(
+                all_configs.reverse_soft_limit_threshold,
+                timeout_ms,
+            ))
+            .or(self.config_forward_soft_limit_enable(
+                all_configs.forward_soft_limit_enable,
+                timeout_ms,
+            ))
+            .or(self.config_reverse_soft_limit_enable(
+                all_configs.reverse_soft_limit_enable,
+                timeout_ms,
+            ))
             // limit switch not in base
             // current lim not in base
-
             // slots
             .or(self.configure_slot(&all_configs.slot_0, PIDSlot::S0, timeout_ms))
             .or(self.configure_slot(&all_configs.slot_1, PIDSlot::S1, timeout_ms))
             .or(self.configure_slot(&all_configs.slot_2, PIDSlot::S2, timeout_ms))
             .or(self.configure_slot(&all_configs.slot_3, PIDSlot::S3, timeout_ms))
-
             // auxiliary closed loop polarity
             .or(self.config_aux_pid_polarity(all_configs.aux_pid_polarity, timeout_ms))
-
             // remote feedback filters
             .or(self.configure_filter(&all_configs.filter_0, FilterOrdinal::S0, timeout_ms))
             .or(self.configure_filter(&all_configs.filter_1, FilterOrdinal::S1, timeout_ms))
-
             // motion profile settings used in Motion Magic
             .or(self.config_motion_cruise_velocity(all_configs.motion_cruise_velocity, timeout_ms))
             .or(self.config_motion_acceleration(all_configs.motion_acceleration, timeout_ms))
-
             // motion profile buffer
-            .or(self.config_motion_profile_trajectory_period(all_configs.motion_profile_trajectory_period, timeout_ms))
-
+            .or(self.config_motion_profile_trajectory_period(
+                all_configs.motion_profile_trajectory_period,
+                timeout_ms,
+            ))
             // custom persistent params
             .or(self.config_set_custom_param(all_configs.custom_param.0, 0, timeout_ms))
             .or(self.config_set_custom_param(all_configs.custom_param.1, 0, timeout_ms))
