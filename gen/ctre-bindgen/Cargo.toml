@@ -1,0 +1,8 @@
+[package]
+name = "ctre-bindgen"
+version = "0.1.0"
+authors = ["David Vo <david@vovo.id.au>"]
+publish = false
+
+[dependencies]
+bindgen = "0.43.2"

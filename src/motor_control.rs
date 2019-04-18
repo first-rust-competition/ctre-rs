@@ -7,17 +7,19 @@ pub use ctre_data::mot::{
     config::{BaseMotorControllerConfiguration, BasePIDSetConfiguration},
 };
 use ctre_sys::mot::*;
-pub use ctre_sys::mot::{ControlFrame, ControlFrameEnhanced, StatusFrame, StatusFrameEnhanced};
+pub use ctre_sys::mot::{
+    ControlFrame, ControlFrameEnhanced, InvertType, StatusFrame, StatusFrameEnhanced,
+};
 use std::mem;
 #[cfg(feature = "usage-reporting")]
-use wpilib_sys::usage::report_usage;
+use wpilib_sys::usage;
 
 use super::{
     motion::{MotionProfileStatus, TrajectoryPoint},
-    ConfigAll, CustomParam, CustomParamConfiguration, ErrorCode, ParamEnum, Result,
+    ConfigAll, CustomParam, ErrorCode, ParamEnum, Result,
 };
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Faults(i32);
 impl Faults {
     pub fn under_voltage(self) -> bool {
@@ -60,7 +62,7 @@ impl Faults {
 }
 impl_binary_fmt!(Faults);
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct StickyFaults(i32);
 impl StickyFaults {
     pub fn under_voltage(self) -> bool {
@@ -115,11 +117,50 @@ pub enum PIDLoop {
 /// Remote sensor/filter ordinal.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[repr(i32)]
-pub enum FilterOrdinal {
+pub enum RemoteFilter {
     /// Remote Sensor 0
     S0 = 0,
     /// Remote Sensor 1
     S1 = 1,
+}
+
+/// Demand 1.
+#[derive(Debug, Copy, Clone, PartialEq, SmartDefault)]
+pub enum Demand {
+    #[default]
+    /// Apply no change to the demand0 output.
+    Neutral,
+    /**
+     * When closed-looping, set the target of the auxiliary PID loop.
+     *
+     * When following, follow the processed output of the combined
+     * primary/aux PID output.  The demand value is ignored.
+     */
+    AuxPID(f64),
+    /// Simply add to the demand0 output.
+    ///
+    /// In PercentOutput the demand0 output is the motor output,
+    /// and in closed-loop modes the demand0 output is the output of PID0.
+    ArbitraryFeedForward(f64),
+}
+
+impl Demand {
+    /// Get the type of this demand1.
+    pub fn type_(&self) -> DemandType {
+        match self {
+            Demand::Neutral => DemandType::Neutral,
+            Demand::AuxPID(_) => DemandType::AuxPID,
+            Demand::ArbitraryFeedForward(_) => DemandType::ArbitraryFeedForward,
+        }
+    }
+
+    /// Get the raw value of this demand1.
+    pub fn value(self) -> f64 {
+        match self {
+            Demand::Neutral => 0.0,
+            Demand::AuxPID(value) | Demand::ArbitraryFeedForward(value) => value,
+        }
+    }
 }
 
 /// Base motor controller features for all CTRE CAN motor controllers.
@@ -128,12 +169,15 @@ pub enum FilterOrdinal {
 pub trait MotorController: private::Sealed {
     /// Constructor.
     /// * `device_number` - [0,62]
-    fn new(device_number: i32) -> Self
+    fn new(device_number: u8) -> Self
     where
         Self: Sized;
 
-    fn get_base_id(&self) -> i32;
-    fn get_device_id(&self) -> i32 {
+    #[doc(hidden)]
+    fn handle(&self) -> Handle;
+    #[doc(hidden)]
+    fn base_id(&self) -> i32;
+    fn device_id(&self) -> i32 {
         cci_get_only!(c_MotController_GetDeviceNumber(self.handle(), _: i32))
     }
 
@@ -147,38 +191,37 @@ pub trait MotorController: private::Sealed {
      *   * In Position mode, output value is in encoder ticks or an analog value,
      *     depending on the sensor. See
      *   * In Follower mode, the output value is the integer device ID of the talon to duplicate.
-     * * `demand1_type` - The demand type for demand1.
      * * `demand1` - Supplmental output value.  Units match the set mode.
      *
      * # Examples
      *
      * Arcade Drive Example:
      * ```
-     * talonLeft.set(ControlMode::PercentOutput, joyForward, DemandType::ArbitraryFeedForward, joyTurn);
-     * talonRght.set(ControlMode::PercentOutput, joyForward, DemandType::ArbitraryFeedForward, -joyTurn);
+     * talonLeft.set(ControlMode::PercentOutput, joyForward, Demand::ArbitraryFeedForward(joyTurn));
+     * talonRght.set(ControlMode::PercentOutput, joyForward, Demand::ArbitraryFeedForward(-joyTurn));
      * ```
      *
      * Drive Straight Example:
      * Note: Selected Sensor Configuration is necessary for both PID0 and PID1.
      * ```
      * talonLeft.follow(talonRght, FollowerType::AuxOutput1);
-     * talonRght.set(ControlMode::PercentOutput, joyForward, DemandType::AuxPID, desiredRobotHeading);
+     * talonRght.set(ControlMode::PercentOutput, joyForward, Demand::AuxPID(desiredRobotHeading));
      * ```
      *
      * Drive Straight to a Distance Example:
      * Note: Other configurations (sensor selection, PID gains, etc.) need to be set.
      * ```
      * talonLeft.follow(talonRght, FollowerType::AuxOutput1);
-     * talonRght.set(ControlMode::MotionMagic, targetDistance, DemandType::AuxPID, desiredRobotHeading);
+     * talonRght.set(ControlMode::MotionMagic, targetDistance, Demand::AuxPID(desiredRobotHeading));
      * ```
      */
-    fn set(&mut self, mode: ControlMode, demand0: f64, demand1_type: DemandType, demand1: f64) {
+    fn set(&mut self, mode: ControlMode, demand0: f64, demand1: Demand) {
         // NB: This does not store the control mode and setpoint to avoid several complications.
         match mode {
             ControlMode::Follower => {
                 // did caller specify device ID
                 let work = if 0.0 <= demand0 && demand0 <= 62.0 {
-                    ((self.get_base_id() as u32 >> 16) << 8) | (demand0 as u32)
+                    ((self.base_id() as u32 >> 16) << 8) | (demand0 as u32)
                 } else {
                     demand0 as u32
                 };
@@ -189,8 +232,8 @@ pub trait MotorController: private::Sealed {
                         self.handle(),
                         mode as _,
                         work as f64,
-                        demand1,
-                        demand1_type as _,
+                        demand1.value(),
+                        demand1.type_() as _,
                     )
                 }
             }
@@ -210,8 +253,8 @@ pub trait MotorController: private::Sealed {
                     self.handle(),
                     mode as _,
                     demand0,
-                    demand1,
-                    demand1_type as _,
+                    demand1.value(),
+                    demand1.type_() as _,
                 )
             },
             ControlMode::Disabled => unsafe {
@@ -222,7 +265,7 @@ pub trait MotorController: private::Sealed {
 
     /// Neutral the motor output by setting control mode to disabled.
     fn neutral_output(&mut self) {
-        self.set(ControlMode::Disabled, 0.0, DemandType::Neutral, 0.0)
+        self.set(ControlMode::Disabled, 0.0, Demand::Neutral)
     }
     /// Sets the mode of operation during neutral throttle output.
     fn set_neutral_mode(&mut self, neutral_mode: NeutralMode) {
@@ -424,7 +467,7 @@ pub trait MotorController: private::Sealed {
         &mut self,
         device_id: i32,
         remote_sensor_source: RemoteSensorSource,
-        remote_ordinal: FilterOrdinal,
+        remote_ordinal: RemoteFilter,
         timeout_ms: i32,
     ) -> ErrorCode {
         unsafe {
@@ -996,19 +1039,19 @@ pub trait MotorController: private::Sealed {
      * device is part of a subsystem that can be replaced.
      *
      * * `new_value` - Value for custom parameter.
-     * * `param_index` - Index of custom parameter [0,1]
+     * * `param` - Index of custom parameter [0,1]
      * * `timeout_ms` - Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
     fn config_set_custom_param(
         &mut self,
-        new_value: i32,
-        param_index: i32,
+        value: i32,
+        param_index: CustomParam,
         timeout_ms: i32,
     ) -> ErrorCode {
         unsafe {
-            c_MotController_ConfigSetCustomParam(self.handle(), new_value, param_index, timeout_ms)
+            c_MotController_ConfigSetCustomParam(self.handle(), value, param_index as _, timeout_ms)
         }
     }
     /**
@@ -1019,9 +1062,9 @@ pub trait MotorController: private::Sealed {
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
-    fn config_get_custom_param(&self, param_index: i32, timout_ms: i32) -> Result<i32> {
+    fn config_get_custom_param(&self, param_index: CustomParam, timout_ms: i32) -> Result<i32> {
         cci_get_call!(
-            c_MotController_ConfigGetCustomParam(self.handle(), _: i32, param_index, timout_ms)
+            c_MotController_ConfigGetCustomParam(self.handle(), _: i32, param_index as _, timout_ms)
         )
     }
 
@@ -1075,15 +1118,15 @@ pub trait MotorController: private::Sealed {
     where
         Self: Sized,
     {
-        let base_id = master_to_follow.get_base_id();
+        let base_id = master_to_follow.base_id();
         let id24: i32 = ((base_id >> 0x10) << 8) | (base_id & 0xFF);
 
         match follower_type {
             FollowerType::PercentOutput => {
-                self.set(ControlMode::Follower, id24 as f64, DemandType::Neutral, 0.0)
+                self.set(ControlMode::Follower, id24 as f64, Demand::Neutral)
             }
             FollowerType::AuxOutput1 => {
-                self.set(ControlMode::Follower, id24 as f64, DemandType::AuxPID, 0.0)
+                self.set(ControlMode::Follower, id24 as f64, Demand::AuxPID(0.0))
             }
         };
     }
@@ -1157,7 +1200,7 @@ pub trait MotorController: private::Sealed {
     fn configure_filter(
         &mut self,
         filter: &FilterConfiguration,
-        ordinal: FilterOrdinal,
+        ordinal: RemoteFilter,
         timeout_ms: i32,
     ) -> ErrorCode {
         self.config_remote_feedback_filter(
@@ -1170,7 +1213,7 @@ pub trait MotorController: private::Sealed {
     /// Gets all filter persistent settings.
     fn get_filter_configs(
         &self,
-        ordinal: FilterOrdinal,
+        ordinal: RemoteFilter,
         timeout_ms: i32,
     ) -> Result<FilterConfiguration> {
         Ok(FilterConfiguration {
@@ -1276,8 +1319,8 @@ pub trait MotorController: private::Sealed {
             // auxiliary closed loop polarity
             .or(self.config_aux_pid_polarity(all_configs.aux_pid_polarity, timeout_ms))
             // remote feedback filters
-            .or(self.configure_filter(&all_configs.filter_0, FilterOrdinal::S0, timeout_ms))
-            .or(self.configure_filter(&all_configs.filter_1, FilterOrdinal::S1, timeout_ms))
+            .or(self.configure_filter(&all_configs.filter_0, RemoteFilter::S0, timeout_ms))
+            .or(self.configure_filter(&all_configs.filter_1, RemoteFilter::S1, timeout_ms))
             // motion profile settings used in Motion Magic
             .or(self.config_motion_cruise_velocity(all_configs.motion_cruise_velocity, timeout_ms))
             .or(self.config_motion_acceleration(all_configs.motion_acceleration, timeout_ms))
@@ -1287,8 +1330,16 @@ pub trait MotorController: private::Sealed {
                 timeout_ms,
             ))
             // custom persistent params
-            .or(self.config_set_custom_param(all_configs.custom_param.0, 0, timeout_ms))
-            .or(self.config_set_custom_param(all_configs.custom_param.1, 0, timeout_ms))
+            .or(self.config_set_custom_param(
+                all_configs.custom_param.0,
+                CustomParam::A,
+                timeout_ms,
+            ))
+            .or(self.config_set_custom_param(
+                all_configs.custom_param.1,
+                CustomParam::B,
+                timeout_ms,
+            ))
         // ...
     }
     #[doc(hidden)]
@@ -1390,16 +1441,21 @@ pub struct TalonSRX {
 }
 
 impl MotorController for TalonSRX {
-    fn new(device_number: i32) -> TalonSRX {
-        let arb_id = device_number | 0x02040000;
+    fn new(device_number: u8) -> TalonSRX {
+        let arb_id = device_number as i32 | 0x0204_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
-        // kResourceType_CANTalonSRX
         #[cfg(feature = "usage-reporting")]
-        report_usage(52, device_number as u32 + 1);
+        usage::report_usage(usage::resource_types::CANTalonSRX, device_number as u32 + 1);
         TalonSRX { handle, arb_id }
     }
 
-    fn get_base_id(&self) -> i32 {
+    #[doc(hidden)]
+    fn handle(&self) -> Handle {
+        self.handle
+    }
+
+    #[doc(hidden)]
+    fn base_id(&self) -> i32 {
         self.arb_id
     }
 }
@@ -1673,16 +1729,24 @@ pub struct VictorSPX {
 }
 
 impl MotorController for VictorSPX {
-    fn new(device_number: i32) -> VictorSPX {
-        let arb_id = device_number | 0x01040000;
+    fn new(device_number: u8) -> VictorSPX {
+        let arb_id = device_number as i32 | 0x0104_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
-        // kResourceType_CTRE_future1
         #[cfg(feature = "usage-reporting")]
-        report_usage(65, device_number as u32 + 1);
+        usage::report_usage(
+            usage::resource_types::CTRE_future1,
+            device_number as u32 + 1,
+        );
         VictorSPX { handle, arb_id }
     }
 
-    fn get_base_id(&self) -> i32 {
+    #[doc(hidden)]
+    fn handle(&self) -> Handle {
+        self.handle
+    }
+
+    #[doc(hidden)]
+    fn base_id(&self) -> i32 {
         self.arb_id
     }
 }
@@ -1742,18 +1806,7 @@ impl ConfigAll for VictorSPX {
 
 // Prevent users from implementing the MotorController trait.
 mod private {
-    use super::Handle;
-    pub trait Sealed {
-        fn handle(&self) -> Handle;
-    }
-    impl Sealed for super::TalonSRX {
-        fn handle(&self) -> Handle {
-            self.handle
-        }
-    }
-    impl Sealed for super::VictorSPX {
-        fn handle(&self) -> Handle {
-            self.handle
-        }
-    }
+    pub trait Sealed {}
+    impl Sealed for super::TalonSRX {}
+    impl Sealed for super::VictorSPX {}
 }

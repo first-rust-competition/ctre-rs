@@ -5,17 +5,17 @@ use ctre_sys::pigeon::*;
 pub use ctre_sys::pigeon::{PigeonIMU_ControlFrame, PigeonIMU_StatusFrame};
 use std::mem;
 #[cfg(feature = "usage-reporting")]
-use wpilib_sys::usage::report_usage;
+use wpilib_sys::usage;
 
 use super::super::{
     motor_control::{MotorController, TalonSRX},
-    CustomParam, CustomParamConfiguration, ErrorCode, ParamEnum, Result,
+    CustomParam, ErrorCode, ParamEnum, Result,
 };
 
 pub type ControlFrame = PigeonIMU_ControlFrame;
 pub type StatusFrame = PigeonIMU_StatusFrame;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Faults(i32);
 impl Faults {
     pub fn has_any_fault(self) -> bool {
@@ -23,7 +23,7 @@ impl Faults {
     }
 }
 impl_binary_fmt!(Faults);
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct StickyFaults(i32);
 impl StickyFaults {
     pub fn has_any_fault(self) -> bool {
@@ -46,24 +46,22 @@ impl PigeonIMU {
     /// * `device_number` - CAN Device Id of Pigeon [0,62]
     pub fn new(device_number: i32) -> PigeonIMU {
         let handle = unsafe { c_PigeonIMU_Create1(device_number) };
-        // kResourceType_PigeonIMU
         #[cfg(feature = "usage-reporting")]
-        report_usage(61, device_number as u32 + 1);
+        usage::report_usage(usage::resource_types::PigeonIMU, device_number as u32 + 1);
         PigeonIMU { handle }
     }
 
     /// Create a Pigeon object that communicates with Pigeon through the
     /// Gadgeteer ribbon cable connected to a Talon on CAN Bus.
     pub fn with_talon_srx(talon_srx: &TalonSRX) -> PigeonIMU {
-        let talon_device_id = talon_srx.get_device_id();
+        let talon_device_id = talon_srx.device_id();
         let handle = unsafe { c_PigeonIMU_Create2(talon_device_id) };
         #[cfg(feature = "usage-reporting")]
         {
             let instance_number = talon_device_id as u32 + 1;
-            // kResourceType_PigeonIMU
-            report_usage(61, instance_number);
-            // kResourceType_CTRE_future0
-            report_usage(64, instance_number); // record as Pigeon-via-Uart
+            usage::report_usage(usage::resource_types::PigeonIMU, instance_number);
+            // record as Pigeon-via-Uart
+            usage::report_usage(usage::resource_types::CTRE_future0, instance_number);
         }
         PigeonIMU { handle }
     }
@@ -107,7 +105,7 @@ impl PigeonIMU {
     pub fn set_fused_heading_to_compass(&self, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetFusedHeadingToCompass(self.handle, timeout_ms) }
     }
-    pub fn set_accum_z_angle(&self, angle: f64, timeout_ms: i32) -> ErrorCode {
+    pub fn set_accum_zangle(&self, angle: f64, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetAccumZAngle(self.handle, angle, timeout_ms) }
     }
 
@@ -129,7 +127,9 @@ impl PigeonIMU {
         disable: bool,
         timeout_ms: i32,
     ) -> ErrorCode {
-        unimplemented!()
+        unsafe {
+            c_PigeonIMU_SetTemperatureCompensationDisable(self.handle, disable as _, timeout_ms)
+        }
     }
 
     /// Set the declination for compass. Declination is the difference between
@@ -312,10 +312,10 @@ impl PigeonIMU {
     pub fn config_set_custom_param(
         &mut self,
         new_value: i32,
-        param_index: i32,
+        param: CustomParam,
         timeout_ms: i32,
     ) -> ErrorCode {
-        unsafe { c_PigeonIMU_ConfigSetCustomParam(self.handle, new_value, param_index, timeout_ms) }
+        unsafe { c_PigeonIMU_ConfigSetCustomParam(self.handle, new_value, param as _, timeout_ms) }
     }
     /**
      * Gets the value of a custom parameter. This is for arbitrary use.
@@ -325,9 +325,9 @@ impl PigeonIMU {
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
-    pub fn config_get_custom_param(&self, param_index: i32, timout_ms: i32) -> Result<i32> {
+    pub fn config_get_custom_param(&self, param_index: CustomParam, timout_ms: i32) -> Result<i32> {
         cci_get_call!(
-            c_PigeonIMU_ConfigGetCustomParam(self.handle, _: i32, param_index, timout_ms)
+            c_PigeonIMU_ConfigGetCustomParam(self.handle, _: i32, param_index as _, timout_ms)
         )
     }
     /**

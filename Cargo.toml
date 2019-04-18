@@ -1,6 +1,6 @@
 [package]
 name = "ctre"
-version = "0.7.0"
+version = "0.8.0"
 authors = ["David Vo <david@vovo.id.au>"]
 license-file = "LICENSE"
 readme = "README.md"
@@ -22,7 +22,7 @@ smart-default = "0.2"
 
 [dependencies.wpilib-sys]
 optional = true
-version = "0.3.0"
+version = "0.4.0"
 
 [workspace]
-members = [".", "ctre-sys", "ctre-data"]
+members = [".", "ctre-sys", "ctre-data", "gen/ctre-bindgen"]

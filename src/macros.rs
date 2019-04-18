@@ -36,13 +36,13 @@ macro_rules! cci_get_only {
 /// Create CCI getter wrappers, because metaprogramming.
 macro_rules! make_cci_getter {
     () => {};
-    ($(#[$attr:meta])* fn $rust_fn:ident = $cci_fn:ident -> $type:ty) => {
+    ($(#[$attr:meta])* fn $rust_fn:ident -> $type:ty = $cci_fn:ident) => {
         $(#[$attr])*
         fn $rust_fn(&self) -> Result<$type> {
             cci_get_call!($cci_fn(self.handle(), _: $type))
         }
     };
-    ($(#[$attr:meta])* fn $rust_fn:ident = $cci_fn:ident -> $type:ty; $($rest:tt)*) => {
+    ($(#[$attr:meta])* fn $rust_fn:ident -> $type:ty = $cci_fn:ident; $($rest:tt)*) => {
         make_cci_getter!($(#[$attr])* fn $rust_fn = $cci_fn -> $type);
         make_cci_getter!($($rest)*);
     };

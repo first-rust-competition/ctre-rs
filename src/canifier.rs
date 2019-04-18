@@ -5,9 +5,9 @@ use ctre_sys::canifier::*;
 pub use ctre_sys::canifier::{CANifierControlFrame, CANifierStatusFrame, GeneralPin};
 use std::mem;
 #[cfg(feature = "usage-reporting")]
-use wpilib_sys::usage::report_usage;
+use wpilib_sys::usage;
 
-use super::{CustomParam, CustomParamConfiguration, ErrorCode, ParamEnum, Result};
+use super::{CustomParam, ErrorCode, ParamEnum, Result};
 
 pub type ControlFrame = CANifierControlFrame;
 pub type StatusFrame = CANifierStatusFrame;
@@ -32,7 +32,7 @@ pub enum PWMChannel {
 }
 pub const PWM_CHANNEL_COUNT: usize = 4;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Faults(i32);
 impl Faults {
     pub fn has_any_fault(self) -> bool {
@@ -40,7 +40,7 @@ impl Faults {
     }
 }
 impl_binary_fmt!(Faults);
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct StickyFaults(i32);
 impl StickyFaults {
     pub fn has_any_fault(self) -> bool {
@@ -63,19 +63,23 @@ impl CANifier {
     /// * `device_number` - The CAN Device ID of the CANifier.
     pub fn new(device_number: i32) -> CANifier {
         let handle = unsafe { c_CANifier_Create1(device_number) };
-        // kResourceType_CANifier
         #[cfg(feature = "usage-reporting")]
-        report_usage(63, device_number as u32 + 1);
+        usage::report_usage(usage::resource_types::CANifier, device_number as u32 + 1);
         CANifier { handle }
     }
 
-    pub fn set_led_output_unchecked(&self, duty_cycle: u32, led_channel: LEDChannel) -> ErrorCode {
-        unsafe { c_CANifier_SetLEDOutput(self.handle, duty_cycle, led_channel as u32) }
+    pub unsafe fn set_led_output_unchecked(
+        &self,
+        duty_cycle: u32,
+        led_channel: LEDChannel,
+    ) -> ErrorCode {
+        c_CANifier_SetLEDOutput(self.handle, duty_cycle, led_channel as u32)
     }
     pub fn set_led_output(&self, percent_output: f64, led_channel: LEDChannel) -> ErrorCode {
+        debug_assert!(0. <= percent_output && percent_output <= 1.);
         // convert float to integral fixed pt
         let duty_cycle = 1023. * percent_output.min(1.).max(0.);
-        self.set_led_output_unchecked(duty_cycle as u32, led_channel)
+        unsafe { self.set_led_output_unchecked(duty_cycle as u32, led_channel) }
     }
     /**
      * Sets the output of all General Pins
@@ -100,8 +104,8 @@ impl CANifier {
         }
     }
 
-    pub fn set_pwm_output_unchecked(&self, pwm_channel: u32, duty_cycle: u32) -> ErrorCode {
-        unsafe { c_CANifier_SetPWMOutput(self.handle, pwm_channel, duty_cycle) }
+    pub unsafe fn set_pwm_output_unchecked(&self, pwm_channel: u32, duty_cycle: u32) -> ErrorCode {
+        c_CANifier_SetPWMOutput(self.handle, pwm_channel, duty_cycle)
     }
     /**
      * Sets the PWM Output
@@ -111,19 +115,20 @@ impl CANifier {
      *   Default period of the signal is 4.2 ms.
      */
     pub fn set_pwm_output(&self, pwm_channel: PWMChannel, duty_cycle: f64) -> ErrorCode {
+        debug_assert!(0. <= duty_cycle && duty_cycle <= 1., "Duty cycle should be within [0,1].");
         let duty_cyc_10bit = 1023. * duty_cycle.max(0.).min(1.);
-        self.set_pwm_output_unchecked(pwm_channel as u32, duty_cyc_10bit as u32)
+        unsafe { self.set_pwm_output_unchecked(pwm_channel as u32, duty_cyc_10bit as u32) }
     }
     #[doc(hidden)]
-    pub fn _enable_pwm_output(&self, pwm_channel: u32, b_enable: bool) -> ErrorCode {
-        unsafe { c_CANifier_EnablePWMOutput(self.handle, pwm_channel, b_enable) }
+    pub unsafe fn enable_pwm_output_unchecked(&self, pwm_channel: u32, enable: bool) -> ErrorCode {
+        c_CANifier_EnablePWMOutput(self.handle, pwm_channel, enable)
     }
     /**
      * Enables PWM Outputs
      * Currently supports PWM 0, PWM 1, and PWM 2
      */
     pub fn enable_pwm_output(&self, pwm_channel: PWMChannel, enable: bool) -> ErrorCode {
-        self._enable_pwm_output(pwm_channel as u32, enable)
+        unsafe { self.enable_pwm_output_unchecked(pwm_channel as u32, enable) }
     }
 
     /// Read pin states into an array.
@@ -253,11 +258,11 @@ impl CANifier {
      */
     pub fn config_set_custom_param(
         &mut self,
-        new_value: i32,
-        param_index: i32,
+        value: i32,
+        param_index: CustomParam,
         timeout_ms: i32,
     ) -> ErrorCode {
-        unsafe { c_CANifier_ConfigSetCustomParam(self.handle, new_value, param_index, timeout_ms) }
+        unsafe { c_CANifier_ConfigSetCustomParam(self.handle, value, param_index as _, timeout_ms) }
     }
     /**
      * Gets the value of a custom parameter. This is for arbitrary use.
@@ -267,8 +272,8 @@ impl CANifier {
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
-    pub fn config_get_custom_param(&self, param_index: i32, timout_ms: i32) -> Result<i32> {
-        cci_get_call!(c_CANifier_ConfigGetCustomParam(self.handle, _: i32, param_index, timout_ms))
+    pub fn config_get_custom_param(&self, param: CustomParam, timout_ms: i32) -> Result<i32> {
+        cci_get_call!(c_CANifier_ConfigGetCustomParam(self.handle, _: i32, param as _, timout_ms))
     }
 
     pub fn faults(&self) -> Result<Faults> {

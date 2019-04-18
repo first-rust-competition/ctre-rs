@@ -26,6 +26,8 @@ pub enum ErrorCode {
     SensorNotPresent = -7,
     FirmwareTooOld = -8,
     CouldNotChangePeriod = -9,
+    BufferFailure = -10,
+    FirwmwareNonFRC = -11,
 
     // General
     /// User Specified General Error
@@ -52,6 +54,7 @@ pub enum ErrorCode {
     TicksPerRevZero = -501,
     DistanceBetweenWheelsTooSmall = -502,
     GainsAreNotSet = -503,
+    WrongRemoteLimitSwitchSource = -504,
 
     // Higher Level
     IncompatibleMode = -600,
@@ -62,6 +65,11 @@ pub enum ErrorCode {
     FeatureRequiresHigherFirm = -700,
     MotorControllerFeatureRequiresHigherFirm = -701,
     ConfigFactoryDefaultRequiresHigherFirm = -702,
+
+    // Operating system centric
+    LibraryCouldNotBeLoaded = -800,
+    MissingRoutineInLibrary = -801,
+    ResourceNotAvailable = -802,
 
     // CAN Related
     /// Special Code for "isSensorPresent"

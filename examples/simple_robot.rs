@@ -13,7 +13,8 @@ fn main() -> ctre::Result<()> {
             LimitSwitchSource::FeedbackConnector,
             LimitSwitchNormal::NormallyOpen,
             10,
-        ).into_res()?;
+        )
+        .into_res()?;
     loop {
         talon.set(ControlMode::PercentOutput, 0.5, DemandType::Neutral, 0.0);
         thread::sleep(delay);
