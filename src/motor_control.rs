@@ -19,6 +19,14 @@ use super::{
     ConfigAll, CustomParam, ErrorCode, ParamEnum, Result,
 };
 
+/// The CTRE motor controller prelude.
+///
+/// The purpose of this module is to alleviate imports
+/// of the most commonly used CTRE motor controller types and traits.
+pub mod prelude {
+    pub use super::{ControlMode, Demand, MotorController, TalonSRX, VictorSPX};
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Faults(i32);
 impl Faults {
