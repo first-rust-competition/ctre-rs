@@ -175,12 +175,6 @@ impl Demand {
 ///
 /// This trait is sealed and cannot be implemented for types outside this crate.
 pub trait MotorController: private::Sealed {
-    /// Constructor.
-    /// * `device_number` - [0,62]
-    fn new(device_number: u8) -> Self
-    where
-        Self: Sized;
-
     #[doc(hidden)]
     fn handle(&self) -> Handle;
     #[doc(hidden)]
@@ -1448,15 +1442,19 @@ pub struct TalonSRX {
     arb_id: i32,
 }
 
-impl MotorController for TalonSRX {
-    fn new(device_number: u8) -> TalonSRX {
+impl TalonSRX {
+    /// Constructor.
+    /// * `device_number` - [0,62]
+    pub fn new(device_number: u8) -> TalonSRX {
         let arb_id = device_number as i32 | 0x0204_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
         #[cfg(feature = "usage-reporting")]
         usage::report_usage(usage::resource_types::CANTalonSRX, device_number as u32 + 1);
         TalonSRX { handle, arb_id }
     }
+}
 
+impl MotorController for TalonSRX {
     #[doc(hidden)]
     fn handle(&self) -> Handle {
         self.handle
@@ -1736,8 +1734,10 @@ pub struct VictorSPX {
     arb_id: i32,
 }
 
-impl MotorController for VictorSPX {
-    fn new(device_number: u8) -> VictorSPX {
+impl VictorSPX {
+    /// Constructor.
+    /// * `device_number` - [0,62]
+    pub fn new(device_number: u8) -> VictorSPX {
         let arb_id = device_number as i32 | 0x0104_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
         #[cfg(feature = "usage-reporting")]
@@ -1747,7 +1747,9 @@ impl MotorController for VictorSPX {
         );
         VictorSPX { handle, arb_id }
     }
+}
 
+impl MotorController for VictorSPX {
     #[doc(hidden)]
     fn handle(&self) -> Handle {
         self.handle
