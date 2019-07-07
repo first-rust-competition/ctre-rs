@@ -10,8 +10,6 @@ extern crate ctre_sys;
 extern crate num_traits;
 #[macro_use]
 extern crate smart_default;
-#[cfg(feature = "usage-reporting")]
-extern crate wpilib_sys;
 
 pub use ctre_data::CustomParamConfiguration;
 pub use ctre_sys::{ErrorCode, ParamEnum};

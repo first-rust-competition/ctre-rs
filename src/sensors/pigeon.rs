@@ -4,8 +4,6 @@ pub use ctre_data::pigeon::*;
 use ctre_sys::pigeon::*;
 pub use ctre_sys::pigeon::{PigeonIMU_ControlFrame, PigeonIMU_StatusFrame};
 use std::mem;
-#[cfg(feature = "usage-reporting")]
-use wpilib_sys::usage;
 
 use super::super::{
     motor_control::{MotorController, TalonSRX},
@@ -46,8 +44,6 @@ impl PigeonIMU {
     /// * `device_number` - CAN Device Id of Pigeon [0,62]
     pub fn new(device_number: i32) -> PigeonIMU {
         let handle = unsafe { c_PigeonIMU_Create1(device_number) };
-        #[cfg(feature = "usage-reporting")]
-        usage::report_usage(usage::resource_types::PigeonIMU, device_number as u32 + 1);
         PigeonIMU { handle }
     }
 
@@ -56,13 +52,6 @@ impl PigeonIMU {
     pub fn with_talon_srx(talon_srx: &TalonSRX) -> PigeonIMU {
         let talon_device_id = talon_srx.device_id();
         let handle = unsafe { c_PigeonIMU_Create2(talon_device_id) };
-        #[cfg(feature = "usage-reporting")]
-        {
-            let instance_number = talon_device_id as u32 + 1;
-            usage::report_usage(usage::resource_types::PigeonIMU, instance_number);
-            // record as Pigeon-via-Uart
-            usage::report_usage(usage::resource_types::CTRE_future0, instance_number);
-        }
         PigeonIMU { handle }
     }
 

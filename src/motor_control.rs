@@ -11,8 +11,6 @@ pub use ctre_sys::mot::{
     ControlFrame, ControlFrameEnhanced, InvertType, StatusFrame, StatusFrameEnhanced,
 };
 use std::mem;
-#[cfg(feature = "usage-reporting")]
-use wpilib_sys::usage;
 
 use super::{
     motion::{MotionProfileStatus, TrajectoryPoint},
@@ -1448,8 +1446,6 @@ impl TalonSRX {
     pub fn new(device_number: u8) -> TalonSRX {
         let arb_id = device_number as i32 | 0x0204_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
-        #[cfg(feature = "usage-reporting")]
-        usage::report_usage(usage::resource_types::CANTalonSRX, device_number as u32 + 1);
         TalonSRX { handle, arb_id }
     }
 }
@@ -1740,11 +1736,6 @@ impl VictorSPX {
     pub fn new(device_number: u8) -> VictorSPX {
         let arb_id = device_number as i32 | 0x0104_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
-        #[cfg(feature = "usage-reporting")]
-        usage::report_usage(
-            usage::resource_types::CTRE_future1,
-            device_number as u32 + 1,
-        );
         VictorSPX { handle, arb_id }
     }
 }

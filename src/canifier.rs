@@ -4,8 +4,6 @@ pub use ctre_data::canifier::*;
 use ctre_sys::canifier::*;
 pub use ctre_sys::canifier::{CANifierControlFrame, CANifierStatusFrame, GeneralPin};
 use std::mem;
-#[cfg(feature = "usage-reporting")]
-use wpilib_sys::usage;
 
 use super::{CustomParam, ErrorCode, ParamEnum, Result};
 
@@ -63,8 +61,6 @@ impl CANifier {
     /// * `device_number` - The CAN Device ID of the CANifier.
     pub fn new(device_number: i32) -> CANifier {
         let handle = unsafe { c_CANifier_Create1(device_number) };
-        #[cfg(feature = "usage-reporting")]
-        usage::report_usage(usage::resource_types::CANifier, device_number as u32 + 1);
         CANifier { handle }
     }
 
