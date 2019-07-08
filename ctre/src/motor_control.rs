@@ -735,7 +735,7 @@ pub trait MotorController: private::Sealed {
             c_MotController_Config_IntegralZone(
                 self.handle(),
                 slot as _,
-                izone as f64, // idek both C++ and Java do this too
+                f64::from(izone), // idek both C++ and Java do this too
                 timeout_ms,
             )
         }
@@ -1697,7 +1697,7 @@ impl TalonSRX {
     /// Constructor.
     /// * `device_number` - [0,62]
     pub fn new(device_number: u8) -> TalonSRX {
-        let arb_id = device_number as i32 | 0x0204_0000;
+        let arb_id = i32::from(device_number) | 0x0204_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
         TalonSRX { handle, arb_id }
     }
@@ -1993,7 +1993,7 @@ impl VictorSPX {
     /// Constructor.
     /// * `device_number` - [0,62]
     pub fn new(device_number: u8) -> VictorSPX {
-        let arb_id = device_number as i32 | 0x0104_0000;
+        let arb_id = i32::from(device_number) | 0x0104_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
         VictorSPX { handle, arb_id }
     }

@@ -14,9 +14,10 @@ transmute_from! {
 impl From<bool> for InvertType {
     #[inline]
     fn from(value: bool) -> InvertType {
-        match value {
-            false => InvertType::None,
-            true => InvertType::InvertMotorOutput,
+        if value {
+            InvertType::None
+        } else {
+            InvertType::InvertMotorOutput
         }
     }
 }
