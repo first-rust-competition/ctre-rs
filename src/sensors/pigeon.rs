@@ -330,7 +330,7 @@ impl PigeonIMU {
         &mut self,
         param: ParamEnum,
         value: f64,
-        sub_value: i32,
+        sub_value: u8,
         ordinal: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -373,7 +373,7 @@ impl PigeonIMU {
     pub fn set_status_frame_period(
         &mut self,
         frame: StatusFrame,
-        period_ms: i32,
+        period_ms: u8,
         timeout_ms: i32,
     ) -> ErrorCode {
         unsafe { c_PigeonIMU_SetStatusFramePeriod(self.handle, frame as _, period_ms, timeout_ms) }
@@ -383,6 +383,12 @@ impl PigeonIMU {
     }
     pub fn set_control_frame_period(&mut self, frame: ControlFrame, period_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetControlFramePeriod(self.handle, frame as _, period_ms) }
+    }
+}
+
+impl Drop for PigeonIMU {
+    fn drop(&mut self) {
+        unsafe { c_PigeonIMU_Destroy(self.handle) };
     }
 }
 

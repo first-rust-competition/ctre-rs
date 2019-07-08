@@ -72,6 +72,7 @@ pub struct BaseMotorControllerConfiguration {
     pub filter_1: FilterConfiguration,
     pub motion_cruise_velocity: i32,
     pub motion_acceleration: i32,
+    pub motion_curve_strength: i32,
     pub motion_profile_trajectory_period: i32,
     pub feedback_not_continuous: bool,
     pub remote_sensor_closed_loop_disable_neutral_on_los: bool,

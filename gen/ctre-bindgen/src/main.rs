@@ -26,7 +26,14 @@ impl bindgen::callbacks::ParseCallbacks for BindgenCallbacks {
         };
         match enum_name {
             // remove leading e from ParamEnums
-            Some("ParamEnum") => Some(variant_name[1..].to_owned()),
+            Some("ParamEnum") => {
+                assert!(
+                    variant_name.starts_with('e'),
+                    "ParamEnum::{} does not start with e",
+                    variant_name
+                );
+                Some(variant_name[1..].to_owned())
+            }
             Some(enum_name) if variant_name.starts_with(enum_name) => {
                 Some(variant_name[enum_name.len() + 1..].to_owned())
             }

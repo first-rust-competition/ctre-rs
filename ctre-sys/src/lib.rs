@@ -6,10 +6,13 @@ pub use self::enums::*;
 #[macro_use]
 mod macros;
 
+pub mod buff_traj;
 pub mod canifier;
 pub mod logger;
 pub mod mot;
 pub mod pigeon;
+pub mod platform_can;
+pub mod unmanaged;
 
 use std::fmt;
 

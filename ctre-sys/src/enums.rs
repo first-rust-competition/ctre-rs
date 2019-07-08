@@ -86,7 +86,6 @@ pub enum ErrorCode {
     FeaturesNotAvailableYet = 104,
     /// Current control mode of motor controller not valid for this call
     ControlModeNotValid = 105,
-
     ControlModeNotSupportedYet = 106,
     AuxiliaryPIDNotSupportedYet = 107,
     RemoteSensorsNotSupportedYet = 108,
@@ -105,10 +104,12 @@ pub enum ParamEnum {
     OnBoot_BrakeMode = 31,
     QuadFilterEn = 91,
     QuadIdxPolarity = 108,
-    #[deprecated(note = "Use `ParamEnum::ClearPositionOnQuadIdx` instead")]
-    ClearPositionOnIdx = 100,
     MotionProfileHasUnderrunErr = 119,
     MotionProfileTrajectoryPointDurationMs = 120,
+    MotionProfileTrajectoryInterpolDis = 121,
+
+    #[deprecated(note = "Use `ParamEnum::ClearPositionOnQuadIdx` instead")]
+    ClearPositionOnIdx = 100,
     #[deprecated(note = "Use `ParamEnum::ClearPositionOnLimitF` instead")]
     ClearPosOnLimitF = 144,
     #[deprecated(note = "Use `ParamEnum::ClearPositionOnLimitR` instead")]
@@ -146,7 +147,8 @@ pub enum ParamEnum {
     RemoteSensorSource = 333, // RemoteSensorSource_t
     /// [0,62] DeviceID
     RemoteSensorDeviceID = 334,
-    SensorTerm = 335, // feedbackDevice_t (ordinal is the register)
+    /// feedbackDevice_t (ordinal is the register)
+    SensorTerm = 335,
     RemoteSensorClosedLoopDisableNeutralOnLOS = 336,
     /// auxPIDPolarity
     PIDLoopPolarity = 337,
@@ -179,6 +181,7 @@ pub enum ParamEnum {
 
     MotMag_Accel = 410,
     MotMag_VelCruise = 411,
+    MotMag_SCurveLevel = 412,
 
     /// ordinal (fwd=0,reverse=1), @see LimitSwitchSource_t
     LimitSwitchSource = 421,

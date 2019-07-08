@@ -1,6 +1,6 @@
 [package]
 name = "ctre-data"
-version = "0.5.7"
+version = "0.5.14"
 authors = ["David Vo <david@vovo.id.au>"]
 repository = "https://github.com/auscompgeek/ctre-rs"
 license-file = "LICENSE"

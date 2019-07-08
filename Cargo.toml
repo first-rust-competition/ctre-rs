@@ -13,8 +13,8 @@ description = "Bindings for CTR Electronics' Phoenix for FRC libraries"
 serde = ["ctre-data/serde"]
 
 [dependencies]
-ctre-data = { path = "ctre-data", version = "0.5.7", features = ["num"] }
-ctre-sys = { path = "ctre-sys", version = "5.5.0" }
+ctre-data = { path = "ctre-data", version = "0.5.14", features = ["num"] }
+ctre-sys = { path = "ctre-sys", version = "5.14.0" }
 num-traits = "0.2"
 smart-default = "0.2"
 

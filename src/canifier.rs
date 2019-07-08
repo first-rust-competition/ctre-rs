@@ -214,7 +214,7 @@ impl CANifier {
         &mut self,
         param: ParamEnum,
         value: f64,
-        sub_value: i32,
+        sub_value: u8,
         ordinal: i32,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -296,7 +296,7 @@ impl CANifier {
     pub fn set_status_frame_period(
         &self,
         frame: StatusFrame,
-        period_ms: i32,
+        period_ms: u8,
         timeout_ms: i32,
     ) -> ErrorCode {
         unsafe { c_CANifier_SetStatusFramePeriod(self.handle, frame as _, period_ms, timeout_ms) }
@@ -306,5 +306,11 @@ impl CANifier {
     }
     pub fn set_control_frame_period(&self, frame: ControlFrame, period_ms: i32) -> ErrorCode {
         unsafe { c_CANifier_SetControlFramePeriod(self.handle, frame as _, period_ms) }
+    }
+}
+
+impl Drop for CANifier {
+    fn drop(&mut self) {
+        unsafe { c_CANifier_Destroy(self.handle) };
     }
 }

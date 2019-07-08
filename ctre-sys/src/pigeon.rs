@@ -46,18 +46,22 @@ extern "C" {
 
     pub fn c_PigeonIMU_Create1(deviceNumber: raw::c_int) -> Handle;
 
+    pub fn c_PigeonIMU_DestroyAll();
+
+    pub fn c_PigeonIMU_Destroy(handle: Handle) -> ErrorCode;
+
     pub fn c_PigeonIMU_GetDescription(
         handle: Handle,
         toFill: *mut raw::c_char,
         toFillByteSz: raw::c_int,
-        numBytesFilled: *mut raw::c_int,
+        numBytesFilled: *mut usize,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_ConfigSetParameter(
         handle: Handle,
         param: raw::c_int,
         value: f64,
-        subValue: raw::c_int,
+        subValue: u8,
         ordinal: raw::c_int,
         timeoutMs: raw::c_int,
     ) -> ErrorCode;
@@ -68,6 +72,16 @@ extern "C" {
         value: *mut f64,
         ordinal: raw::c_int,
         timeoutMs: raw::c_int,
+    ) -> ErrorCode;
+
+    pub fn c_PigeonIMU_ConfigGetParameter_6(
+        handle: Handle,
+        param: i32,
+        valueToSend: i32,
+        valueRecieved: *mut i32,
+        subValue: *mut u8,
+        ordinal: i32,
+        timeoutMs: i32,
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_ConfigSetCustomParam(
@@ -83,6 +97,8 @@ extern "C" {
         paramIndex: raw::c_int,
         timoutMs: raw::c_int,
     ) -> ErrorCode;
+
+    pub fn c_PigeonIMU_ConfigFactoryDefault(handle: Handle, timeoutMs: raw::c_int) -> ErrorCode;
 
     pub fn c_PigeonIMU_SetYaw(handle: Handle, angleDeg: f64, timeoutMs: raw::c_int) -> ErrorCode;
 
@@ -228,7 +244,7 @@ extern "C" {
     pub fn c_PigeonIMU_SetStatusFramePeriod(
         handle: Handle,
         frame: raw::c_int,
-        periodMs: raw::c_int,
+        periodMs: u8,
         timeoutMs: raw::c_int,
     ) -> ErrorCode;
 

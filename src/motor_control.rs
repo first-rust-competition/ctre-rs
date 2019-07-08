@@ -8,14 +8,11 @@ pub use ctre_data::mot::{
 };
 use ctre_sys::mot::*;
 pub use ctre_sys::mot::{
-    ControlFrame, ControlFrameEnhanced, InvertType, StatusFrame, StatusFrameEnhanced,
+    ControlFrame, ControlFrameEnhanced, ControlMode, InvertType, StatusFrame, StatusFrameEnhanced,
 };
 use std::mem;
 
-use super::{
-    motion::{MotionProfileStatus, TrajectoryPoint},
-    ConfigAll, CustomParam, ErrorCode, ParamEnum, Result,
-};
+use super::{motion::*, ConfigAll, CustomParam, ErrorCode, ParamEnum, Result};
 
 /// The CTRE motor controller prelude.
 ///
@@ -169,6 +166,65 @@ impl Demand {
     }
 }
 
+/// This is split from the trait to reduce compiled size under monomorphization.
+/// Caller must pack the 24-bit base arbitration ID for Follower mode.
+fn _set(handle: Handle, mode: ControlMode, demand0: f64, demand1: Demand) {
+    match mode {
+        | ControlMode::PercentOutput
+        //| ControlMode::TimedPercentOutput
+        | ControlMode::Follower
+        | ControlMode::Velocity
+        | ControlMode::Position
+        | ControlMode::MotionMagic
+        //| ControlMode::MotionMagicArc
+        | ControlMode::MotionProfile
+        | ControlMode::MotionProfileArc => unsafe {
+            c_MotController_Set_4(
+                handle,
+                mode as _,
+                demand0,
+                demand1.value(),
+                demand1.type_() as _,
+            )
+        },
+        ControlMode::Current => unsafe {
+            // milliamps
+            c_MotController_SetDemand(handle, mode as _, (1000.0 * demand0) as _, 0)
+        },
+        ControlMode::Disabled => unsafe {
+            c_MotController_SetDemand(handle, mode as _, 0, 0)
+        },
+    };
+}
+
+/// Get motion profile status information.
+/// This is split from the trait to reduce compiled size under monomorphization.
+fn _motion_profile_status(handle: Handle, status_to_fill: &mut MotionProfileStatus) -> ErrorCode {
+    let mut output_enable = 0;
+    let mut profile_slot_select_0 = 0;
+    let mut profile_slot_select_1 = 0;
+    let code = unsafe {
+        c_MotController_GetMotionProfileStatus_2(
+            handle,
+            &mut status_to_fill.top_buffer_rem,
+            &mut status_to_fill.top_buffer_cnt,
+            &mut status_to_fill.btm_buffer_cnt,
+            &mut status_to_fill.has_underrun,
+            &mut status_to_fill.is_underrun,
+            &mut status_to_fill.active_point_valid,
+            &mut status_to_fill.is_last,
+            &mut profile_slot_select_0,
+            &mut output_enable,
+            &mut status_to_fill.time_dur_ms,
+            &mut profile_slot_select_1,
+        )
+    };
+    status_to_fill.output_enable = output_enable.into();
+    status_to_fill.profile_slot_select_0 = profile_slot_select_0;
+    status_to_fill.profile_slot_select_1 = profile_slot_select_1;
+    code
+}
+
 /// Base motor controller features for all CTRE CAN motor controllers.
 ///
 /// This trait is sealed and cannot be implemented for types outside this crate.
@@ -217,50 +273,14 @@ pub trait MotorController: private::Sealed {
      */
     fn set(&mut self, mode: ControlMode, demand0: f64, demand1: Demand) {
         // NB: This does not store the control mode and setpoint to avoid several complications.
-        match mode {
-            ControlMode::Follower => {
-                // did caller specify device ID
-                let work = if 0.0 <= demand0 && demand0 <= 62.0 {
-                    ((self.base_id() as u32 >> 16) << 8) | (demand0 as u32)
-                } else {
-                    demand0 as u32
-                };
-                unsafe {
-                    /* single precision guarantees 16bits of integral precision,
-                     *  so float/double cast on work is safe */
-                    c_MotController_Set_4(
-                        self.handle(),
-                        mode as _,
-                        work as f64,
-                        demand1.value(),
-                        demand1.type_() as _,
-                    )
-                }
+        let demand0 = match mode {
+            // did caller specify device ID
+            ControlMode::Follower if 0.0 <= demand0 && demand0 <= 62.0 => {
+                f64::from(((self.base_id() as u32 >> 16) << 8) | (demand0 as u32))
             }
-            ControlMode::Current => unsafe {
-                // milliamps
-                c_MotController_SetDemand(self.handle(), mode as _, (1000.0 * demand0) as _, 0)
-            },
-            | ControlMode::PercentOutput
-            //| ControlMode::TimedPercentOutput
-            | ControlMode::Velocity
-            | ControlMode::Position
-            | ControlMode::MotionMagic
-            //| ControlMode::MotionMagicArc
-            | ControlMode::MotionProfile
-            | ControlMode::MotionProfileArc => unsafe {
-                c_MotController_Set_4(
-                    self.handle(),
-                    mode as _,
-                    demand0,
-                    demand1.value(),
-                    demand1.type_() as _,
-                )
-            },
-            ControlMode::Disabled => unsafe {
-                c_MotController_SetDemand(self.handle(), mode as _, 0, 0)
-            },
+            _ => demand0,
         };
+        _set(self.handle(), mode, demand0, demand1)
     }
 
     /// Neutral the motor output by setting control mode to disabled.
@@ -296,8 +316,8 @@ pub trait MotorController: private::Sealed {
      *  - Green LEDs correlates to forward limit switch.
      *  - Green LEDs correlates to forward soft limit.
      */
-    fn set_inverted(&mut self, invert: bool) {
-        unsafe { c_MotController_SetInverted(self.handle(), invert) }
+    fn set_inverted(&mut self, invert: InvertType) {
+        unsafe { c_MotController_SetInverted_2(self.handle(), invert as _) }
     }
 
     fn config_factory_default(&mut self, timeout_ms: i32) -> ErrorCode {
@@ -388,6 +408,11 @@ pub trait MotorController: private::Sealed {
     /// If enabled, voltage compensation works in all control modes.
     fn enable_voltage_compensation(&mut self, enable: bool) {
         unsafe { c_MotController_EnableVoltageCompensation(self.handle(), enable) }
+    }
+
+    fn inverted(&self) -> Result<bool> {
+        // TODO: cache invert type
+        cci_get_call!(c_MotController_GetInverted(self.handle(), _: bool))
     }
 
     fn bus_voltage(&self) -> Result<f64> {
@@ -533,7 +558,7 @@ pub trait MotorController: private::Sealed {
     fn set_status_frame_period(
         &mut self,
         frame: StatusFrame,
-        period_ms: i32,
+        period_ms: u8,
         timeout_ms: i32,
     ) -> ErrorCode {
         unsafe {
@@ -821,13 +846,32 @@ pub trait MotorController: private::Sealed {
     fn active_trajectory_position(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetActiveTrajectoryPosition(self.handle(), _: i32))
     }
+    fn get_active_trajectory_position(&self, pid_idx: PIDLoop) -> Result<i32> {
+        cci_get_call! {
+            c_MotController_GetActiveTrajectoryPosition_3(self.handle(), _: i32, pid_idx as _)
+        }
+    }
     /// Gets the active trajectory target velocity using MotionMagic/MotionProfile control modes.
     fn active_trajectory_velocity(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetActiveTrajectoryVelocity(self.handle(), _: i32))
     }
+    fn get_active_trajectory_velocity(&self, pid_idx: PIDLoop) -> Result<i32> {
+        cci_get_call! {
+            c_MotController_GetActiveTrajectoryVelocity_3(self.handle(), _: i32, pid_idx as _)
+        }
+    }
     /// Gets the active trajectory target heading using MotionMagic/MotionProfile control modes.
+    #[deprecated(
+        since = "0.8.0",
+        note = "Use get_active_trajectory_position(PIDLoop::Auxiliary)"
+    )]
     fn active_trajectory_heading(&self) -> Result<f64> {
         cci_get_call!(c_MotController_GetActiveTrajectoryHeading(self.handle(), _: f64))
+    }
+    fn get_active_trajectory_arb_feed_fwd(&self, pid_idx: PIDLoop) -> Result<f64> {
+        cci_get_call! {
+            c_MotController_GetActiveTrajectoryArbFeedFwd_3(self.handle(), _: f64, pid_idx as _)
+        }
     }
 
     /// Sets the Motion Magic Cruise Velocity.
@@ -860,6 +904,24 @@ pub trait MotorController: private::Sealed {
             )
         }
     }
+    /**
+     * Sets the Motion Magic S Curve Strength.
+     * Call this before using Motion Magic.
+     * Modifying this during a Motion Magic action should be avoided.
+     *
+     * # Parameters
+     *
+     * - `curve_strength`: 0 to use Trapezoidal Motion Profile. [1,8] for S-Curve (greater value yields greater smoothing).
+     */
+    fn config_motion_s_curve_strength(
+        &mut self,
+        curve_strength: i32,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigMotionSCurveStrength(self.handle(), curve_strength, timeout_ms)
+        }
+    }
 
     /// Clear the buffered motion profile in both motor controller's RAM (bottom),
     /// and in the API (top).
@@ -881,19 +943,91 @@ pub trait MotorController: private::Sealed {
     /// into the motor controller's bottom buffer as room allows).
     fn push_motion_profile_trajectory(&self, traj_pt: &TrajectoryPoint) -> ErrorCode {
         unsafe {
-            c_MotController_PushMotionProfileTrajectory_2(
+            c_MotController_PushMotionProfileTrajectory_3(
                 self.handle(),
                 traj_pt.position,
                 traj_pt.velocity,
+                traj_pt.arb_feed_fwd,
                 traj_pt.auxiliary_pos,
-                traj_pt.profile_slot_select_0 as _, // wtf CTRE???
-                traj_pt.profile_slot_select_1 as _,
+                traj_pt.auxiliary_vel,
+                traj_pt.auxiliary_arb_feed_fwd,
+                traj_pt.profile_slot_select_0 as u32,
+                traj_pt.profile_slot_select_1 as u32,
                 traj_pt.is_last_point,
                 traj_pt.zero_pos,
-                traj_pt.time_dur as _,
+                traj_pt.time_dur,
+                traj_pt.use_aux_pid,
             )
         }
     }
+
+    /**
+     * Simple one-shot firing of a complete MP.
+     *
+     * Starting in 2019, MPs can be fired by building a Buffered Trajectory Point Stream, and calling this routine.
+     *
+     * Once called, the motor controller software will automatically ...
+     *
+     * 1. Clear the firmware buffer of trajectory points.
+     * 2. Clear the underrun flags
+     * 3. Reset an index within the Buffered Trajectory Point Stream
+     *    (so that the same profile can be run again and again).
+     * 4. Start a background thread to manage MP streaming (if not already running).
+     * 5. If current control mode...
+     *    a. already matches `motion_prof_control_mode`, set MPE Output to "Hold".
+     *    b. does not matches `motion_prof_control_mode`, apply `motion_prof_control_mode`
+     *       and set MPE Output to "Disable".
+     * 6. Stream the trajectory points into the device's firmware buffer.
+     * 7. Once motor controller has at least `min_buffered_pts` worth in the firmware buffer,
+     *    MP will automatically start (MPE Output set to "Enable").
+     * 8. Wait until MP finishes, then transitions the Motion Profile Executor's output to "Hold".
+     * 9. [`is_motion_profile_finished`] will now return true.
+     *
+     * Calling application can cancel MP by calling [`set`].
+     * Otherwise do not call `set` until MP has completed.
+     *
+     * The legacy API from previous years requires the calling application to
+     * pass points via [`process_motion_profile_buffer`] and [`push_motion_profile_trajectory`].
+     * This is no longer required if using this API.
+     *
+     * # Parameters
+     *
+     * - `stream`: A buffer that will be used to stream the trajectory points.
+     *   Caller can fill this container with the entire trajectory point, regardless of size.
+     * - `min_buffered_pts`: Minimum number of firmware buffered points before starting MP.  
+     *   Do not exceed device's firmware buffer capacity or MP will never fire
+     *   (120 for Motion Profile, or 60 for Motion Profile Arc).
+     *   Recommendation value for this would be five to ten samples depending
+     *   on `time_dur` of the trajectory point.
+     * - `motion_prof_control_mode`: Pass `MotionProfile` or `MotionProfileArc`.
+     *
+     * [`is_motion_profile_finished`]: #method.is_motion_profile_finished
+     * [`set`]: #method.set
+     * [`process_motion_profile_buffer`]: #method.process_motion_profile_buffer
+     * [`push_motion_profile_trajectory`]: #method.push_motion_profile_trajectory
+     */
+    fn start_motion_profile(
+        &mut self,
+        stream: &BuffTrajPointStream,
+        min_buffered_pts: u32,
+        motion_prof_control_mode: ControlMode,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_StartMotionProfile(
+                self.handle(),
+                stream.handle,
+                min_buffered_pts,
+                motion_prof_control_mode,
+            )
+        }
+    }
+    /// Determine if the running MP (from [`start_motion_profile`]) is complete.
+    ///
+    /// [`start_motion_profile`]: #method.start_motion_profile
+    fn is_motion_profile_finished(&self) -> Result<bool> {
+        cci_get_call!(c_MotController_IsMotionProfileFinished(self.handle(), _: bool))
+    }
+
     /**
      * Retrieve just the buffer full for the api-level (top) buffer.
      * This routine performs no CAN or data structure lookups, so its fast and ideal
@@ -921,29 +1055,7 @@ pub trait MotorController: private::Sealed {
      * regarding the motion profile executer.
      */
     fn motion_profile_status_into(&self, status_to_fill: &mut MotionProfileStatus) -> ErrorCode {
-        let mut output_enable = 0;
-        let mut profile_slot_select_0 = 0;
-        let mut profile_slot_select_1 = 0;
-        let code = unsafe {
-            c_MotController_GetMotionProfileStatus_2(
-                self.handle(),
-                &mut status_to_fill.top_buffer_rem,
-                &mut status_to_fill.top_buffer_cnt,
-                &mut status_to_fill.btm_buffer_cnt,
-                &mut status_to_fill.has_underrun,
-                &mut status_to_fill.is_underrun,
-                &mut status_to_fill.active_point_valid,
-                &mut status_to_fill.is_last,
-                &mut profile_slot_select_0,
-                &mut output_enable,
-                &mut status_to_fill.time_dur_ms,
-                &mut profile_slot_select_1,
-            )
-        };
-        status_to_fill.output_enable = output_enable.into();
-        status_to_fill.profile_slot_select_0 = profile_slot_select_0;
-        status_to_fill.profile_slot_select_1 = profile_slot_select_1;
-        code
+        _motion_profile_status(self.handle(), status_to_fill)
     }
     /// Get all motion profile status information.  This returns a new MotionProfileStatus.
     fn motion_profile_status(&self) -> Result<MotionProfileStatus> {
@@ -993,6 +1105,139 @@ pub trait MotorController: private::Sealed {
             c_MotController_ConfigMotionProfileTrajectoryPeriod(
                 self.handle(),
                 base_traj_duration_ms,
+                timeout_ms,
+            )
+        }
+    }
+    fn config_motion_profile_trajectory_interpolation_enable(
+        &mut self,
+        enable: bool,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigMotionProfileTrajectoryInterpolationEnable(
+                self.handle(),
+                enable,
+                timeout_ms,
+            )
+        }
+    }
+
+    // Feedback Device Interaction Settings
+    // XXX: do these really belong here? these seem an enhanced motor controller only thing
+    fn config_feedback_not_continuous(
+        &mut self,
+        feedback_not_continuous: bool,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigFeedbackNotContinuous(
+                self.handle(),
+                feedback_not_continuous,
+                timeout_ms,
+            )
+        }
+    }
+    fn config_remote_sensor_closed_loop_disable_neutral_on_los(
+        &mut self,
+        remote_sensor_closed_loop_disable_neutral_on_los: bool,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigRemoteSensorClosedLoopDisableNeutralOnLOS(
+                self.handle(),
+                remote_sensor_closed_loop_disable_neutral_on_los,
+                timeout_ms,
+            )
+        }
+    }
+    fn config_clear_position_on_limit_f(
+        &mut self,
+        clear_position_on_limit_f: bool,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigClearPositionOnLimitF(
+                self.handle(),
+                clear_position_on_limit_f,
+                timeout_ms,
+            )
+        }
+    }
+    fn config_clear_position_on_limit_r(
+        &mut self,
+        clear_position_on_limit_r: bool,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigClearPositionOnLimitR(
+                self.handle(),
+                clear_position_on_limit_r,
+                timeout_ms,
+            )
+        }
+    }
+    fn config_clear_position_on_quad_idx(
+        &mut self,
+        clear_position_on_quad_idx: bool,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigClearPositionOnQuadIdx(
+                self.handle(),
+                clear_position_on_quad_idx,
+                timeout_ms,
+            )
+        }
+    }
+    fn config_limit_switch_disable_neutral_on_los(
+        &mut self,
+        limit_switch_disable_neutral_on_los: bool,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigLimitSwitchDisableNeutralOnLOS(
+                self.handle(),
+                limit_switch_disable_neutral_on_los,
+                timeout_ms,
+            )
+        }
+    }
+    fn config_soft_limit_disable_neutral_on_los(
+        &mut self,
+        soft_limit_disable_neutral_on_los: bool,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigSoftLimitDisableNeutralOnLOS(
+                self.handle(),
+                soft_limit_disable_neutral_on_los,
+                timeout_ms,
+            )
+        }
+    }
+    fn config_pulse_width_period_edges_per_rot(
+        &mut self,
+        pulse_width_period_edges_per_rot: i32,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigPulseWidthPeriod_EdgesPerRot(
+                self.handle(),
+                pulse_width_period_edges_per_rot,
+                timeout_ms,
+            )
+        }
+    }
+    fn config_pulse_width_period_filter_window_sz(
+        &mut self,
+        pulse_width_period_filter_window_sz: i32,
+        timeout_ms: i32,
+    ) -> ErrorCode {
+        unsafe {
+            c_MotController_ConfigPulseWidthPeriod_FilterWindowSz(
+                self.handle(),
+                pulse_width_period_filter_window_sz,
                 timeout_ms,
             )
         }
@@ -1126,9 +1371,11 @@ pub trait MotorController: private::Sealed {
                 self.set(ControlMode::Follower, id24 as f64, Demand::Neutral)
             }
             FollowerType::AuxOutput1 => {
+                // follow the motor controller, but set the aux flag
+                // to ensure we follow the processed output
                 self.set(ControlMode::Follower, id24 as f64, Demand::AuxPID(0.0))
             }
-        };
+        }
     }
 
     /// Configures all slot persistent settings.
@@ -1450,6 +1697,12 @@ impl TalonSRX {
     }
 }
 
+impl Drop for TalonSRX {
+    fn drop(&mut self) {
+        unsafe { c_MotController_Destroy(self.handle) };
+    }
+}
+
 impl MotorController for TalonSRX {
     #[doc(hidden)]
     fn handle(&self) -> Handle {
@@ -1574,7 +1827,7 @@ impl TalonSRX {
     pub fn set_status_frame_period(
         &mut self,
         frame: StatusFrameEnhanced,
-        period_ms: i32,
+        period_ms: u8,
         timeout_ms: i32,
     ) -> ErrorCode {
         unsafe {
@@ -1737,6 +1990,12 @@ impl VictorSPX {
         let arb_id = device_number as i32 | 0x0104_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
         VictorSPX { handle, arb_id }
+    }
+}
+
+impl Drop for VictorSPX {
+    fn drop(&mut self) {
+        unsafe { c_MotController_Destroy(self.handle) };
     }
 }
 
