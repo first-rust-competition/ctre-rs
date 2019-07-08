@@ -251,6 +251,12 @@ pub trait MotorController: private::Sealed {
      *
      * # Examples
      *
+     * Standard Driving Example:
+     * ```
+     * talon_left.set(ControlMode::PercentOutput, left_joy, Demand::Neutral);
+     * talon_rght.set(ControlMode::PercentOutput, rght_joy, Demand::Neutral);
+     * ```
+     *
      * Arcade Drive Example:
      * ```
      * talonLeft.set(ControlMode::PercentOutput, joyForward, Demand::ArbitraryFeedForward(joyTurn));
