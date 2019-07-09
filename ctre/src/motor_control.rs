@@ -238,8 +238,10 @@ pub trait MotorController: private::Sealed {
     }
 
     /**
-     * * `mode` - Sets the appropriate output on the talon, depending on the mode.
-     * * `demand0` - The output value to apply.
+     * # Parameters
+     *
+     * - `mode`: Sets the appropriate output on the talon, depending on the mode.
+     * - `demand0`: The output value to apply.
      *   such as advanced feed forward and/or auxiliary close-looping in firmware.
      *   * In PercentOutput, the output is between -1.0 and 1.0, with 0.0 as stopped.
      *   * In Current mode, output value is in amperes.
@@ -247,7 +249,7 @@ pub trait MotorController: private::Sealed {
      *   * In Position mode, output value is in encoder ticks or an analog value,
      *     depending on the sensor. See
      *   * In Follower mode, the output value is the integer device ID of the talon to duplicate.
-     * * `demand1` - Supplmental output value.  Units match the set mode.
+     * - `demand1`: Supplmental output value.  Units match the set mode.
      *
      * # Examples
      *
@@ -259,22 +261,22 @@ pub trait MotorController: private::Sealed {
      *
      * Arcade Drive Example:
      * ```
-     * talonLeft.set(ControlMode::PercentOutput, joyForward, Demand::ArbitraryFeedForward(joyTurn));
-     * talonRght.set(ControlMode::PercentOutput, joyForward, Demand::ArbitraryFeedForward(-joyTurn));
+     * talon_left.set(ControlMode::PercentOutput, joy_fwd, Demand::ArbitraryFeedForward(joyTurn));
+     * talon_rght.set(ControlMode::PercentOutput, joy_fwd, Demand::ArbitraryFeedForward(-joyTurn));
      * ```
      *
      * Drive Straight Example:
      * Note: Selected Sensor Configuration is necessary for both PID0 and PID1.
      * ```
-     * talonLeft.follow(talonRght, FollowerType::AuxOutput1);
-     * talonRght.set(ControlMode::PercentOutput, joyForward, Demand::AuxPID(desiredRobotHeading));
+     * talon_left.follow(talon_rght, FollowerType::AuxOutput1);
+     * talon_rght.set(ControlMode::PercentOutput, joy_fwd, Demand::AuxPID(desired_robot_heading));
      * ```
      *
      * Drive Straight to a Distance Example:
      * Note: Other configurations (sensor selection, PID gains, etc.) need to be set.
      * ```
-     * talonLeft.follow(talonRght, FollowerType::AuxOutput1);
-     * talonRght.set(ControlMode::MotionMagic, targetDistance, Demand::AuxPID(desiredRobotHeading));
+     * talon_left.follow(talon_rght, FollowerType::AuxOutput1);
+     * talon_rght.set(ControlMode::MotionMagic, target_dist, Demand::AuxPID(desired_robot_heading));
      * ```
      */
     fn set(&mut self, mode: ControlMode, demand0: f64, demand1: Demand) {
@@ -304,7 +306,9 @@ pub trait MotorController: private::Sealed {
      * Pick a value so that positive PercentOutput yields a positive change in sensor.
      * After setting this, user can freely call [`set_inverted`] with any value.
      *
-     * * `phase_sensor` - Indicates whether to invert the phase of the sensor.
+     * # Parameters
+     *
+     * - `phase_sensor`: Indicates whether to invert the phase of the sensor.
      *
      * [`set_inverted`]: #method.set_inverted
      */
@@ -384,11 +388,13 @@ pub trait MotorController: private::Sealed {
     /**
      * Configures the Voltage Compensation saturation voltage.
      *
-     * * `voltage` - The max voltage to apply to the hbridge when voltage
+     * # Parameters
+     *
+     * - `voltage`: The max voltage to apply to the hbridge when voltage
      *   compensation is enabled.  For example, if 10 (volts) is specified
      *   and a TalonSRX is commanded to 0.5 (PercentOutput, closed-loop, etc)
      *   then the TalonSRX will attempt to apply a duty-cycle to produce 5V.
-     * * `timeout_ms` - Timeout value in ms.
+     * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
@@ -396,7 +402,9 @@ pub trait MotorController: private::Sealed {
         unsafe { c_MotController_ConfigVoltageCompSaturation(self.handle(), voltage, timeout_ms) }
     }
     /// Configures the voltage measurement filter.
-    /// * `filter_window_samples` - Number of samples in the rolling average of voltage measurement.
+    ///
+    /// # Parameters
+    /// - `filter_window_samples`: Number of samples in the rolling average of voltage measurement.
     fn config_voltage_measurement_filter(
         &mut self,
         filter_window_samples: i32,
@@ -466,10 +474,12 @@ pub trait MotorController: private::Sealed {
      * Selected Feedback Sensor register in firmware is the decoded sensor value
      * multiplied by the Feedback Coefficient.
      *
-     * * `coefficient` - Feedback Coefficient value.  Maximum value of 1.
+     * # Parameters
+     *
+     * - `coefficient`: Feedback Coefficient value.  Maximum value of 1.
      *   Resolution is 1/(2^16).  Cannot be 0.
-     * * `pid_loop` - Primary or auxiliary closed-loop.
-     * * `timeout_ms` - Timeout value in ms.
+     * - `pid_loop`: Primary or auxiliary closed-loop.
+     * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
@@ -608,12 +618,14 @@ pub trait MotorController: private::Sealed {
      * For example, a CAN motor controller may need to monitor the Limit-F pin
      * of another Talon or CANifier.
      *
-     * * `type_` - Remote limit switch source.
+     * # Parameters
+     *
+     * - `type_`: Remote limit switch source.
      *   User can choose between a remote Talon SRX, CANifier, or deactivate the feature.
-     * * `normal_open_or_close` - Setting for normally open, normally closed, or disabled.
+     * - `normal_open_or_close`: Setting for normally open, normally closed, or disabled.
      *   This setting matches the web-based configuration drop down.
-     * * `device_id` - Device ID of remote source (Talon SRX or CANifier device ID).
-     * * `timeout_ms` - Timeout value in ms.
+     * - `device_id`: Device ID of remote source (Talon SRX or CANifier device ID).
+     * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
@@ -639,12 +651,14 @@ pub trait MotorController: private::Sealed {
      * For example, a CAN motor controller may need to monitor the Limit-R pin
      * of another Talon or CANifier.
      *
-     * * `type_` - Remote limit switch source.
+     * # Parameters
+     *
+     * - `type_`: Remote limit switch source.
      *   User can choose between a remote Talon SRX, CANifier, or deactivate the feature.
-     * * `normal_open_or_close` - Setting for normally open, normally closed, or disabled.
+     * - `normal_open_or_close`: Setting for normally open, normally closed, or disabled.
      *   This setting matches the web-based configuration drop down.
-     * * `device_id` - Device ID of remote source (Talon SRX or CANifier device ID).
-     * * `timeout_ms` - Timeout value in ms.
+     * - `device_id`: Device ID of remote source (Talon SRX or CANifier device ID).
+     * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
@@ -1094,9 +1108,11 @@ pub trait MotorController: private::Sealed {
      * This allows general selection of the execution rate of the points with 1ms resolution,
      * while allowing some degree of change from point to point.
      *
-     * * `base_traj_duration_ms` - The base duration time of every trajectory point.
+     * # Parameters
+     *
+     * - `base_traj_duration_ms`: The base duration time of every trajectory point.
      *   This is summed with the trajectory points unique `time_dur`.
-     * * `timeout_ms` - Timeout value in ms.
+     * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      *
@@ -1288,12 +1304,6 @@ pub trait MotorController: private::Sealed {
      * Sometimes it is necessary to save calibration/limit/target
      * information in the device. Particularly if the
      * device is part of a subsystem that can be replaced.
-     *
-     * * `new_value` - Value for custom parameter.
-     * * `param` - Index of custom parameter [0,1]
-     * * `timeout_ms` - Timeout value in ms.
-     *   If nonzero, function will wait for config success and report an error if it times out.
-     *   If zero, no blocking or checking is performed.
      */
     fn config_set_custom_param(
         &mut self,
@@ -1305,14 +1315,7 @@ pub trait MotorController: private::Sealed {
             c_MotController_ConfigSetCustomParam(self.handle(), value, param_index as _, timeout_ms)
         }
     }
-    /**
-     * Gets the value of a custom parameter.
-     *
-     * * `param_index` - Index of custom parameter [0,1].
-     * * `timeout_ms` - Timeout value in ms.
-     *   If nonzero, function will wait for config success and report an error if it times out.
-     *   If zero, no blocking or checking is performed.
-     */
+    /// Gets the value of a custom parameter.
     fn config_get_custom_param(&self, param_index: CustomParam, timout_ms: i32) -> Result<i32> {
         cci_get_call!(
             c_MotController_ConfigGetCustomParam(self.handle(), _: i32, param_index as _, timout_ms)
@@ -1360,8 +1363,10 @@ pub trait MotorController: private::Sealed {
      * follow another motor controller.
      * Currently supports following Victor SPX and Talon SRX.
      *
-     * * `master_to_follow` - Motor Controller object to follow.
-     * * `follower_type` - Type of following control.
+     * # Parameters
+     *
+     * - `master_to_follow`: Motor Controller object to follow.
+     * - `follower_type`: Type of following control.
      *   Use AuxOutput1 to follow the master device's auxiliary output 1.
      *   Use PercentOutput for standard follower mode.
      */
@@ -1621,27 +1626,53 @@ pub trait MotorControllerConfig: MotorController + ConfigAll {
     ) -> Result<Self::PIDSetConfiguration>;
 }
 
-/// An interface for getting and setting raw sensor values.
+/// An interface to raw sensor values from a motor controller,
+/// regardless of whether they are actually being used for feedback.
 ///
 /// Note that by default these are only updated every 160ms.
-/// Prefer the `MotorController` selected sensor methods if possible,
-/// otherwise update the status frame period if necessary.
+/// Prefer the `MotorController` selected sensor methods if possible.
 pub trait SensorCollection: MotorController {
+    /**
+     * Get the position of whatever is in the analog pin of the Talon,
+     * regardless of whether it is actually being used for feedback.
+     *
+     * # Returns
+     * Returns the 24bit analog value.
+     *
+     * The bottom ten bits is the ADC (0 - 1023) on the analog pin of the Talon.
+     * The upper 14 bits tracks the overflows and underflows (continuous sensor).
+     */
     fn analog_in(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetAnalogIn(self.handle(), _: i32))
     }
     fn set_analog_position(&mut self, new_position: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_SetAnalogPosition(self.handle(), new_position, timeout_ms) }
     }
+    /// Get the position of whatever is in the analog pin of the Talon,
+    /// regardless of whether it is actually being used for feedback.
+    ///
+    /// Returns the ADC (0 - 1023) on analog pin of the Talon.
     fn analog_in_raw(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetAnalogInRaw(self.handle(), _: i32))
     }
+    /// Get the velocity of whatever is in the analog pin of the Talon,
+    /// regardless of whether it is actually being used for feedback.
+    ///
+    /// Returns the speed in units per 100ms where 1024 units is one rotation.
     fn analog_in_vel(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetAnalogInVel(self.handle(), _: i32))
     }
     fn quadrature_position(&self) -> Result<i32> {
         cci_get_call!(c_MotController_GetQuadraturePosition(self.handle(), _: i32))
     }
+    /**
+     * Change the quadrature reported position.
+     *
+     * Typically this is used to "zero" the sensor.
+     * This only works with Quadrature sensor.
+     * To set the selected sensor position regardless of what type it is,
+     * see `MotorController::set_selected_sensor_position`.
+     */
     fn set_quadrature_position(&mut self, new_position: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_SetQuadraturePosition(self.handle(), new_position, timeout_ms) }
     }
@@ -1695,7 +1726,9 @@ pub struct TalonSRX {
 
 impl TalonSRX {
     /// Constructor.
-    /// * `device_number` - [0,62]
+    ///
+    /// # Parameters
+    /// - `device_number`: CAN device ID of Talon SRX [0,62]
     pub fn new(device_number: u8) -> TalonSRX {
         let arb_id = i32::from(device_number) | 0x0204_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
@@ -1859,11 +1892,13 @@ impl TalonSRX {
      * If the sensor is remote, a device ID of zero is assumed.
      * If that's not desired, use the four parameter version of this function.
      *
-     * * `type_` - Limit switch source.
+     * # Parameters
+     *
+     * - `type_`: Limit switch source.
      *   User can choose between the feedback connector, remote Talon SRX, CANifier, or deactivate the feature.
-     * * `normal_open_or_close` - Setting for normally open, normally closed, or disabled.
+     * - `normal_open_or_close`: Setting for normally open, normally closed, or disabled.
      *   This setting matches the web-based configuration drop down.
-     * * `timeout_ms` - Timeout value in ms.
+     * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
@@ -1892,11 +1927,13 @@ impl TalonSRX {
      * If the sensor is remote, a device ID of zero is assumed.
      * If that's not desired, use the four parameter version of this function.
      *
-     * * `type_` - Limit switch source.
+     * # Parameters
+     *
+     * - `type_`: Limit switch source.
      *   User can choose between the feedback connector, remote Talon SRX, CANifier, or deactivate the feature.
-     * * `normal_open_or_close` - Setting for normally open, normally closed, or disabled.
+     * - `normal_open_or_close`: Setting for normally open, normally closed, or disabled.
      *   This setting matches the web-based configuration drop down.
-     * * `timeout_ms` - Timeout value in ms.
+     * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
@@ -1946,8 +1983,10 @@ impl TalonSRX {
      * [`config_continuous_current_limit`] and set the peak to zero:
      * `config_peak_current_limit(0)`.
      *
-     * * `milliseconds` - How long to allow current-draw past peak limit.
-     * * `timeout_ms` - Timeout value in ms.
+     * # Parameters
+     *
+     * - `milliseconds`: How long to allow current-draw past peak limit.
+     * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      *
@@ -1991,7 +2030,9 @@ pub struct VictorSPX {
 
 impl VictorSPX {
     /// Constructor.
-    /// * `device_number` - [0,62]
+    ///
+    /// # Parameters
+    /// - `device_number`: [0,62]
     pub fn new(device_number: u8) -> VictorSPX {
         let arb_id = i32::from(device_number) | 0x0104_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
