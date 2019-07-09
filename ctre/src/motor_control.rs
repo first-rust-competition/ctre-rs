@@ -885,7 +885,7 @@ pub trait MotorController: private::Sealed {
     /// Gets the active trajectory target heading using MotionMagic/MotionProfile control modes.
     #[deprecated(
         since = "0.8.0",
-        note = "Use get_active_trajectory_position(PIDLoop::Auxiliary)"
+        note = "use `get_active_trajectory_position(PIDLoop::Auxiliary)` instead"
     )]
     fn active_trajectory_heading(&self) -> Result<f64> {
         cci_get_call!(c_MotController_GetActiveTrajectoryHeading(self.handle(), _: f64))

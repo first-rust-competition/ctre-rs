@@ -101,7 +101,7 @@ impl PigeonIMU {
     /// Enable/Disable Temp compensation. Pigeon defaults with this on at boot.
     #[deprecated(
         since = "0.7.0",
-        note = "Use `set_temperature_compensation_disable` instead"
+        note = "use `set_temperature_compensation_disable` instead"
     )]
     pub fn config_temperature_compensation_enable(
         &mut self,
@@ -392,7 +392,7 @@ impl Drop for PigeonIMU {
     }
 }
 
-#[deprecated(since = "0.7.0", note = "Use `PigeonIMU::with_talon_srx` instead.")]
+#[deprecated(since = "0.7.0", note = "use `PigeonIMU::with_talon_srx` instead")]
 impl<'a> From<&'a TalonSRX> for PigeonIMU {
     /// Soft-deprecated. Use [`PigeonIMU::with_talon_srx`] instead.
     ///

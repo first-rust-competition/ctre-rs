@@ -105,14 +105,15 @@ pub enum ParamEnum {
     QuadFilterEn = 91,
     QuadIdxPolarity = 108,
     MotionProfileHasUnderrunErr = 119,
+    /// motionProfileTrajectoryPeriod
     MotionProfileTrajectoryPointDurationMs = 120,
     MotionProfileTrajectoryInterpolDis = 121,
 
-    #[deprecated(note = "Use `ParamEnum::ClearPositionOnQuadIdx` instead")]
+    #[deprecated(note = "use `ParamEnum::ClearPositionOnQuadIdx` instead")]
     ClearPositionOnIdx = 100,
-    #[deprecated(note = "Use `ParamEnum::ClearPositionOnLimitF` instead")]
+    #[deprecated(note = "use `ParamEnum::ClearPositionOnLimitF` instead")]
     ClearPosOnLimitF = 144,
-    #[deprecated(note = "Use `ParamEnum::ClearPositionOnLimitR` instead")]
+    #[deprecated(note = "use `ParamEnum::ClearPositionOnLimitR` instead")]
     ClearPosOnLimitR = 145,
 
     StatusFramePeriod = 300,
