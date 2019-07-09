@@ -1,5 +1,5 @@
 //! Low-level enums and functions related to motor controllers.
-#![allow(non_camel_case_types, non_upper_case_globals)]
+#![allow(non_camel_case_types)]
 
 use std::os::raw;
 

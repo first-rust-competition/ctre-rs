@@ -1381,12 +1381,12 @@ pub trait MotorController: private::Sealed {
 
         match follower_type {
             FollowerType::PercentOutput => {
-                self.set(ControlMode::Follower, id24 as f64, Demand::Neutral)
+                self.set(ControlMode::Follower, f64::from(id24), Demand::Neutral)
             }
             FollowerType::AuxOutput1 => {
                 // follow the motor controller, but set the aux flag
                 // to ensure we follow the processed output
-                self.set(ControlMode::Follower, id24 as f64, Demand::AuxPID(0.0))
+                self.set(ControlMode::Follower, f64::from(id24), Demand::AuxPID(0.0))
             }
         }
     }

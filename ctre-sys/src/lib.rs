@@ -1,5 +1,7 @@
 //! Rust bindings for the CTRE Phoenix CCI libraries.
 
+#![allow(clippy::unreadable_literal)]
+
 mod enums;
 pub use self::enums::*;
 
