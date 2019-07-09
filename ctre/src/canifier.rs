@@ -59,9 +59,9 @@ pub struct CANifier {
 impl CANifier {
     /// Constructor.
     /// * `device_number` - The CAN Device ID of the CANifier.
-    pub fn new(device_number: i32) -> CANifier {
+    pub fn new(device_number: i32) -> Self {
         let handle = unsafe { c_CANifier_Create1(device_number) };
-        CANifier { handle }
+        Self { handle }
     }
 
     pub unsafe fn set_led_output_unchecked(
@@ -111,7 +111,11 @@ impl CANifier {
      *   Default period of the signal is 4.2 ms.
      */
     pub fn set_pwm_output(&self, pwm_channel: PWMChannel, duty_cycle: f64) -> ErrorCode {
-        debug_assert!(0. <= duty_cycle && duty_cycle <= 1., "Duty cycle should be within [0,1].");
+        debug_assert!(
+            0. <= duty_cycle && duty_cycle <= 1.,
+            "Duty cycle should be within [0,1] (got {}).",
+            duty_cycle
+        );
         let duty_cyc_10bit = 1023. * duty_cycle.max(0.).min(1.);
         unsafe { self.set_pwm_output_unchecked(pwm_channel as u32, duty_cyc_10bit as u32) }
     }

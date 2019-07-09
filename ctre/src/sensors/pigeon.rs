@@ -42,17 +42,17 @@ pub struct PigeonIMU {
 impl PigeonIMU {
     /// Create a Pigeon object that communicates with Pigeon on CAN Bus.
     /// * `device_number` - CAN Device Id of Pigeon [0,62]
-    pub fn new(device_number: i32) -> PigeonIMU {
+    pub fn new(device_number: i32) -> Self {
         let handle = unsafe { c_PigeonIMU_Create1(device_number) };
-        PigeonIMU { handle }
+        Self { handle }
     }
 
     /// Create a Pigeon object that communicates with Pigeon through the
     /// Gadgeteer ribbon cable connected to a Talon on CAN Bus.
-    pub fn with_talon_srx(talon_srx: &TalonSRX) -> PigeonIMU {
+    pub fn with_talon_srx(talon_srx: &TalonSRX) -> Self {
         let talon_device_id = talon_srx.device_id();
         let handle = unsafe { c_PigeonIMU_Create2(talon_device_id) };
-        PigeonIMU { handle }
+        Self { handle }
     }
 
     /**
@@ -397,7 +397,7 @@ impl<'a> From<&'a TalonSRX> for PigeonIMU {
     /// Soft-deprecated. Use [`PigeonIMU::with_talon_srx`] instead.
     ///
     /// [`PigeonIMU::with_talon_srx`]: #method.with_talon_srx
-    fn from(talon_srx: &'a TalonSRX) -> PigeonIMU {
-        PigeonIMU::with_talon_srx(talon_srx)
+    fn from(talon_srx: &'a TalonSRX) -> Self {
+        Self::with_talon_srx(talon_srx)
     }
 }
