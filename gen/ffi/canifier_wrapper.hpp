@@ -2,4 +2,4 @@
 
 #include "ctre/phoenix/CANifierControlFrame.h"
 #include "ctre/phoenix/CANifierStatusFrame.h"
-#include "ctre/phoenix/CANifierVelocityMeasPeriod.h"
+//#include "ctre/phoenix/CANifierVelocityMeasPeriod.h"

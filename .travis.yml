@@ -1,5 +1,4 @@
 dist: xenial
-sudo: required
 
 language: rust
 rust:
@@ -11,23 +10,21 @@ matrix:
     - rust: nightly
   fast_finish: true
 
-addons:
-  apt:
-    sources:
-      - sourceline: 'ppa:wpilib/toolchain'
-    packages:
-      - frc-toolchain
+env:
+  - TARGET=arm-unknown-linux-gnueabi TARGET_CC=arm-frc2019-linux-gnueabi-gcc CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI=$TARGET_CC
 
 install:
-  - rustup target add arm-unknown-linux-gnueabi
-  - rustup component add clippy-preview
-  - wget http://devsite.ctr-electronics.com/maven/release/com/ctre/phoenix/cci/5.8.1/cci-5.8.1-linuxathena.zip -O cci-linuxathena.zip
+  - rustup target add $TARGET
+  - rustup component add clippy
+
+  - wget https://github.com/wpilibsuite/toolchain-builder/releases/download/v2019-3/FRC-2019-Linux-Toolchain-6.3.0.tar.gz -O frc2019.tar.gz
+  - tar xf frc2019.tar.gz -C ~
+  - export PATH="$PATH:$HOME/frc2019/roborio/bin"
+
+  - wget http://devsite.ctr-electronics.com/maven/release/com/ctre/phoenix/cci/5.14.1/cci-5.14.1-linuxathenastatic.zip -O cci-linuxathena.zip
   - mkdir -p ctre-sys/lib/athena
   - unzip -j cci-linuxathena.zip linux/athena/static/libCTRE_PhoenixCCI.a -d ctre-sys/lib/athena
 
-before_script:
-  - export CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI=arm-frc-linux-gnueabi-gcc
-
 script:
-  - cargo clippy
-  - cargo build --verbose --target arm-unknown-linux-gnueabi
+  - cargo clippy --all-features
+  - cargo build --verbose --all-features --all --exclude ctre-bindgen --target $TARGET

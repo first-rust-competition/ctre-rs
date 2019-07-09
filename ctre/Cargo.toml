@@ -1,0 +1,23 @@
+[package]
+name = "ctre"
+version = "0.8.0"
+authors = ["David Vo <david@vovo.id.au>"]
+license-file = "LICENSE"
+readme = "README.md"
+repository = "https://github.com/auscompgeek/ctre-rs"
+keywords = ["frc", "ctre"]
+categories = ["api-bindings", "embedded", "hardware-support"]
+description = "Bindings for CTR Electronics' Phoenix for FRC libraries"
+
+[features]
+serde = ["ctre-data/serde"]
+
+[dependencies]
+bitflags = "1.0"
+ctre-data = { path = "../ctre-data", version = "0.5.14", features = ["num"] }
+ctre-sys = { path = "../ctre-sys", version = "5.14.0" }
+num-traits = "0.2"
+smart-default = "0.2"
+
+[dev-dependencies]
+#wpilib = { path = "../../first-rust-competition/wpilib" }

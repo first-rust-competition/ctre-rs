@@ -1,16 +1,21 @@
 //! Rust bindings for the CTRE Phoenix CCI libraries.
 
-#[cfg(feature = "serde")]
-#[macro_use]
-extern crate serde;
+#![allow(clippy::unreadable_literal)]
 
 mod enums;
 pub use self::enums::*;
 
+#[macro_use]
+mod macros;
+
+pub mod buff_traj;
 pub mod canifier;
 pub mod logger;
 pub mod mot;
 pub mod pigeon;
+pub mod platform;
+pub mod platform_can;
+pub mod unmanaged;
 
 use std::fmt;
 
@@ -27,7 +32,7 @@ impl ErrorCode {
         self != ErrorCode::OK
     }
 
-    /// Returns `err` if `self` is `OK`, otherwise returns `self`.
+    /// Returns the first error code which is not `OK`, or `OK` otherwise.
     /// Intended for use by the `ctre` crate only.
     pub fn or(self, err: Self) -> Self {
         match self {
@@ -64,10 +69,7 @@ impl std::ops::Try for ErrorCode {
     type Error = Self;
 
     fn into_result(self) -> Result<(), Self> {
-        match self {
-            ErrorCode::OK => Ok(()),
-            _ => Err(self),
-        }
+        self.into_res()
     }
 
     fn from_error(v: Self) -> Self {

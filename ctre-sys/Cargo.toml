@@ -1,6 +1,6 @@
 [package]
 name = "ctre-sys"
-version = "5.5.0"
+version = "5.14.0"
 authors = ["David Vo <david@vovo.id.au>"]
 links = "CTRE_PhoenixCCI"
 build = "build.rs"
@@ -14,4 +14,3 @@ description = "FFI bindings to CTR Electronics' Phoenix FRC libraries"
 include = ["src/**/*", "Cargo.toml", "build.rs", "lib/**/*"]
 
 [dependencies]
-serde = { version = "1.0", optional = true, features = ["derive"] }

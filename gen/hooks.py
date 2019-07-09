@@ -3,9 +3,13 @@ import re
 RUST_TYPES = {
     'short': 'i16',
     'int': 'i32',
+    'int32_t': 'i32',
     'uint32_t': 'u32',
+    'uint8_t': 'u8',
     'double': 'f64',
     'float': 'f32',
+    'size_t': 'usize',
+    'void': '*mut c_void',
 }
 
 
@@ -18,7 +22,6 @@ def function_hook(fn, data):
     assert m, f"unexpected function {fn['name']}"
 
     snake_name = to_snake_case(m.group(1))
-    fn['meth_name'] = snake_name
 
     handle_idx = -1
     in_params = []
@@ -39,23 +42,27 @@ def function_hook(fn, data):
 
         if p['name'] == 'handle':
             handle_idx = i
-        elif p['pointer'] or p['array']:  # assume arrays are out params (they are so far)
+        elif p['pointer'] and p['raw_type'] != 'void' or p['array']:
+            # assume arrays are out params (they are so far)
             qual_rust_type = '&mut ' + rust_type
             out_params.append(p)
         else:
             in_params.append(p)
         p['qual_rust_type'] = qual_rust_type
 
-    has_error_code = fn['returns'] == 'ctre::phoenix::ErrorCode'
+    has_error_code = fn['returns'].endswith('ctre::phoenix::ErrorCode')
     rust_return_types = [p['rust_type'] for p in out_params]
     if not rust_return_types:
         fn['rust_returns'] = 'ErrorCode' if has_error_code else None
     elif len(rust_return_types) == 1:
         fn['rust_returns'] = 'Result<%s>' % rust_return_types[0]
-        fn['simple_getter'] = True
+        if snake_name.startswith('get_'):
+            snake_name = snake_name[4:]
     else:
         fn['rust_returns'] = 'Result<(%s)>' % ', '.join(rust_return_types)
 
+    fn['simple_getter'] = len(rust_return_types) == 1
+    fn['meth_name'] = snake_name
     fn['handle_param_idx'] = handle_idx
     fn['in_params'] = in_params
     fn['out_params'] = out_params

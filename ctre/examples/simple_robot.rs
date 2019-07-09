@@ -1,8 +1,10 @@
+//! Don't actually do this.  Ideally you would use a WPILib port with a nice Robot abstraction.
+
 extern crate ctre;
-use ctre::motor_control::*;
+use ctre::motor_control::{ControlMode, Demand, LimitSwitchNormal, LimitSwitchSource};
+use ctre::motor_control::{MotorController, TalonSRX};
 use std::{thread, time};
 
-/// Don't actually do this.  Ideally you would use a WPILib port with a nice Robot abstraction.
 fn main() -> ctre::Result<()> {
     let mut talon = TalonSRX::new(0);
     let delay = time::Duration::from_millis(20);
@@ -11,9 +13,10 @@ fn main() -> ctre::Result<()> {
             LimitSwitchSource::FeedbackConnector,
             LimitSwitchNormal::NormallyOpen,
             10,
-        ).into_res()?;
+        )
+        .into_res()?;
     loop {
-        talon.set(ControlMode::PercentOutput, 0.5, DemandType::Neutral, 0.0);
+        talon.set(ControlMode::PercentOutput, 0.5, Demand::Neutral);
         thread::sleep(delay);
         talon.neutral_output();
         thread::sleep(delay);

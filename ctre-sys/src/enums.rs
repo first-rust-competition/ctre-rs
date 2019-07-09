@@ -1,4 +1,4 @@
-//! Enums common to all CTRE Phoenix devices.
+//! Low-level enums common to all CTRE Phoenix devices.
 #![allow(non_camel_case_types, non_upper_case_globals)]
 
 #[repr(i32)]
@@ -26,6 +26,8 @@ pub enum ErrorCode {
     SensorNotPresent = -7,
     FirmwareTooOld = -8,
     CouldNotChangePeriod = -9,
+    BufferFailure = -10,
+    FirwmwareNonFRC = -11,
 
     // General
     /// User Specified General Error
@@ -52,6 +54,7 @@ pub enum ErrorCode {
     TicksPerRevZero = -501,
     DistanceBetweenWheelsTooSmall = -502,
     GainsAreNotSet = -503,
+    WrongRemoteLimitSwitchSource = -504,
 
     // Higher Level
     IncompatibleMode = -600,
@@ -62,6 +65,11 @@ pub enum ErrorCode {
     FeatureRequiresHigherFirm = -700,
     MotorControllerFeatureRequiresHigherFirm = -701,
     ConfigFactoryDefaultRequiresHigherFirm = -702,
+
+    // Operating system centric
+    LibraryCouldNotBeLoaded = -800,
+    MissingRoutineInLibrary = -801,
+    ResourceNotAvailable = -802,
 
     // CAN Related
     /// Special Code for "isSensorPresent"
@@ -78,7 +86,6 @@ pub enum ErrorCode {
     FeaturesNotAvailableYet = 104,
     /// Current control mode of motor controller not valid for this call
     ControlModeNotValid = 105,
-
     ControlModeNotSupportedYet = 106,
     AuxiliaryPIDNotSupportedYet = 107,
     RemoteSensorsNotSupportedYet = 108,
@@ -97,13 +104,16 @@ pub enum ParamEnum {
     OnBoot_BrakeMode = 31,
     QuadFilterEn = 91,
     QuadIdxPolarity = 108,
-    #[deprecated(note = "Use `ParamEnum::ClearPositionOnQuadIdx` instead")]
-    ClearPositionOnIdx = 100,
     MotionProfileHasUnderrunErr = 119,
+    /// motionProfileTrajectoryPeriod
     MotionProfileTrajectoryPointDurationMs = 120,
-    #[deprecated(note = "Use `ParamEnum::ClearPositionOnLimitF` instead")]
+    MotionProfileTrajectoryInterpolDis = 121,
+
+    #[deprecated(note = "use `ParamEnum::ClearPositionOnQuadIdx` instead")]
+    ClearPositionOnIdx = 100,
+    #[deprecated(note = "use `ParamEnum::ClearPositionOnLimitF` instead")]
     ClearPosOnLimitF = 144,
-    #[deprecated(note = "Use `ParamEnum::ClearPositionOnLimitR` instead")]
+    #[deprecated(note = "use `ParamEnum::ClearPositionOnLimitR` instead")]
     ClearPosOnLimitR = 145,
 
     StatusFramePeriod = 300,
@@ -138,8 +148,10 @@ pub enum ParamEnum {
     RemoteSensorSource = 333, // RemoteSensorSource_t
     /// [0,62] DeviceID
     RemoteSensorDeviceID = 334,
-    SensorTerm = 335, // feedbackDevice_t (ordinal is the register)
+    /// feedbackDevice_t (ordinal is the register)
+    SensorTerm = 335,
     RemoteSensorClosedLoopDisableNeutralOnLOS = 336,
+    /// auxPIDPolarity
     PIDLoopPolarity = 337,
     PIDLoopPeriod = 338,
     SelectedSensorCoefficient = 339,
@@ -149,7 +161,9 @@ pub enum ParamEnum {
     ForwardSoftLimitEnable = 342,
     ReverseSoftLimitEnable = 343,
 
+    /// voltageCompSaturation
     NominalBatteryVoltage = 350,
+    /// voltageMeasurementFilter
     BatteryVoltageFilterSize = 351,
 
     ContinuousCurrentLimitAmps = 360,
@@ -168,6 +182,7 @@ pub enum ParamEnum {
 
     MotMag_Accel = 410,
     MotMag_VelCruise = 411,
+    MotMag_SCurveLevel = 412,
 
     /// ordinal (fwd=0,reverse=1), @see LimitSwitchSource_t
     LimitSwitchSource = 421,
@@ -199,4 +214,6 @@ pub enum ParamEnum {
     MotionMeas_shake_reject_thresh = 178,
     MotionMeas_shake_reject_time = 179,
     MotionMeas_shake_reject_timeout = 180,
+
+    DefaultConfig = 500,
 }
