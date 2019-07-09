@@ -1731,10 +1731,10 @@ impl TalonSRX {
     ///
     /// # Parameters
     /// - `device_number`: CAN device ID of Talon SRX [0,62]
-    pub fn new(device_number: u8) -> TalonSRX {
+    pub fn new(device_number: u8) -> Self {
         let arb_id = i32::from(device_number) | 0x0204_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
-        TalonSRX { handle, arb_id }
+        Self { handle, arb_id }
     }
 
     /**
@@ -1776,7 +1776,7 @@ impl MotorControllerConfig for TalonSRX {
 
     fn configure_pid(
         &mut self,
-        pid: &TalonSRXPIDSetConfiguration,
+        pid: &Self::PIDSetConfiguration,
         pid_loop: PIDLoop,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -1792,14 +1792,14 @@ impl MotorControllerConfig for TalonSRX {
         &self,
         pid_loop: PIDLoop,
         timeout_ms: i32,
-    ) -> Result<TalonSRXPIDSetConfiguration> {
+    ) -> Result<Self::PIDSetConfiguration> {
         let _base = self.base_get_pid_configs(pid_loop, timeout_ms)?;
         let selected_feedback_sensor = f64_to_enum!(self.config_get_parameter(
             ParamEnum::FeedbackSensorType,
             pid_loop as _,
             timeout_ms,
         )? => FeedbackDevice);
-        Ok(TalonSRXPIDSetConfiguration {
+        Ok(Self::PIDSetConfiguration {
             _base,
             selected_feedback_sensor,
         })
@@ -1811,7 +1811,7 @@ impl ConfigAll for TalonSRX {
 
     fn config_all_settings(
         &mut self,
-        all_configs: &TalonSRXConfiguration,
+        all_configs: &Self::Configuration,
         timeout_ms: i32,
     ) -> ErrorCode {
         self.base_config_all_settings(&all_configs._base, timeout_ms)
@@ -2052,10 +2052,10 @@ impl VictorSPX {
     ///
     /// # Parameters
     /// - `device_number`: [0,62]
-    pub fn new(device_number: u8) -> VictorSPX {
+    pub fn new(device_number: u8) -> Self {
         let arb_id = i32::from(device_number) | 0x0104_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
-        VictorSPX { handle, arb_id }
+        Self { handle, arb_id }
     }
 
     /**
@@ -2097,7 +2097,7 @@ impl MotorControllerConfig for VictorSPX {
 
     fn configure_pid(
         &mut self,
-        pid: &VictorSPXPIDSetConfiguration,
+        pid: &Self::PIDSetConfiguration,
         pid_loop: PIDLoop,
         timeout_ms: i32,
     ) -> ErrorCode {
@@ -2113,14 +2113,14 @@ impl MotorControllerConfig for VictorSPX {
         &self,
         pid_loop: PIDLoop,
         timeout_ms: i32,
-    ) -> Result<VictorSPXPIDSetConfiguration> {
+    ) -> Result<Self::PIDSetConfiguration> {
         let _base = self.base_get_pid_configs(pid_loop, timeout_ms)?;
         let selected_feedback_sensor = f64_to_enum!(self.config_get_parameter(
             ParamEnum::FeedbackSensorType,
             pid_loop as _,
             timeout_ms,
         )? => RemoteFeedbackDevice);
-        Ok(VictorSPXPIDSetConfiguration {
+        Ok(Self::PIDSetConfiguration {
             _base,
             selected_feedback_sensor,
         })
@@ -2132,7 +2132,7 @@ impl ConfigAll for VictorSPX {
 
     fn config_all_settings(
         &mut self,
-        all_configs: &VictorSPXConfiguration,
+        all_configs: &Self::Configuration,
         timeout_ms: i32,
     ) -> ErrorCode {
         self.base_config_all_settings(&all_configs._base, timeout_ms)
