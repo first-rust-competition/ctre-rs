@@ -20,4 +20,4 @@ num-traits = "0.2"
 smart-default = "0.2"
 
 [dev-dependencies]
-wpilib = { path = "../../first-rust-competition/wpilib" }
+#wpilib = { path = "../../first-rust-competition/wpilib" }
