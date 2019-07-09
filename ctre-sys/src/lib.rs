@@ -11,6 +11,7 @@ pub mod canifier;
 pub mod logger;
 pub mod mot;
 pub mod pigeon;
+pub mod platform;
 pub mod platform_can;
 pub mod unmanaged;
 
