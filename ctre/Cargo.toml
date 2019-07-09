@@ -17,3 +17,6 @@ ctre-data = { path = "../ctre-data", version = "0.5.14", features = ["num"] }
 ctre-sys = { path = "../ctre-sys", version = "5.14.0" }
 num-traits = "0.2"
 smart-default = "0.2"
+
+[dev-dependencies]
+wpilib = { path = "../../first-rust-competition/wpilib" }

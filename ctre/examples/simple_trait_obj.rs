@@ -5,8 +5,7 @@
 //! Please don't actually use this.
 
 extern crate ctre;
-use ctre::motor_control::{ControlMode, DemandType, LimitSwitchNormal, LimitSwitchSource};
-use ctre::motor_control::{MotorController, TalonSRX};
+use ctre::motor_control::{ControlMode, Demand, MotorController, TalonSRX};
 use std::{thread, time};
 
 // Seriously, please don't actually do this.
@@ -18,7 +17,7 @@ fn main() {
 fn foo(mot: &mut MotorController) {
     let delay = time::Duration::from_millis(20);
     loop {
-        mot.set(ControlMode::PercentOutput, 0.5, DemandType::Neutral, 0.0);
+        mot.set(ControlMode::PercentOutput, 0.5, Demand::Neutral);
         thread::sleep(delay);
         mot.neutral_output();
         thread::sleep(delay);

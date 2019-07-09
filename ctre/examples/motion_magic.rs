@@ -20,9 +20,8 @@
 extern crate ctre;
 extern crate wpilib;
 
-use ctre::motor_control::*;
-use std::time::Duration;
-use wpilib::ds::RobotState;
+use ctre::motor_control::{prelude::*, FeedbackDevice, PIDLoop, PIDSlot, StatusFrameEnhanced};
+use wpilib::ds;
 
 /// Which PID slot to pull gains from.
 pub const SLOT_IDX: PIDSlot = PIDSlot::S0;
@@ -33,14 +32,38 @@ pub const PID_LOOP_IDX: PIDLoop = PIDLoop::Primary;
 /// Set to non-zero to wait and report to DS if action fails.
 pub const TIMEOUT_MS: i32 = 10;
 
-pub fn main() {
-    let robot = wpilib::RobotBase::new().expect("Could not initialise HAL");
-    let ds = robot.get_ds_instance();
-    let talon = TalonSRX::new(3);
-    let joy = wpilib::Joystick::new(&robot, 0);
+struct Joystick<'a> {
+    ds: &'a ds::DriverStation<'a>,
+    port: ds::JoystickPort,
+}
 
-    // let mut loops = 0;
-    // let mut timesInMotionMagic = 0;
+impl Joystick<'_> {
+    fn y(&self) -> f32 {
+        self.ds
+            .stick_axis(self.port, ds::JoystickAxis::new(1).unwrap())
+            .unwrap_or(0.0)
+    }
+
+    fn raw_button(&self, button: u8) -> bool {
+        self.ds.stick_button(self.port, button).unwrap_or(false)
+    }
+}
+
+struct Robot<'a> {
+    joy: Joystick<'a>,
+    talon: TalonSRX,
+    loops: u32,
+    times_in_motion_magic: u32,
+}
+
+pub fn main() {
+    let base = wpilib::RobotBase::new().expect("Could not initialise HAL");
+    let ds = base.make_ds();
+    let mut talon = TalonSRX::new(3);
+    let joy = Joystick {
+        ds: &ds,
+        port: ds::JoystickPort::new(0).unwrap(),
+    };
 
     // first choose the sensor
     talon.config_selected_feedback_sensor(
@@ -56,39 +79,46 @@ pub fn main() {
     talon.set_status_frame_period(StatusFrameEnhanced::Status_10_Targets, 10, TIMEOUT_MS);
 
     // set the peak and nominal outputs
-    talon.config_nominal_output_forward(0, TIMEOUT_MS);
-    talon.config_nominal_output_reverse(0, TIMEOUT_MS);
-    talon.config_peak_output_forward(1, TIMEOUT_MS);
-    talon.config_peak_output_reverse(-1, TIMEOUT_MS);
+    talon.config_nominal_output_forward(0.0, TIMEOUT_MS);
+    talon.config_nominal_output_reverse(0.0, TIMEOUT_MS);
+    talon.config_peak_output_forward(1.0, TIMEOUT_MS);
+    talon.config_peak_output_reverse(-1.0, TIMEOUT_MS);
 
     // set closed loop gains in slot0 - see documentation
     talon.select_profile_slot(SLOT_IDX, PID_LOOP_IDX);
-    talon.config_kf(0, 0.2, TIMEOUT_MS);
-    talon.config_kp(0, 0.2, TIMEOUT_MS);
-    talon.config_ki(0, 0, TIMEOUT_MS);
-    talon.config_kd(0, 0, TIMEOUT_MS);
+    talon.config_kf(SLOT_IDX, 0.2, TIMEOUT_MS);
+    talon.config_kp(SLOT_IDX, 0.2, TIMEOUT_MS);
+    talon.config_ki(SLOT_IDX, 0.0, TIMEOUT_MS);
+    talon.config_kd(SLOT_IDX, 0.0, TIMEOUT_MS);
     // set acceleration and vcruise velocity - see documentation
     talon.config_motion_cruise_velocity(15000, TIMEOUT_MS);
     talon.config_motion_acceleration(6000, TIMEOUT_MS);
     // zero the sensor
     talon.set_selected_sensor_position(0, PID_LOOP_IDX, TIMEOUT_MS);
 
-    loop {
-        ds.wait_for_data(Duration::from_millis(20));
-        match ds.get_state() {
-            RobotState::Teleop => {
-                let left_y_stick = -1.0 * joy.get_y();
-                let motor_output = talon.get_motor_output_percent();
+    let mut robot = Robot {
+        joy,
+        talon,
+        loops: 0,
+        times_in_motion_magic: 0,
+    };
 
-                if joy.get_raw_button(1) {
-                    // Motion Magic - 4096 ticks/rev * 10 Rotations in either direction
-                    let target_pos = left_y_stick * 4096 * 10.0;
-                    talon.set(ControlMode::MotionMagic, target_pos);
-                } else {
-                    talon.set(ControlMode::PercentOutput, left_y_stick);
-                }
-            }
-            _ => {}
+    wpilib::start_timed(&mut robot, &ds)
+}
+
+impl wpilib::IterativeRobot for Robot<'_> {
+    fn teleop_periodic(&mut self) {
+        let left_y_stick = -f64::from(self.joy.y());
+        // let motor_output = self.talon.motor_output_percent();
+
+        if self.joy.raw_button(1) {
+            // Motion Magic - 4096 ticks/rev * 10 Rotations in either direction
+            let target_pos = left_y_stick * 4096.0 * 10.0;
+            self.talon
+                .set(ControlMode::MotionMagic, target_pos, Demand::Neutral);
+        } else {
+            self.talon
+                .set(ControlMode::PercentOutput, left_y_stick, Demand::Neutral);
         }
     }
 }
