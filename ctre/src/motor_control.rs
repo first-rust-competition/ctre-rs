@@ -1736,6 +1736,21 @@ impl TalonSRX {
         let handle = unsafe { c_MotController_Create1(arb_id) };
         TalonSRX { handle, arb_id }
     }
+
+    /**
+     * Inverts the hbridge output of the motor controller.
+     *
+     * This does not impact sensor phase and should not be used to correct sensor polarity.
+     *
+     * This will invert the hbridge output but NOT the LEDs.
+     * This ensures....
+     *  - Green LEDs always represents positive request from robot-controller/closed-looping mode.
+     *  - Green LEDs correlates to forward limit switch.
+     *  - Green LEDs correlates to forward soft limit.
+     */
+    pub fn set_inverted(&mut self, invert: impl Into<InvertType>) {
+        MotorController::set_inverted(self, invert.into())
+    }
 }
 
 impl Drop for TalonSRX {
@@ -2041,6 +2056,21 @@ impl VictorSPX {
         let arb_id = i32::from(device_number) | 0x0104_0000;
         let handle = unsafe { c_MotController_Create1(arb_id) };
         VictorSPX { handle, arb_id }
+    }
+
+    /**
+     * Inverts the hbridge output of the motor controller.
+     *
+     * This does not impact sensor phase and should not be used to correct sensor polarity.
+     *
+     * This will invert the hbridge output but NOT the LEDs.
+     * This ensures....
+     *  - Green LEDs always represents positive request from robot-controller/closed-looping mode.
+     *  - Green LEDs correlates to forward limit switch.
+     *  - Green LEDs correlates to forward soft limit.
+     */
+    pub fn set_inverted(&mut self, invert: impl Into<InvertType>) {
+        MotorController::set_inverted(self, invert.into())
     }
 }
 
