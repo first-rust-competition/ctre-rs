@@ -22,88 +22,115 @@ pub mod prelude {
     pub use super::{ControlMode, Demand, MotorController, TalonSRX, VictorSPX};
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub struct Faults(i32);
-impl Faults {
-    pub fn under_voltage(self) -> bool {
-        self.0 & 1 != 0
-    }
-    pub fn forward_limit_switch(self) -> bool {
-        self.0 & (1 << 1) != 0
-    }
-    pub fn reverse_limit_switch(self) -> bool {
-        self.0 & (1 << 2) != 0
-    }
-    pub fn forward_soft_limit(self) -> bool {
-        self.0 & (1 << 3) != 0
-    }
-    pub fn reverse_soft_limit(self) -> bool {
-        self.0 & (1 << 4) != 0
-    }
-    pub fn hardware_failure(self) -> bool {
-        self.0 & (1 << 5) != 0
-    }
-    pub fn reset_during_en(self) -> bool {
-        self.0 & (1 << 6) != 0
-    }
-    pub fn sensor_overflow(self) -> bool {
-        self.0 & (1 << 7) != 0
-    }
-    pub fn sensor_out_of_phase(self) -> bool {
-        self.0 & (1 << 8) != 0
-    }
-    pub fn hardware_esd_reset(self) -> bool {
-        self.0 & (1 << 9) != 0
-    }
-    pub fn remote_loss_of_signal(self) -> bool {
-        self.0 & (1 << 10) != 0
-    }
-    /// True iff any of the above flags are true.
-    pub fn has_any_fault(self) -> bool {
-        self.0 != 0
+bitflags! {
+    /// All the faults available to motor controllers
+    pub struct Faults: i32 {
+        /**
+         * Motor Controller is under 6.5V
+         */
+        const UNDER_VOLTAGE = 1;
+        /**
+         * Forward limit switch is tripped and device is trying to go forward
+         * Only trips when the device is limited
+         */
+        const FORWARD_LIMIT_SWITCH = 1 << 1;
+        /**
+         * Reverse limit switch is tripped and device is trying to go reverse
+         * Only trips when the device is limited
+         */
+        const REVERSE_LIMIT_SWITCH = 1 << 2;
+        /**
+         * Sensor is beyond forward soft limit and device is trying to go forward
+         * Only trips when the device is limited
+         */
+        const FORWARD_SOFT_LIMIT = 1 << 3;
+        /**
+         * Sensor is beyond reverse soft limit and device is trying to go reverse
+         * Only trips when the device is limited
+         */
+        const REVERSE_SOFT_LIMIT = 1 << 4;
+        /**
+         * Device detects hardware failure
+         */
+        const HARDWARE_FAILURE = 1 << 5;
+        /**
+         * Device was powered-on or reset while robot is enabled.
+         * Check your breakers and wiring.
+         */
+        const RESET_DURING_EN = 1 << 6;
+        /**
+         * Device's sensor overflowed
+         */
+        const SENSOR_OVERFLOW = 1 << 7;
+        /**
+         * Device detects its sensor is out of phase
+         */
+        const SENSOR_OUT_OF_PHASE = 1 << 8;
+        /// Not used, see `RESET_DURING_EN`
+        const HARDWARE_ESD_RESET = 1 << 9;
+        /**
+         * Remote Sensor is no longer detected on bus
+         */
+        const REMOTE_LOSS_OF_SIGNAL = 1 << 10;
+        /**
+         * API error detected.  Make sure API and firmware versions are compatible.
+         */
+        const API_ERROR = 1 << 11;
     }
 }
-impl_binary_fmt!(Faults);
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub struct StickyFaults(i32);
-impl StickyFaults {
-    pub fn under_voltage(self) -> bool {
-        self.0 & 1 != 0
-    }
-    pub fn forward_limit_switch(self) -> bool {
-        self.0 & (1 << 1) != 0
-    }
-    pub fn reverse_limit_switch(self) -> bool {
-        self.0 & (1 << 2) != 0
-    }
-    pub fn forward_soft_limit(self) -> bool {
-        self.0 & (1 << 3) != 0
-    }
-    pub fn reverse_soft_limit(self) -> bool {
-        self.0 & (1 << 4) != 0
-    }
-    pub fn reset_during_en(self) -> bool {
-        self.0 & (1 << 5) != 0
-    }
-    pub fn sensor_overflow(self) -> bool {
-        self.0 & (1 << 6) != 0
-    }
-    pub fn sensor_out_of_phase(self) -> bool {
-        self.0 & (1 << 7) != 0
-    }
-    pub fn hardware_esd_reset(self) -> bool {
-        self.0 & (1 << 8) != 0
-    }
-    pub fn remote_loss_of_signal(self) -> bool {
-        self.0 & (1 << 9) != 0
-    }
-    /// True iff any of the above flags are true.
-    pub fn has_any_fault(self) -> bool {
-        self.0 != 0
+bitflags! {
+    /// All the faults available to motor controllers
+    pub struct StickyFaults: i32 {
+        /**
+         * Motor Controller is under 6.5V
+         */
+        const UNDER_VOLTAGE = 1;
+        /**
+         * Forward limit switch is tripped and device is trying to go forward
+         * Only trips when the device is limited
+         */
+        const FORWARD_LIMIT_SWITCH = 1 << 1;
+        /**
+         * Reverse limit switch is tripped and device is trying to go reverse
+         * Only trips when the device is limited
+         */
+        const REVERSE_LIMIT_SWITCH = 1 << 2;
+        /**
+         * Sensor is beyond forward soft limit and device is trying to go forward
+         * Only trips when the device is limited
+         */
+        const FORWARD_SOFT_LIMIT = 1 << 3;
+        /**
+         * Sensor is beyond reverse soft limit and device is trying to go reverse
+         * Only trips when the device is limited
+         */
+        const REVERSE_SOFT_LIMIT = 1 << 4;
+        /**
+         * Device was powered-on or reset while robot is enabled.
+         * Check your breakers and wiring.
+         */
+        const RESET_DURING_EN = 1 << 5;
+        /**
+         * Device's sensor overflowed
+         */
+        const SENSOR_OVERFLOW = 1 << 6;
+        /**
+         * Device detects its sensor is out of phase
+         */
+        const SENSOR_OUT_OF_PHASE = 1 << 7;
+        /// Not used, see `RESET_DURING_EN`
+        const HARDWARE_ESD_RESET = 1 << 8;
+        /**
+         * Remote Sensor is no longer detected on bus
+         */
+        const REMOTE_LOSS_OF_SIGNAL = 1 << 9;
+        /**
+         * Device detects an API error
+         */
+        const API_ERROR = 1 << 10;
     }
 }
-impl_binary_fmt!(StickyFaults);
 
 /// Which PID loop a config call should refer to.
 /// Used in place of a `pidIdx` parameter in the C++/Java API.
@@ -1277,14 +1304,14 @@ pub trait MotorController: private::Sealed {
     }
 
     fn faults(&self) -> Result<Faults> {
-        Ok(Faults(
-            cci_get_call!(c_MotController_GetFaults(self.handle(), _: i32))?,
-        ))
+        Ok(Faults {
+            bits: cci_get_call!(c_MotController_GetFaults(self.handle(), _: i32))?,
+        })
     }
     fn sticky_faults(&self) -> Result<StickyFaults> {
-        Ok(StickyFaults(
-            cci_get_call!(c_MotController_GetStickyFaults(self.handle(), _: i32))?,
-        ))
+        Ok(StickyFaults {
+            bits: cci_get_call!(c_MotController_GetStickyFaults(self.handle(), _: i32))?,
+        })
     }
     fn clear_sticky_faults(&mut self, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_ClearStickyFaults(self.handle(), timeout_ms) }

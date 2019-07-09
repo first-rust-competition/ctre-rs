@@ -5,6 +5,8 @@
 //! If nonzero, function will wait for config success and report an error if it times out.
 //! If zero, no blocking or checking is performed.
 
+#[macro_use]
+extern crate bitflags;
 extern crate ctre_data;
 extern crate ctre_sys;
 extern crate num_traits;
