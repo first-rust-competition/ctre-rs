@@ -72,7 +72,11 @@ impl CANifier {
         c_CANifier_SetLEDOutput(self.handle, duty_cycle, led_channel as u32)
     }
     pub fn set_led_output(&self, percent_output: f64, led_channel: LEDChannel) -> ErrorCode {
-        debug_assert!(0. <= percent_output && percent_output <= 1.);
+        debug_assert!(
+            0. <= percent_output && percent_output <= 1.,
+            "Output duty cycle should be within [0,1] (got {}).",
+            percent_output,
+        );
         // convert float to integral fixed pt
         let duty_cycle = 1023. * percent_output.min(1.).max(0.);
         unsafe { self.set_led_output_unchecked(duty_cycle as u32, led_channel) }
@@ -106,8 +110,11 @@ impl CANifier {
     /**
      * Sets the PWM Output
      * Currently supports PWM 0, PWM 1, and PWM 2
-     * * `pwm_channel` - Index of the PWM channel to output.
-     * * `duty_cycle` - Duty Cycle (0 to 1) to output.
+     *
+     * # Parameters
+     *
+     * - `pwm_channel`: Index of the PWM channel to output.
+     * - `duty_cycle`: Duty Cycle (0 to 1) to output.
      *   Default period of the signal is 4.2 ms.
      */
     pub fn set_pwm_output(&self, pwm_channel: PWMChannel, duty_cycle: f64) -> ErrorCode {
@@ -249,12 +256,6 @@ impl CANifier {
      * Sometimes it is necessary to save calibration/duty cycle/output
      * information in the device. Particularly if the
      * device is part of a subsystem that can be replaced.
-     *
-     * * `new_value` - Value for custom parameter.
-     * * `param_index` - Index of custom parameter [0,1]
-     * * `timeout_ms` - Timeout value in ms.
-     *   If nonzero, function will wait for config success and report an error if it times out.
-     *   If zero, no blocking or checking is performed.
      */
     pub fn config_set_custom_param(
         &mut self,
@@ -264,14 +265,7 @@ impl CANifier {
     ) -> ErrorCode {
         unsafe { c_CANifier_ConfigSetCustomParam(self.handle, value, param_index as _, timeout_ms) }
     }
-    /**
-     * Gets the value of a custom parameter. This is for arbitrary use.
-     *
-     * * `param_index` - Index of custom parameter [0,1].
-     * * `timeout_ms` - Timeout value in ms.
-     *   If nonzero, function will wait for config success and report an error if it times out.
-     *   If zero, no blocking or checking is performed.
-     */
+    /// Gets the value of a custom parameter. This is for arbitrary use.
     pub fn config_get_custom_param(&self, param: CustomParam, timout_ms: i32) -> Result<i32> {
         cci_get!(c_CANifier_ConfigGetCustomParam(self.handle, _: i32, param as _, timout_ms))
     }

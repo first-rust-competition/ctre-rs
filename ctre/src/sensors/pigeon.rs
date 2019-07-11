@@ -41,7 +41,9 @@ pub struct PigeonIMU {
 
 impl PigeonIMU {
     /// Create a Pigeon object that communicates with Pigeon on CAN Bus.
-    /// * `device_number` - CAN Device Id of Pigeon [0,62]
+    ///
+    /// # Parameters
+    /// - `device_number`: CAN Device Id of Pigeon [0,62]
     pub fn new(device_number: i32) -> Self {
         let handle = unsafe { c_PigeonIMU_Create1(device_number) };
         Self { handle }
@@ -58,8 +60,10 @@ impl PigeonIMU {
     /**
      * Sets the Yaw register to the specified value.
      *
-     * * `angle` - Degree of Yaw [+/- 23040 degrees]
-     * * `timeout_ms` - Timeout value in ms.
+     * # Parameters
+     *
+     * - `angle`: Degree of Yaw [+/- 23040 degrees]
+     * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
@@ -78,8 +82,10 @@ impl PigeonIMU {
     /**
      * Sets the Fused Heading to the specified value.
      *
-     * * `angle` - Degree of heading [+/- 23040 degrees]
-     * * `timeout_ms` - Timeout value in ms.
+     * # Parameters
+     *
+     * - `angle`: Degree of heading [+/- 23040 degrees]
+     * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
      */
@@ -175,8 +181,19 @@ impl PigeonIMU {
     pub fn get_6d_quaternion(&self) -> Result<[f64; 4]> {
         cci_get!(c_PigeonIMU_Get6dQuaternion(self.handle, _: [f64; 4]))
     }
-    /// Get Yaw, Pitch, and Roll data.
-    /// Returns an array with yaw, pitch, and roll, in that order.
+    /**
+     * Get Yaw, Pitch, and Roll data.
+     *
+     * # Returns
+     *
+     * A `Result` which is:
+     *
+     * - `Ok`: An array with yaw, pitch, and roll, in that order.
+     *   - Yaw is within [-368,640, +368,640] degrees.
+     *   - Pitch is within [-90,+90] degrees.
+     *   - Roll is within [-90,+90] degrees.
+     * - `Err`: The last ErrorCode generated.
+     */
     pub fn yaw_pitch_roll(&self) -> Result<[f64; 3]> {
         cci_get!(c_PigeonIMU_GetYawPitchRoll(self.handle, _: [f64; 3]))
     }
@@ -291,12 +308,6 @@ impl PigeonIMU {
      * Sometimes it is necessary to save calibration/declination/offset
      * information in the device. Particularly if the
      * device is part of a subsystem that can be replaced.
-     *
-     * * `new_value` - Value for custom parameter.
-     * * `param_index` - Index of custom parameter [0,1]
-     * * `timeout_ms` - Timeout value in ms.
-     *   If nonzero, function will wait for config success and report an error if it times out.
-     *   If zero, no blocking or checking is performed.
      */
     pub fn config_set_custom_param(
         &mut self,
@@ -306,18 +317,9 @@ impl PigeonIMU {
     ) -> ErrorCode {
         unsafe { c_PigeonIMU_ConfigSetCustomParam(self.handle, new_value, param as _, timeout_ms) }
     }
-    /**
-     * Gets the value of a custom parameter. This is for arbitrary use.
-     *
-     * * `param_index` - Index of custom parameter [0,1].
-     * * `timeout_ms` - Timeout value in ms.
-     *   If nonzero, function will wait for config success and report an error if it times out.
-     *   If zero, no blocking or checking is performed.
-     */
-    pub fn config_get_custom_param(&self, param_index: CustomParam, timout_ms: i32) -> Result<i32> {
-        cci_get!(
-            c_PigeonIMU_ConfigGetCustomParam(self.handle, _: i32, param_index as _, timout_ms)
-        )
+    /// Gets the value of a custom parameter. This is for arbitrary use.
+    pub fn config_get_custom_param(&self, param: CustomParam, timout_ms: i32) -> Result<i32> {
+        cci_get!(c_PigeonIMU_ConfigGetCustomParam(self.handle, _: i32, param as _, timout_ms))
     }
     /**
      * Sets a parameter. Generally this is not used.
