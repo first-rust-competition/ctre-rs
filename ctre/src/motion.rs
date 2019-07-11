@@ -43,11 +43,14 @@ impl BuffTrajPointStream {
         }
     }
 
-    /// Writes an array of trajectory point into the buffer.
-    pub fn write_all(&mut self, traj_pts: impl AsRef<[TrajectoryPoint]>) -> ErrorCode {
+    /// Writes an iterable of trajectory points into the buffer.
+    pub fn write_all(
+        &mut self,
+        traj_pts: impl IntoIterator<Item = impl AsRef<TrajectoryPoint>>,
+    ) -> ErrorCode {
         let mut rv = ErrorCode::OK;
-        for traj_pt in traj_pts.as_ref() {
-            let er = self.write(traj_pt);
+        for traj_pt in traj_pts {
+            let er = self.write(traj_pt.as_ref());
             // save first nonzero error code
             rv = rv.or(er);
         }
