@@ -453,15 +453,15 @@ pub trait MotorController: private::Sealed {
 
     fn inverted(&self) -> Result<bool> {
         // TODO: cache invert type
-        cci_get_call!(c_MotController_GetInverted(self.handle(), _: bool))
+        cci_get!(c_MotController_GetInverted(self.handle(), _: bool))
     }
 
     fn bus_voltage(&self) -> Result<f64> {
-        cci_get_call!(c_MotController_GetBusVoltage(self.handle(), _: f64))
+        cci_get!(c_MotController_GetBusVoltage(self.handle(), _: f64))
     }
     /// Gets the output percentage of the motor controller, in the interval [-1,+1].
     fn motor_output_percent(&self) -> Result<f64> {
-        cci_get_call!(c_MotController_GetMotorOutputPercent(self.handle(), _: f64))
+        cci_get!(c_MotController_GetMotorOutputPercent(self.handle(), _: f64))
     }
     fn motor_output_voltage(&self) -> Result<f64> {
         Ok(self.bus_voltage()? * self.motor_output_percent()?)
@@ -471,7 +471,7 @@ pub trait MotorController: private::Sealed {
 
     /// Gets the temperature of the motor controller in degrees Celsius.
     fn temperature(&self) -> Result<f64> {
-        cci_get_call!(c_MotController_GetTemperature(self.handle(), _: f64))
+        cci_get!(c_MotController_GetTemperature(self.handle(), _: f64))
     }
 
     /**
@@ -576,10 +576,10 @@ pub trait MotorController: private::Sealed {
 
     /// Get the selected sensor position (in raw sensor units).
     fn get_selected_sensor_position(&self, idx: PIDLoop) -> Result<i32> {
-        cci_get_call!(c_MotController_GetSelectedSensorPosition(self.handle(), _: i32, idx as _))
+        cci_get!(c_MotController_GetSelectedSensorPosition(self.handle(), _: i32, idx as _))
     }
     fn get_selected_sensor_velocity(&self, idx: PIDLoop) -> Result<i32> {
-        cci_get_call!(c_MotController_GetSelectedSensorVelocity(self.handle(), _: i32, idx as _))
+        cci_get!(c_MotController_GetSelectedSensorVelocity(self.handle(), _: i32, idx as _))
     }
     fn set_selected_sensor_position(
         &mut self,
@@ -611,9 +611,9 @@ pub trait MotorController: private::Sealed {
         }
     }
     fn get_status_frame_period(&self, frame: StatusFrame, timeout_ms: i32) -> Result<i32> {
-        cci_get_call!(
+        cci_get! {
             c_MotController_GetStatusFramePeriod(self.handle(), frame as _, _: i32, timeout_ms)
-        )
+        }
     }
 
     /**
@@ -874,40 +874,36 @@ pub trait MotorController: private::Sealed {
         }
     }
     fn get_closed_loop_error(&self, pid_loop: PIDLoop) -> Result<i32> {
-        cci_get_call!(c_MotController_GetClosedLoopError(self.handle(), _: i32, pid_loop as _))
+        cci_get!(c_MotController_GetClosedLoopError(self.handle(), _: i32, pid_loop as _))
     }
     fn get_integral_accumulator(&self, pid_loop: PIDLoop) -> Result<f64> {
-        cci_get_call!(c_MotController_GetIntegralAccumulator(self.handle(), _: f64, pid_loop as _))
+        cci_get!(c_MotController_GetIntegralAccumulator(self.handle(), _: f64, pid_loop as _))
     }
     /// Gets the derivative of the closed-loop error.
     fn get_error_derivative(&self, pid_loop: PIDLoop) -> Result<f64> {
-        cci_get_call!(c_MotController_GetErrorDerivative(self.handle(), _: f64, pid_loop as _))
+        cci_get!(c_MotController_GetErrorDerivative(self.handle(), _: f64, pid_loop as _))
     }
     /// Selects which profile slot to use for closed-loop control.
     fn select_profile_slot(&self, slot_idx: PIDSlot, pid_loop: PIDLoop) -> ErrorCode {
         unsafe { c_MotController_SelectProfileSlot(self.handle(), slot_idx as _, pid_loop as _) }
     }
     fn get_closed_loop_target(&self, pid_loop: PIDLoop) -> Result<i32> {
-        cci_get_call!(c_MotController_GetClosedLoopTarget(self.handle(), _: i32, pid_loop as _))
+        cci_get!(c_MotController_GetClosedLoopTarget(self.handle(), _: i32, pid_loop as _))
     }
 
     /// Gets the active trajectory target position using MotionMagic/MotionProfile control modes.
     fn active_trajectory_position(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetActiveTrajectoryPosition(self.handle(), _: i32))
+        cci_get!(c_MotController_GetActiveTrajectoryPosition(self.handle(), _: i32))
     }
     fn get_active_trajectory_position(&self, pid_idx: PIDLoop) -> Result<i32> {
-        cci_get_call! {
-            c_MotController_GetActiveTrajectoryPosition_3(self.handle(), _: i32, pid_idx as _)
-        }
+        cci_get!(c_MotController_GetActiveTrajectoryPosition_3(self.handle(), _: i32, pid_idx as _))
     }
     /// Gets the active trajectory target velocity using MotionMagic/MotionProfile control modes.
     fn active_trajectory_velocity(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetActiveTrajectoryVelocity(self.handle(), _: i32))
+        cci_get!(c_MotController_GetActiveTrajectoryVelocity(self.handle(), _: i32))
     }
     fn get_active_trajectory_velocity(&self, pid_idx: PIDLoop) -> Result<i32> {
-        cci_get_call! {
-            c_MotController_GetActiveTrajectoryVelocity_3(self.handle(), _: i32, pid_idx as _)
-        }
+        cci_get!(c_MotController_GetActiveTrajectoryVelocity_3(self.handle(), _: i32, pid_idx as _))
     }
     /// Gets the active trajectory target heading using MotionMagic/MotionProfile control modes.
     #[deprecated(
@@ -915,10 +911,10 @@ pub trait MotorController: private::Sealed {
         note = "use `get_active_trajectory_position(PIDLoop::Auxiliary)` instead"
     )]
     fn active_trajectory_heading(&self) -> Result<f64> {
-        cci_get_call!(c_MotController_GetActiveTrajectoryHeading(self.handle(), _: f64))
+        cci_get!(c_MotController_GetActiveTrajectoryHeading(self.handle(), _: f64))
     }
     fn get_active_trajectory_arb_feed_fwd(&self, pid_idx: PIDLoop) -> Result<f64> {
-        cci_get_call! {
+        cci_get! {
             c_MotController_GetActiveTrajectoryArbFeedFwd_3(self.handle(), _: f64, pid_idx as _)
         }
     }
@@ -986,7 +982,7 @@ pub trait MotorController: private::Sealed {
      * [`motion_profile_status`]: #method.motion_profile_status
      */
     fn motion_profile_top_level_buffer_count(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetMotionProfileTopLevelBufferCount(self.handle(), _: i32))
+        cci_get!(c_MotController_GetMotionProfileTopLevelBufferCount(self.handle(), _: i32))
     }
     /// Push another trajectory point into the top level buffer (which is emptied
     /// into the motor controller's bottom buffer as room allows).
@@ -1074,7 +1070,7 @@ pub trait MotorController: private::Sealed {
     ///
     /// [`start_motion_profile`]: #method.start_motion_profile
     fn is_motion_profile_finished(&self) -> Result<bool> {
-        cci_get_call!(c_MotController_IsMotionProfileFinished(self.handle(), _: bool))
+        cci_get!(c_MotController_IsMotionProfileFinished(self.handle(), _: bool))
     }
 
     /**
@@ -1085,7 +1081,7 @@ pub trait MotorController: private::Sealed {
      * [`motion_profile_status`]: #method.motion_profile_status
      */
     fn is_motion_profile_top_level_buffer_full(&self) -> Result<bool> {
-        cci_get_call!(c_MotController_IsMotionProfileTopLevelBufferFull(self.handle(), _: bool))
+        cci_get!(c_MotController_IsMotionProfileTopLevelBufferFull(self.handle(), _: bool))
     }
     /**
      * This must be called periodically to funnel the trajectory points from the
@@ -1305,12 +1301,12 @@ pub trait MotorController: private::Sealed {
 
     fn faults(&self) -> Result<Faults> {
         Ok(Faults {
-            bits: cci_get_call!(c_MotController_GetFaults(self.handle(), _: i32))?,
+            bits: cci_get!(c_MotController_GetFaults(self.handle(), _: i32))?,
         })
     }
     fn sticky_faults(&self) -> Result<StickyFaults> {
         Ok(StickyFaults {
-            bits: cci_get_call!(c_MotController_GetStickyFaults(self.handle(), _: i32))?,
+            bits: cci_get!(c_MotController_GetStickyFaults(self.handle(), _: i32))?,
         })
     }
     fn clear_sticky_faults(&mut self, timeout_ms: i32) -> ErrorCode {
@@ -1320,11 +1316,11 @@ pub trait MotorController: private::Sealed {
     /// Gets the firmware version of the device as a single hexadecimal integer.
     /// For example, version 1-dot-2 is encoded as 0x0102.
     fn firmware_version(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetFirmwareVersion(self.handle(), _: i32))
+        cci_get!(c_MotController_GetFirmwareVersion(self.handle(), _: i32))
     }
     /// Returns true if the device has reset since last call.
     fn has_reset_occurred(&self) -> Result<bool> {
-        cci_get_call!(c_MotController_HasResetOccurred(self.handle(), _: bool))
+        cci_get!(c_MotController_HasResetOccurred(self.handle(), _: bool))
     }
 
     /**
@@ -1346,7 +1342,7 @@ pub trait MotorController: private::Sealed {
     }
     /// Gets the value of a custom parameter.
     fn config_get_custom_param(&self, param_index: CustomParam, timout_ms: i32) -> Result<i32> {
-        cci_get_call!(
+        cci_get!(
             c_MotController_ConfigGetCustomParam(self.handle(), _: i32, param_index as _, timout_ms)
         )
     }
@@ -1378,7 +1374,7 @@ pub trait MotorController: private::Sealed {
         }
     }
     fn config_get_parameter(&self, param: ParamEnum, ordinal: i32, timeout_ms: i32) -> Result<f64> {
-        cci_get_call!(c_MotController_ConfigGetParameter(
+        cci_get!(c_MotController_ConfigGetParameter(
             self.handle(),
             param as _,
             _: f64,
@@ -1672,7 +1668,7 @@ pub trait SensorCollection: MotorController {
      * The upper 14 bits tracks the overflows and underflows (continuous sensor).
      */
     fn analog_in(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetAnalogIn(self.handle(), _: i32))
+        cci_get!(c_MotController_GetAnalogIn(self.handle(), _: i32))
     }
     fn set_analog_position(&mut self, new_position: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_SetAnalogPosition(self.handle(), new_position, timeout_ms) }
@@ -1682,17 +1678,17 @@ pub trait SensorCollection: MotorController {
     ///
     /// Returns the ADC (0 - 1023) on analog pin of the Talon.
     fn analog_in_raw(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetAnalogInRaw(self.handle(), _: i32))
+        cci_get!(c_MotController_GetAnalogInRaw(self.handle(), _: i32))
     }
     /// Get the velocity of whatever is in the analog pin of the Talon,
     /// regardless of whether it is actually being used for feedback.
     ///
     /// Returns the speed in units per 100ms where 1024 units is one rotation.
     fn analog_in_vel(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetAnalogInVel(self.handle(), _: i32))
+        cci_get!(c_MotController_GetAnalogInVel(self.handle(), _: i32))
     }
     fn quadrature_position(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetQuadraturePosition(self.handle(), _: i32))
+        cci_get!(c_MotController_GetQuadraturePosition(self.handle(), _: i32))
     }
     /**
      * Change the quadrature reported position.
@@ -1706,43 +1702,43 @@ pub trait SensorCollection: MotorController {
         unsafe { c_MotController_SetQuadraturePosition(self.handle(), new_position, timeout_ms) }
     }
     fn quadrature_velocity(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetQuadratureVelocity(self.handle(), _: i32))
+        cci_get!(c_MotController_GetQuadratureVelocity(self.handle(), _: i32))
     }
     fn pulse_width_position(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetPulseWidthPosition(self.handle(), _: i32))
+        cci_get!(c_MotController_GetPulseWidthPosition(self.handle(), _: i32))
     }
     fn set_pulse_width_position(&mut self, new_position: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_MotController_SetPulseWidthPosition(self.handle(), new_position, timeout_ms) }
     }
     fn pulse_width_velocity(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetPulseWidthVelocity(self.handle(), _: i32))
+        cci_get!(c_MotController_GetPulseWidthVelocity(self.handle(), _: i32))
     }
     fn pulse_width_rise_to_fall_us(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetPulseWidthRiseToFallUs(self.handle(), _: i32))
+        cci_get!(c_MotController_GetPulseWidthRiseToFallUs(self.handle(), _: i32))
     }
     fn pulse_width_rise_to_rise_us(&self) -> Result<i32> {
-        cci_get_call!(c_MotController_GetPulseWidthRiseToRiseUs(self.handle(), _: i32))
+        cci_get!(c_MotController_GetPulseWidthRiseToRiseUs(self.handle(), _: i32))
     }
     fn pin_state_quad_a(&self) -> Result<bool> {
-        Ok(cci_get_call!(c_MotController_GetPinStateQuadA(self.handle(), _: i32))? != 0)
+        Ok(cci_get!(c_MotController_GetPinStateQuadA(self.handle(), _: i32))? != 0)
     }
     fn pin_state_quad_b(&self) -> Result<bool> {
-        Ok(cci_get_call!(c_MotController_GetPinStateQuadB(self.handle(), _: i32))? != 0)
+        Ok(cci_get!(c_MotController_GetPinStateQuadB(self.handle(), _: i32))? != 0)
     }
     fn pin_state_quad_idx(&self) -> Result<bool> {
-        Ok(cci_get_call!(c_MotController_GetPinStateQuadIdx(self.handle(), _: i32))? != 0)
+        Ok(cci_get!(c_MotController_GetPinStateQuadIdx(self.handle(), _: i32))? != 0)
     }
     /// Is forward limit switch closed.
     ///
     /// This function works regardless if limit switch feature is enabled.
     fn is_fwd_limit_switch_closed(&self) -> Result<bool> {
-        Ok(cci_get_call!(c_MotController_IsFwdLimitSwitchClosed(self.handle(), _: i32))? != 0)
+        Ok(cci_get!(c_MotController_IsFwdLimitSwitchClosed(self.handle(), _: i32))? != 0)
     }
     /// Is reverse limit switch closed.
     ///
     /// This function works regardless if limit switch feature is enabled.
     fn is_rev_limit_switch_closed(&self) -> Result<bool> {
-        Ok(cci_get_call!(c_MotController_IsRevLimitSwitchClosed(self.handle(), _: i32))? != 0)
+        Ok(cci_get!(c_MotController_IsRevLimitSwitchClosed(self.handle(), _: i32))? != 0)
     }
 }
 
@@ -1854,7 +1850,7 @@ impl ConfigAll for TalonSRX {
 impl TalonSRX {
     /// Gets the output current of the motor controller in amps.
     pub fn output_current(&self) -> Result<f64> {
-        cci_get_call!(c_MotController_GetOutputCurrent(self.handle, _: f64))
+        cci_get!(c_MotController_GetOutputCurrent(self.handle, _: f64))
     }
 
     /// Select the feedback device for the motor controller.
@@ -1924,9 +1920,7 @@ impl TalonSRX {
         frame: StatusFrameEnhanced,
         timeout_ms: i32,
     ) -> Result<i32> {
-        cci_get_call!(
-            c_MotController_GetStatusFramePeriod(self.handle, frame as _, _: i32, timeout_ms)
-        )
+        cci_get!(c_MotController_GetStatusFramePeriod(self.handle, frame as _, _: i32, timeout_ms))
     }
 
     /**

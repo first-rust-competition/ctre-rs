@@ -173,12 +173,12 @@ impl PigeonIMU {
     /// Get 6d Quaternion data.
     /// Returns an array of the wxyz quaternion data.
     pub fn get_6d_quaternion(&self) -> Result<[f64; 4]> {
-        cci_get_call!(c_PigeonIMU_Get6dQuaternion(self.handle, _: [f64; 4]))
+        cci_get!(c_PigeonIMU_Get6dQuaternion(self.handle, _: [f64; 4]))
     }
     /// Get Yaw, Pitch, and Roll data.
     /// Returns an array with yaw, pitch, and roll, in that order.
     pub fn yaw_pitch_roll(&self) -> Result<[f64; 3]> {
-        cci_get_call!(c_PigeonIMU_GetYawPitchRoll(self.handle, _: [f64; 3]))
+        cci_get!(c_PigeonIMU_GetYawPitchRoll(self.handle, _: [f64; 3]))
     }
     /**
      * Get AccumGyro data.
@@ -187,55 +187,55 @@ impl PigeonIMU {
      * Returns an array `xyz_deg`.
      */
     pub fn accum_gyro(&self) -> Result<[f64; 3]> {
-        cci_get_call!(c_PigeonIMU_GetAccumGyro(self.handle, _: [f64; 3]))
+        cci_get!(c_PigeonIMU_GetAccumGyro(self.handle, _: [f64; 3]))
     }
     /// Get the absolute compass heading, in the interval [0, 360) degrees.
     pub fn absolute_compass_heading(&self) -> Result<f64> {
-        cci_get_call!(c_PigeonIMU_GetAbsoluteCompassHeading(self.handle, _: f64))
+        cci_get!(c_PigeonIMU_GetAbsoluteCompassHeading(self.handle, _: f64))
     }
     /// Get the continuous compass heading, in the interval [-23040, 23040) degrees.
     pub fn compass_heading(&self) -> Result<f64> {
-        cci_get_call!(c_PigeonIMU_GetCompassHeading(self.handle, _: f64))
+        cci_get!(c_PigeonIMU_GetCompassHeading(self.handle, _: f64))
     }
     /// Get the compass' measured magnetic field strength in microteslas (uT).
     pub fn compass_field_strength(&self) -> Result<f64> {
-        cci_get_call!(c_PigeonIMU_GetCompassFieldStrength(self.handle, _: f64))
+        cci_get!(c_PigeonIMU_GetCompassFieldStrength(self.handle, _: f64))
     }
     /// Get the temperature of the pigeon, in degrees Celsius.
     pub fn temp(&self) -> Result<f64> {
-        cci_get_call!(c_PigeonIMU_GetTemp(self.handle, _: f64))
+        cci_get!(c_PigeonIMU_GetTemp(self.handle, _: f64))
     }
     pub fn state(&self) -> Result<PigeonState> {
-        Ok(cci_get_call!(c_PigeonIMU_GetState(self.handle, _: i32))?.into())
+        Ok(cci_get!(c_PigeonIMU_GetState(self.handle, _: i32))?.into())
     }
     pub fn uptime(&self) -> Result<i32> {
-        cci_get_call!(c_PigeonIMU_GetUpTime(self.handle, _: i32))
+        cci_get!(c_PigeonIMU_GetUpTime(self.handle, _: i32))
     }
 
     /// Get Raw Magnetometer data.
     /// Returns an array `rm_xyz`.  Number is equal to 0.6 microteslas per unit.
     pub fn raw_magnetometer(&self) -> Result<[i16; 3]> {
-        cci_get_call!(c_PigeonIMU_GetRawMagnetometer(self.handle, _: [i16; 3]))
+        cci_get!(c_PigeonIMU_GetRawMagnetometer(self.handle, _: [i16; 3]))
     }
     /// Get Biased Magnetometer data.
     /// Returns an array `bm_xyz`.  Number is equal to 0.6 microteslas per unit.
     pub fn biased_magnetometer(&self) -> Result<[i16; 3]> {
-        cci_get_call!(c_PigeonIMU_GetBiasedMagnetometer(self.handle, _: [i16; 3]))
+        cci_get!(c_PigeonIMU_GetBiasedMagnetometer(self.handle, _: [i16; 3]))
     }
     /// Get Biased Accelerometer data.
     /// Returns an array `ba_xyz`.  These are in fixed point notation Q2.14.  eg. 16384 = 1G
     pub fn biased_accelerometer(&self) -> Result<[i16; 3]> {
-        cci_get_call!(c_PigeonIMU_GetBiasedAccelerometer(self.handle, _: [i16; 3]))
+        cci_get!(c_PigeonIMU_GetBiasedAccelerometer(self.handle, _: [i16; 3]))
     }
     /// Get Raw Gyro data.
     /// Returns an array `xyz_dps`, with data in degrees per second.
     pub fn raw_gyro(&self) -> Result<[f64; 3]> {
-        cci_get_call!(c_PigeonIMU_GetRawGyro(self.handle, _: [f64; 3]))
+        cci_get!(c_PigeonIMU_GetRawGyro(self.handle, _: [f64; 3]))
     }
     /// Get Accelerometer tilt angles.
     /// Returns a 3-array of x, y, z angles in degrees.
     pub fn accelerometer_angles(&self) -> Result<[f64; 3]> {
-        cci_get_call!(c_PigeonIMU_GetAccelerometerAngles(self.handle, _: [f64; 3]))
+        cci_get!(c_PigeonIMU_GetAccelerometerAngles(self.handle, _: [f64; 3]))
     }
 
     /// Get the current Fusion Status (including fused heading)
@@ -265,24 +265,24 @@ impl PigeonIMU {
     }
     /// Gets the Fused Heading in degrees.
     pub fn fused_heading(&self) -> Result<f64> {
-        cci_get_call!(c_PigeonIMU_GetFusedHeading1(self.handle, _: f64))
+        cci_get!(c_PigeonIMU_GetFusedHeading1(self.handle, _: f64))
     }
 
     // Use `has_reset_occurred` instead.
     /*
     pub fn get_reset_count(&self) -> Result<i32> {
-        cci_get_call!(c_PigeonIMU_GetResetCount(self.handle, _: i32))
+        cci_get!(c_PigeonIMU_GetResetCount(self.handle, _: i32))
     }
     // XXX: C++ exposes GetResetCount here again, Java exposes neither of these.
     pub fn get_reset_flags(&self) -> Result<i32> {
-        cci_get_call!(c_PigeonIMU_GetResetFlags(self.handle, _: i32))
+        cci_get!(c_PigeonIMU_GetResetFlags(self.handle, _: i32))
     }
     */
     pub fn firmware_version(&self) -> Result<i32> {
-        cci_get_call!(c_PigeonIMU_GetFirmwareVersion(self.handle, _: i32))
+        cci_get!(c_PigeonIMU_GetFirmwareVersion(self.handle, _: i32))
     }
     pub fn has_reset_occurred(&self) -> Result<bool> {
-        cci_get_call!(c_PigeonIMU_HasResetOccurred(self.handle, _: bool))
+        cci_get!(c_PigeonIMU_HasResetOccurred(self.handle, _: bool))
     }
 
     /**
@@ -315,7 +315,7 @@ impl PigeonIMU {
      *   If zero, no blocking or checking is performed.
      */
     pub fn config_get_custom_param(&self, param_index: CustomParam, timout_ms: i32) -> Result<i32> {
-        cci_get_call!(
+        cci_get!(
             c_PigeonIMU_ConfigGetCustomParam(self.handle, _: i32, param_index as _, timout_ms)
         )
     }
@@ -351,19 +351,19 @@ impl PigeonIMU {
         ordinal: i32,
         timeout_ms: i32,
     ) -> Result<f64> {
-        cci_get_call!(
+        cci_get! {
             c_PigeonIMU_ConfigGetParameter(self.handle, param as _, _: f64, ordinal, timeout_ms)
-        )
+        }
     }
 
     pub fn faults(&self) -> Result<Faults> {
         Ok(Faults(
-            cci_get_call!(c_PigeonIMU_GetFaults(self.handle, _: i32))?,
+            cci_get!(c_PigeonIMU_GetFaults(self.handle, _: i32))?,
         ))
     }
     pub fn sticky_faults(&self) -> Result<StickyFaults> {
         Ok(StickyFaults(
-            cci_get_call!(c_PigeonIMU_GetStickyFaults(self.handle, _: i32))?,
+            cci_get!(c_PigeonIMU_GetStickyFaults(self.handle, _: i32))?,
         ))
     }
     pub fn clear_sticky_faults(&mut self, timeout_ms: i32) -> ErrorCode {
@@ -379,7 +379,7 @@ impl PigeonIMU {
         unsafe { c_PigeonIMU_SetStatusFramePeriod(self.handle, frame as _, period_ms, timeout_ms) }
     }
     pub fn get_status_frame_period(&self, frame: StatusFrame, timeout_ms: i32) -> Result<i32> {
-        cci_get_call!(c_PigeonIMU_GetStatusFramePeriod(self.handle, frame as _, _: i32, timeout_ms))
+        cci_get!(c_PigeonIMU_GetStatusFramePeriod(self.handle, frame as _, _: i32, timeout_ms))
     }
     pub fn set_control_frame_period(&mut self, frame: ControlFrame, period_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_SetControlFramePeriod(self.handle, frame as _, period_ms) }

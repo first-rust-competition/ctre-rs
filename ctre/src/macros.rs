@@ -1,5 +1,5 @@
 /// Convenience wrapper for making simple get calls.
-macro_rules! cci_get_call {
+macro_rules! cci_get {
     ($function:ident($($arg0:expr,)+ _: $type:ty $(, $arg1:expr)*$(,)*)) => ({
         let mut value: $type = unsafe { ::std::mem::uninitialized() };
         let error = unsafe { $function($($arg0,)* &mut value, $($arg1),* ) };
@@ -7,10 +7,10 @@ macro_rules! cci_get_call {
     });
     /*
     ($function:ident($($arg0:expr,)+ _: $type:ty, $($arg1:expr,)*)) => (
-        cci_get_call!($function($($arg0,)* _: $type, $($arg1),*))
+        cci_get!($function($($arg0,)* _: $type, $($arg1),*))
     );
     ($function:ident($($arg0:expr,)+ _: $type:ty)) => (
-        cci_get_call!($function($($arg0,)* _: $type,))
+        cci_get!($function($($arg0,)* _: $type,))
     );
     */
 }
@@ -39,7 +39,7 @@ macro_rules! make_cci_getter {
     ($(#[$attr:meta])* fn $rust_fn:ident -> $type:ty = $cci_fn:ident) => {
         $(#[$attr])*
         fn $rust_fn(&self) -> Result<$type> {
-            cci_get_call!($cci_fn(self.handle(), _: $type))
+            cci_get!($cci_fn(self.handle(), _: $type))
         }
     };
     ($(#[$attr:meta])* fn $rust_fn:ident -> $type:ty = $cci_fn:ident; $($rest:tt)*) => {

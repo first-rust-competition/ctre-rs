@@ -160,30 +160,30 @@ impl CANifier {
     }
     /// Gets the state of the specified pin
     pub fn general_input(&self, input_pin: GeneralPin) -> Result<bool> {
-        cci_get_call!(c_CANifier_GetGeneralInput(self.handle, input_pin as u32, _: bool))
+        cci_get!(c_CANifier_GetGeneralInput(self.handle, input_pin as u32, _: bool))
     }
 
     /// Gets the PWM Input.
     /// Returns a 2-array holding the Pulse Width (microseconds) and Period (microseconds).
     pub fn pwm_input(&self, pwm_channel: PWMChannel) -> Result<[f64; 2]> {
-        cci_get_call!(c_CANifier_GetPWMInput(self.handle, pwm_channel as u32, _: [f64; 2]))
+        cci_get!(c_CANifier_GetPWMInput(self.handle, pwm_channel as u32, _: [f64; 2]))
     }
 
     pub fn last_error(&self) -> ErrorCode {
         unsafe { c_CANifier_GetLastError(self.handle) }
     }
     pub fn bus_voltage(&self) -> Result<f64> {
-        cci_get_call!(c_CANifier_GetBusVoltage(self.handle, _: f64))
+        cci_get!(c_CANifier_GetBusVoltage(self.handle, _: f64))
     }
 
     pub fn quadrature_position(&self) -> Result<i32> {
-        cci_get_call!(c_CANifier_GetQuadraturePosition(self.handle, _: i32))
+        cci_get!(c_CANifier_GetQuadraturePosition(self.handle, _: i32))
     }
     pub fn set_quadrature_position(&self, pos: i32, timeout_ms: i32) -> ErrorCode {
         unsafe { c_CANifier_SetQuadraturePosition(self.handle, pos, timeout_ms) }
     }
     pub fn quadrature_velocity(&self) -> Result<i32> {
-        cci_get_call!(c_CANifier_GetQuadratureVelocity(self.handle, _: i32))
+        cci_get!(c_CANifier_GetQuadratureVelocity(self.handle, _: i32))
     }
 
     /**
@@ -239,7 +239,7 @@ impl CANifier {
         ordinal: i32,
         timeout_ms: i32,
     ) -> Result<f64> {
-        cci_get_call!(
+        cci_get!(
             c_CANifier_ConfigGetParameter(self.handle, param as _, _: f64, ordinal, timeout_ms)
         )
     }
@@ -273,17 +273,15 @@ impl CANifier {
      *   If zero, no blocking or checking is performed.
      */
     pub fn config_get_custom_param(&self, param: CustomParam, timout_ms: i32) -> Result<i32> {
-        cci_get_call!(c_CANifier_ConfigGetCustomParam(self.handle, _: i32, param as _, timout_ms))
+        cci_get!(c_CANifier_ConfigGetCustomParam(self.handle, _: i32, param as _, timout_ms))
     }
 
     pub fn faults(&self) -> Result<Faults> {
-        Ok(Faults(
-            cci_get_call!(c_CANifier_GetFaults(self.handle, _: i32))?,
-        ))
+        Ok(Faults(cci_get!(c_CANifier_GetFaults(self.handle, _: i32))?))
     }
     pub fn sticky_faults(&self) -> Result<StickyFaults> {
         Ok(StickyFaults(
-            cci_get_call!(c_CANifier_GetStickyFaults(self.handle, _: i32))?,
+            cci_get!(c_CANifier_GetStickyFaults(self.handle, _: i32))?,
         ))
     }
     pub fn clear_sticky_faults(&mut self, timeout_ms: i32) -> ErrorCode {
@@ -291,10 +289,10 @@ impl CANifier {
     }
 
     pub fn firmware_version(&self) -> Result<i32> {
-        cci_get_call!(c_CANifier_GetFirmwareVersion(self.handle, _: i32))
+        cci_get!(c_CANifier_GetFirmwareVersion(self.handle, _: i32))
     }
     pub fn has_reset_occurred(&self) -> Result<bool> {
-        cci_get_call!(c_CANifier_HasResetOccurred(self.handle, _: bool))
+        cci_get!(c_CANifier_HasResetOccurred(self.handle, _: bool))
     }
 
     pub fn set_status_frame_period(
@@ -306,7 +304,7 @@ impl CANifier {
         unsafe { c_CANifier_SetStatusFramePeriod(self.handle, frame as _, period_ms, timeout_ms) }
     }
     pub fn get_status_frame_period(&self, frame: StatusFrame, timeout_ms: i32) -> Result<i32> {
-        cci_get_call!(c_CANifier_GetStatusFramePeriod(self.handle, frame as _, _: i32, timeout_ms))
+        cci_get!(c_CANifier_GetStatusFramePeriod(self.handle, frame as _, _: i32, timeout_ms))
     }
     pub fn set_control_frame_period(&self, frame: ControlFrame, period_ms: i32) -> ErrorCode {
         unsafe { c_CANifier_SetControlFramePeriod(self.handle, frame as _, period_ms) }
