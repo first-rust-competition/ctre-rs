@@ -19,7 +19,9 @@ use super::{motion::*, ConfigAll, CustomParam, ErrorCode, ParamEnum, Result};
 /// The purpose of this module is to alleviate imports
 /// of the most commonly used CTRE motor controller types and traits.
 pub mod prelude {
-    pub use super::{ControlMode, Demand, MotorController, TalonSRX, VictorSPX};
+    // XXX: Re-export of ControlMode here causes doc duplication.
+    pub use super::{ControlMode, Demand, TalonSRX, VictorSPX};
+    pub use super::MotorController as __ctre_MotorController;
 }
 
 bitflags! {
