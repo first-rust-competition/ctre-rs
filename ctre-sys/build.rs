@@ -10,7 +10,7 @@ const NI_LIB_LIST: &[&str] = &[
     "RoboRIO_FRC_ChipObject",
     "visa",
 ];
-const SIM_LIB_LIST: &[&str] = &["CTRE_PhoenixCanutils", "CTRE_PhoenixPlatform_sim"];
+const SIM_LIB_LIST: &[&str] = &["CTRE_PhoenixCanutils", "CTRE_PhoenixPlatform"];
 
 fn main() {
     println!("cargo:rustc-link-lib=static=CTRE_PhoenixCCI");
