@@ -2,10 +2,11 @@
 name = "ctre-data"
 version = "0.5.14"
 authors = ["David Vo <david@vovo.id.au>"]
-repository = "https://github.com/auscompgeek/ctre-rs"
-license-file = "LICENSE"
-keywords = ["frc", "ctre"]
 categories = ["embedded", "hardware-support", "no-std"]
+keywords = ["frc", "ctre"]
+license-file = "LICENSE"
+readme = "README.md"
+repository = "https://github.com/auscompgeek/ctre-rs"
 description = "Enums and structs for CTR Electronics' Phoenix libraries"
 
 [package.metadata.docs.rs]

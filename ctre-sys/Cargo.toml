@@ -2,13 +2,15 @@
 name = "ctre-sys"
 version = "5.14.0"
 authors = ["David Vo <david@vovo.id.au>"]
-links = "CTRE_PhoenixCCI"
-build = "build.rs"
-repository = "https://github.com/auscompgeek/ctre-rs"
-readme = "README.md"
-license-file = "LICENSE"
-keywords = ["frc", "ctre"]
 categories = ["external-ffi-bindings", "embedded", "hardware-support"]
+keywords = ["frc", "ctre"]
+license-file = "LICENSE"
+readme = "README.md"
+repository = "https://github.com/auscompgeek/ctre-rs"
+
+build = "build.rs"
+links = "CTRE_PhoenixCCI"
+
 description = "FFI bindings to CTR Electronics' Phoenix FRC libraries"
 
 include = ["src/**/*", "Cargo.toml", "build.rs", "lib/**/*"]

@@ -2,11 +2,11 @@
 name = "ctre"
 version = "0.8.0"
 authors = ["David Vo <david@vovo.id.au>"]
+categories = ["api-bindings", "embedded", "hardware-support"]
+keywords = ["frc", "ctre"]
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/auscompgeek/ctre-rs"
-keywords = ["frc", "ctre"]
-categories = ["api-bindings", "embedded", "hardware-support"]
 description = "Bindings for CTR Electronics' Phoenix for FRC libraries"
 
 [features]
