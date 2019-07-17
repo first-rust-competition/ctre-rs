@@ -284,27 +284,47 @@ pub trait MotorController: private::Sealed {
      *
      * Standard Driving Example:
      * ```
+     * # use ctre::mot::prelude::*;
+     * let mut talon_left = TalonSRX::new(0);
+     * let mut talon_rght = TalonSRX::new(1);
+     * # let left_joy = 0.5;
+     * # let rght_joy = 0.5;
      * talon_left.set(ControlMode::PercentOutput, left_joy, Demand::Neutral);
      * talon_rght.set(ControlMode::PercentOutput, rght_joy, Demand::Neutral);
      * ```
      *
      * Arcade Drive Example:
      * ```
-     * talon_left.set(ControlMode::PercentOutput, joy_fwd, Demand::ArbitraryFeedForward(joyTurn));
-     * talon_rght.set(ControlMode::PercentOutput, joy_fwd, Demand::ArbitraryFeedForward(-joyTurn));
+     * # use ctre::mot::prelude::*;
+     * let mut talon_left = TalonSRX::new(0);
+     * let mut talon_rght = TalonSRX::new(1);
+     * # let joy_fwd = 0.5;
+     * # let joy_turn = 0.1;
+     * talon_left.set(ControlMode::PercentOutput, joy_fwd, Demand::ArbitraryFeedForward(joy_turn));
+     * talon_rght.set(ControlMode::PercentOutput, joy_fwd, Demand::ArbitraryFeedForward(-joy_turn));
      * ```
      *
      * Drive Straight Example:
      * Note: Selected Sensor Configuration is necessary for both PID0 and PID1.
      * ```
-     * talon_left.follow(talon_rght, FollowerType::AuxOutput1);
+     * # use ctre::mot::{prelude::*, FollowerType};
+     * let mut talon_left = TalonSRX::new(0);
+     * let mut talon_rght = TalonSRX::new(1);
+     * # let joy_fwd = 0.5;
+     * # let desired_robot_heading = 0.0;
+     * talon_left.follow(&talon_rght, FollowerType::AuxOutput1);
      * talon_rght.set(ControlMode::PercentOutput, joy_fwd, Demand::AuxPID(desired_robot_heading));
      * ```
      *
      * Drive Straight to a Distance Example:
      * Note: Other configurations (sensor selection, PID gains, etc.) need to be set.
      * ```
-     * talon_left.follow(talon_rght, FollowerType::AuxOutput1);
+     * # use ctre::mot::{prelude::*, FollowerType};
+     * let mut talon_left = TalonSRX::new(0);
+     * let mut talon_rght = TalonSRX::new(1);
+     * # let target_dist = 1023.0;
+     * # let desired_robot_heading = 0.0;
+     * talon_left.follow(&talon_rght, FollowerType::AuxOutput1);
      * talon_rght.set(ControlMode::MotionMagic, target_dist, Demand::AuxPID(desired_robot_heading));
      * ```
      */
