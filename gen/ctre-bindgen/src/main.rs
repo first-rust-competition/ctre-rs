@@ -6,7 +6,7 @@
 // except according to those terms.
 
 extern crate bindgen;
-use std::path::PathBuf;
+
 use std::{env, io};
 
 #[derive(Debug)]
