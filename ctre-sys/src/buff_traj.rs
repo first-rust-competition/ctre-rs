@@ -1,4 +1,4 @@
-use std::os::raw;
+use std::ffi;
 
 use super::ErrorCode;
 
@@ -32,6 +32,6 @@ extern "C" {
 
     pub fn c_BuffTrajPointStream_Lookup(
         handle: *mut Stream,
-        outObject: *mut *mut raw::c_void,
+        outObject: *mut *mut ffi::c_void,
     ) -> ErrorCode;
 }
