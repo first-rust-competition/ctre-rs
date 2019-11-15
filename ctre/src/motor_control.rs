@@ -1387,7 +1387,7 @@ pub trait MotorController: private::Sealed {
         unsafe {
             c_MotController_ConfigSetParameter(
                 self.handle(),
-                param as _,
+                param.0 as _,
                 value,
                 sub_value as _,
                 ordinal,
@@ -1398,7 +1398,7 @@ pub trait MotorController: private::Sealed {
     fn config_get_parameter(&self, param: ParamEnum, ordinal: i32, timeout_ms: i32) -> Result<f64> {
         cci_get!(c_MotController_ConfigGetParameter(
             self.handle(),
-            param as _,
+            param.0 as _,
             _: f64,
             ordinal,
             timeout_ms,

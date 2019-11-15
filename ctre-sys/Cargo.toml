@@ -1,6 +1,6 @@
 [package]
 name = "ctre-sys"
-version = "5.14.0"
+version = "5.15.0"
 authors = ["David Vo <david@vovo.id.au>"]
 categories = ["external-ffi-bindings", "embedded", "hardware-support"]
 keywords = ["frc", "ctre"]

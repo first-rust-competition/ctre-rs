@@ -15,7 +15,7 @@ serde = ["ctre-data/serde"]
 [dependencies]
 bitflags = "1.0"
 ctre-data = { path = "../ctre-data", version = "0.5.14", features = ["num"] }
-ctre-sys = { path = "../ctre-sys", version = "5.14.0" }
+ctre-sys = { path = "../ctre-sys", version = "5.15.0" }
 num-traits = "0.2"
 smart-default = "0.2"
 

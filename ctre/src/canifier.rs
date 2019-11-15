@@ -232,7 +232,7 @@ impl CANifier {
         unsafe {
             c_CANifier_ConfigSetParameter(
                 self.handle,
-                param as _,
+                param.0 as _,
                 value,
                 sub_value,
                 ordinal,
@@ -247,7 +247,7 @@ impl CANifier {
         timeout_ms: i32,
     ) -> Result<f64> {
         cci_get!(
-            c_CANifier_ConfigGetParameter(self.handle, param as _, _: f64, ordinal, timeout_ms)
+            c_CANifier_ConfigGetParameter(self.handle, param.0 as _, _: f64, ordinal, timeout_ms)
         )
     }
     /**

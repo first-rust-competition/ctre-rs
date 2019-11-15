@@ -97,123 +97,124 @@ impl ErrorCode {
         ErrorCode::MotorControllerFeatureRequiresHigherFirm;
 }
 
-#[repr(u32)]
+#[repr(transparent)]
 /// Signal enumeration for generic signal access.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ParamEnum {
-    OnBoot_BrakeMode = 31,
-    QuadFilterEn = 91,
-    QuadIdxPolarity = 108,
-    MotionProfileHasUnderrunErr = 119,
+pub struct ParamEnum(pub u32);
+impl ParamEnum {
+    pub const OnBoot_BrakeMode: ParamEnum = ParamEnum(31);
+    pub const QuadFilterEn: ParamEnum = ParamEnum(91);
+    pub const QuadIdxPolarity: ParamEnum = ParamEnum(108);
+    pub const MotionProfileHasUnderrunErr: ParamEnum = ParamEnum(119);
     /// motionProfileTrajectoryPeriod
-    MotionProfileTrajectoryPointDurationMs = 120,
-    MotionProfileTrajectoryInterpolDis = 121,
+    pub const MotionProfileTrajectoryPointDurationMs: ParamEnum = ParamEnum(120);
+    pub const MotionProfileTrajectoryInterpolDis: ParamEnum = ParamEnum(121);
+
+    pub const StatusFramePeriod: ParamEnum = ParamEnum(300);
+    pub const OpenloopRamp: ParamEnum = ParamEnum(301);
+    pub const ClosedloopRamp: ParamEnum = ParamEnum(302);
+    pub const NeutralDeadband: ParamEnum = ParamEnum(303);
+
+    pub const PeakPosOutput: ParamEnum = ParamEnum(305);
+    pub const NominalPosOutput: ParamEnum = ParamEnum(306);
+    pub const PeakNegOutput: ParamEnum = ParamEnum(307);
+    pub const NominalNegOutput: ParamEnum = ParamEnum(308);
+
+    pub const ProfileParamSlot_P: ParamEnum = ParamEnum(310);
+    pub const ProfileParamSlot_I: ParamEnum = ParamEnum(311);
+    pub const ProfileParamSlot_D: ParamEnum = ParamEnum(312);
+    pub const ProfileParamSlot_F: ParamEnum = ParamEnum(313);
+    pub const ProfileParamSlot_IZone: ParamEnum = ParamEnum(314);
+    pub const ProfileParamSlot_AllowableErr: ParamEnum = ParamEnum(315);
+    pub const ProfileParamSlot_MaxIAccum: ParamEnum = ParamEnum(316);
+    pub const ProfileParamSlot_PeakOutput: ParamEnum = ParamEnum(317);
+
+    pub const ClearPositionOnLimitF: ParamEnum = ParamEnum(320);
+    pub const ClearPositionOnLimitR: ParamEnum = ParamEnum(321);
+    pub const ClearPositionOnQuadIdx: ParamEnum = ParamEnum(322);
 
     #[deprecated(note = "use `ParamEnum::ClearPositionOnQuadIdx` instead")]
-    ClearPositionOnIdx = 100,
+    pub const ClearPositionOnIdx: ParamEnum = ParamEnum::ClearPositionOnQuadIdx;
     #[deprecated(note = "use `ParamEnum::ClearPositionOnLimitF` instead")]
-    ClearPosOnLimitF = 144,
+    pub const ClearPosOnLimitF: ParamEnum = ParamEnum::ClearPositionOnLimitF;
     #[deprecated(note = "use `ParamEnum::ClearPositionOnLimitR` instead")]
-    ClearPosOnLimitR = 145,
+    pub const ClearPosOnLimitR: ParamEnum = ParamEnum::ClearPositionOnLimitR;
 
-    StatusFramePeriod = 300,
-    OpenloopRamp = 301,
-    ClosedloopRamp = 302,
-    NeutralDeadband = 303,
+    pub const SampleVelocityPeriod: ParamEnum = ParamEnum(325);
+    pub const SampleVelocityWindow: ParamEnum = ParamEnum(326);
 
-    PeakPosOutput = 305,
-    NominalPosOutput = 306,
-    PeakNegOutput = 307,
-    NominalNegOutput = 308,
-
-    ProfileParamSlot_P = 310,
-    ProfileParamSlot_I = 311,
-    ProfileParamSlot_D = 312,
-    ProfileParamSlot_F = 313,
-    ProfileParamSlot_IZone = 314,
-    ProfileParamSlot_AllowableErr = 315,
-    ProfileParamSlot_MaxIAccum = 316,
-    ProfileParamSlot_PeakOutput = 317,
-
-    ClearPositionOnLimitF = 320,
-    ClearPositionOnLimitR = 321,
-    ClearPositionOnQuadIdx = 322,
-
-    SampleVelocityPeriod = 325,
-    SampleVelocityWindow = 326,
-
-    FeedbackSensorType = 330,
-    SelectedSensorPosition = 331,
-    FeedbackNotContinuous = 332,
-    RemoteSensorSource = 333, // RemoteSensorSource_t
+    pub const FeedbackSensorType: ParamEnum = ParamEnum(330);
+    pub const SelectedSensorPosition: ParamEnum = ParamEnum(331);
+    pub const FeedbackNotContinuous: ParamEnum = ParamEnum(332);
+    pub const RemoteSensorSource: ParamEnum = ParamEnum(333); // RemoteSensorSource_t
     /// [0,62] DeviceID
-    RemoteSensorDeviceID = 334,
+    pub const RemoteSensorDeviceID: ParamEnum = ParamEnum(334);
     /// feedbackDevice_t (ordinal is the register)
-    SensorTerm = 335,
-    RemoteSensorClosedLoopDisableNeutralOnLOS = 336,
+    pub const SensorTerm: ParamEnum = ParamEnum(335);
+    pub const RemoteSensorClosedLoopDisableNeutralOnLOS: ParamEnum = ParamEnum(336);
     /// auxPIDPolarity
-    PIDLoopPolarity = 337,
-    PIDLoopPeriod = 338,
-    SelectedSensorCoefficient = 339,
+    pub const PIDLoopPolarity: ParamEnum = ParamEnum(337);
+    pub const PIDLoopPeriod: ParamEnum = ParamEnum(338);
+    pub const SelectedSensorCoefficient: ParamEnum = ParamEnum(339);
 
-    ForwardSoftLimitThreshold = 340,
-    ReverseSoftLimitThreshold = 341,
-    ForwardSoftLimitEnable = 342,
-    ReverseSoftLimitEnable = 343,
+    pub const ForwardSoftLimitThreshold: ParamEnum = ParamEnum(340);
+    pub const ReverseSoftLimitThreshold: ParamEnum = ParamEnum(341);
+    pub const ForwardSoftLimitEnable: ParamEnum = ParamEnum(342);
+    pub const ReverseSoftLimitEnable: ParamEnum = ParamEnum(343);
 
     /// voltageCompSaturation
-    NominalBatteryVoltage = 350,
+    pub const NominalBatteryVoltage: ParamEnum = ParamEnum(350);
     /// voltageMeasurementFilter
-    BatteryVoltageFilterSize = 351,
+    pub const BatteryVoltageFilterSize: ParamEnum = ParamEnum(351);
 
-    ContinuousCurrentLimitAmps = 360,
-    PeakCurrentLimitMs = 361,
-    PeakCurrentLimitAmps = 362,
+    pub const ContinuousCurrentLimitAmps: ParamEnum = ParamEnum(360);
+    pub const PeakCurrentLimitMs: ParamEnum = ParamEnum(361);
+    pub const PeakCurrentLimitAmps: ParamEnum = ParamEnum(362);
 
-    ClosedLoopIAccum = 370,
+    pub const ClosedLoopIAccum: ParamEnum = ParamEnum(370);
 
-    CustomParam = 380,
+    pub const CustomParam: ParamEnum = ParamEnum(380);
 
-    StickyFaults = 390,
+    pub const StickyFaults: ParamEnum = ParamEnum(390);
 
-    AnalogPosition = 400,
-    QuadraturePosition = 401,
-    PulseWidthPosition = 402,
+    pub const AnalogPosition: ParamEnum = ParamEnum(400);
+    pub const QuadraturePosition: ParamEnum = ParamEnum(401);
+    pub const PulseWidthPosition: ParamEnum = ParamEnum(402);
 
-    MotMag_Accel = 410,
-    MotMag_VelCruise = 411,
-    MotMag_SCurveLevel = 412,
+    pub const MotMag_Accel: ParamEnum = ParamEnum(410);
+    pub const MotMag_VelCruise: ParamEnum = ParamEnum(411);
+    pub const MotMag_SCurveLevel: ParamEnum = ParamEnum(412);
 
     /// ordinal (fwd=0,reverse=1), @see LimitSwitchSource_t
-    LimitSwitchSource = 421,
+    pub const LimitSwitchSource: ParamEnum = ParamEnum(421);
     /// ordinal (fwd=0,reverse=1). @see LimitSwitchNormClosedAndDis_t
-    LimitSwitchNormClosedAndDis = 422,
-    LimitSwitchDisableNeutralOnLOS = 423,
-    LimitSwitchRemoteDevID = 424,
-    SoftLimitDisableNeutralOnLOS = 425,
+    pub const LimitSwitchNormClosedAndDis: ParamEnum = ParamEnum(422);
+    pub const LimitSwitchDisableNeutralOnLOS: ParamEnum = ParamEnum(423);
+    pub const LimitSwitchRemoteDevID: ParamEnum = ParamEnum(424);
+    pub const SoftLimitDisableNeutralOnLOS: ParamEnum = ParamEnum(425);
 
-    PulseWidthPeriod_EdgesPerRot = 430,
-    PulseWidthPeriod_FilterWindowSz = 431,
+    pub const PulseWidthPeriod_EdgesPerRot: ParamEnum = ParamEnum(430);
+    pub const PulseWidthPeriod_FilterWindowSz: ParamEnum = ParamEnum(431);
 
-    YawOffset = 160,
-    CompassOffset = 161,
-    BetaGain = 162,
-    EnableCompassFusion = 163,
-    GyroNoMotionCal = 164,
-    EnterCalibration = 165,
-    FusedHeadingOffset = 166,
-    StatusFrameRate = 169,
-    AccumZ = 170,
-    TempCompDisable = 171,
-    MotionMeas_tap_threshX = 172,
-    MotionMeas_tap_threshY = 173,
-    MotionMeas_tap_threshZ = 174,
-    MotionMeas_tap_count = 175,
-    MotionMeas_tap_time = 176,
-    MotionMeas_tap_time_multi = 177,
-    MotionMeas_shake_reject_thresh = 178,
-    MotionMeas_shake_reject_time = 179,
-    MotionMeas_shake_reject_timeout = 180,
+    pub const YawOffset: ParamEnum = ParamEnum(160);
+    pub const CompassOffset: ParamEnum = ParamEnum(161);
+    pub const BetaGain: ParamEnum = ParamEnum(162);
+    pub const EnableCompassFusion: ParamEnum = ParamEnum(163);
+    pub const GyroNoMotionCal: ParamEnum = ParamEnum(164);
+    pub const EnterCalibration: ParamEnum = ParamEnum(165);
+    pub const FusedHeadingOffset: ParamEnum = ParamEnum(166);
+    pub const StatusFrameRate: ParamEnum = ParamEnum(169);
+    pub const AccumZ: ParamEnum = ParamEnum(170);
+    pub const TempCompDisable: ParamEnum = ParamEnum(171);
+    pub const MotionMeas_tap_threshX: ParamEnum = ParamEnum(172);
+    pub const MotionMeas_tap_threshY: ParamEnum = ParamEnum(173);
+    pub const MotionMeas_tap_threshZ: ParamEnum = ParamEnum(174);
+    pub const MotionMeas_tap_count: ParamEnum = ParamEnum(175);
+    pub const MotionMeas_tap_time: ParamEnum = ParamEnum(176);
+    pub const MotionMeas_tap_time_multi: ParamEnum = ParamEnum(177);
+    pub const MotionMeas_shake_reject_thresh: ParamEnum = ParamEnum(178);
+    pub const MotionMeas_shake_reject_time: ParamEnum = ParamEnum(179);
+    pub const MotionMeas_shake_reject_timeout: ParamEnum = ParamEnum(180);
 
-    DefaultConfig = 500,
+    pub const DefaultConfig: ParamEnum = ParamEnum(500);
 }
