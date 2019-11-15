@@ -100,7 +100,7 @@ extern "C" {
     pub fn c_CANifier_GetPWMInput(
         handle: Handle,
         pwmChannel: u32,
-        pulseWidthAndPeriod: &mut [f64; 2],
+        pulseWidthAndPeriod: *mut [f64; 2],
     ) -> ErrorCode;
 
     pub fn c_CANifier_GetLastError(handle: Handle) -> ErrorCode;

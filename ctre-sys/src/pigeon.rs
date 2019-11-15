@@ -172,11 +172,11 @@ extern "C" {
 
     pub fn c_PigeonIMU_GetLastError(handle: Handle) -> ErrorCode;
 
-    pub fn c_PigeonIMU_Get6dQuaternion(handle: Handle, wxyz: &mut [f64; 4]) -> ErrorCode;
+    pub fn c_PigeonIMU_Get6dQuaternion(handle: Handle, wxyz: *mut [f64; 4]) -> ErrorCode;
 
-    pub fn c_PigeonIMU_GetYawPitchRoll(handle: Handle, ypr: &mut [f64; 3]) -> ErrorCode;
+    pub fn c_PigeonIMU_GetYawPitchRoll(handle: Handle, ypr: *mut [f64; 3]) -> ErrorCode;
 
-    pub fn c_PigeonIMU_GetAccumGyro(handle: Handle, xyz_deg: &mut [f64; 3]) -> ErrorCode;
+    pub fn c_PigeonIMU_GetAccumGyro(handle: Handle, xyz_deg: *mut [f64; 3]) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetAbsoluteCompassHeading(handle: Handle, value: *mut f64) -> ErrorCode;
 
@@ -192,24 +192,24 @@ extern "C" {
 
     pub fn c_PigeonIMU_GetRawMagnetometer(
         handle: Handle,
-        rm_xyz: &mut [raw::c_short; 3],
+        rm_xyz: *mut [raw::c_short; 3],
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetBiasedMagnetometer(
         handle: Handle,
-        bm_xyz: &mut [raw::c_short; 3],
+        bm_xyz: *mut [raw::c_short; 3],
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetBiasedAccelerometer(
         handle: Handle,
-        ba_xyz: &mut [raw::c_short; 3],
+        ba_xyz: *mut [raw::c_short; 3],
     ) -> ErrorCode;
 
-    pub fn c_PigeonIMU_GetRawGyro(handle: Handle, xyz_dps: &mut [f64; 3]) -> ErrorCode;
+    pub fn c_PigeonIMU_GetRawGyro(handle: Handle, xyz_dps: *mut [f64; 3]) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetAccelerometerAngles(
         handle: Handle,
-        tiltAngles: &mut [f64; 3],
+        tiltAngles: *mut [f64; 3],
     ) -> ErrorCode;
 
     pub fn c_PigeonIMU_GetFusedHeading2(
