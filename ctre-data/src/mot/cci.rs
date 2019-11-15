@@ -8,11 +8,7 @@ enum_defaults! {
     FollowerType::PercentOutput;
 
     FeedbackDevice::QuadEncoder;
-    /// Returns the default value of `RemoteSensor0`.
-    ///
-    /// NOTE: while the factory default value is 0, this value can't
-    /// be set by the API. Thus, RemoteSensor0 is the default
-    RemoteFeedbackDevice::RemoteSensor0;
+    RemoteFeedbackDevice::FactoryDefaultOff;
 
     LimitSwitchSource::FeedbackConnector;
     RemoteLimitSwitchSource::Deactivated;
