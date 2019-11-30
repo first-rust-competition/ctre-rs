@@ -19,7 +19,7 @@ fn main() {
     let path = env::current_dir().unwrap();
     let target = env::var("TARGET").unwrap();
 
-    if target == "arm-unknown-linux-gnueabi" {
+    if target == "arm-unknown-linux-gnueabi" || target == "armv7-unknown-linux-gnueabi" {
         // assume athena (FRC roboRIO)
         println!("cargo:rustc-link-search={}/lib/athena", path.display());
         for lib in NI_LIB_LIST {
