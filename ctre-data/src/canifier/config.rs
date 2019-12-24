@@ -4,7 +4,7 @@ use super::super::CustomParamConfiguration;
 use super::cci::CANifierVelocityMeasPeriod;
 
 #[derive(Debug, SmartDefault, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct CANifierConfiguration {
     pub custom_param: CustomParamConfiguration,

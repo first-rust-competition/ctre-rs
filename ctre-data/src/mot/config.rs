@@ -4,21 +4,23 @@ use super::api::AuxPIDPolarity;
 use super::cci::*;
 
 #[derive(Debug, Clone, SmartDefault, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "miniserde", derive(miniserde::Serialize, miniserde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct BasePIDSetConfiguration {
     #[default = "1.0"]
     pub selected_feedback_coefficient: f64,
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FilterConfiguration {
     pub remote_sensor_device_id: i32,
     pub remote_sensor_source: RemoteSensorSource,
 }
 
 #[derive(Debug, SmartDefault, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "miniserde", derive(miniserde::Serialize, miniserde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SlotConfiguration {
     pub kp: f64,
     pub ki: f64,
@@ -34,7 +36,7 @@ pub struct SlotConfiguration {
 }
 
 #[derive(Debug, SmartDefault, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct BaseMotorControllerConfiguration {
     pub custom_param: CustomParamConfiguration,
@@ -88,7 +90,7 @@ pub struct BaseMotorControllerConfiguration {
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TalonSRXPIDSetConfiguration {
     // #[cfg_attr(feature = "serde", serde(flatten))]
     pub _base: BasePIDSetConfiguration,
@@ -96,7 +98,7 @@ pub struct TalonSRXPIDSetConfiguration {
 }
 /// CTRE Talon SRX Motor Configuration settings.
 #[derive(Debug, SmartDefault, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TalonSRXConfiguration {
     // #[cfg_attr(feature = "serde", serde(flatten))]
     pub _base: BaseMotorControllerConfiguration,
@@ -117,7 +119,7 @@ pub struct TalonSRXConfiguration {
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct VictorSPXPIDSetConfiguration {
     // #[cfg_attr(feature = "serde", serde(flatten))]
     pub _base: BasePIDSetConfiguration,
@@ -125,7 +127,7 @@ pub struct VictorSPXPIDSetConfiguration {
 }
 /// VEX Victor SPX Motor Configuration settings.
 #[derive(Debug, Default, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct VictorSPXConfiguration {
     // #[cfg_attr(feature = "serde", serde(flatten))]
     pub _base: BaseMotorControllerConfiguration,

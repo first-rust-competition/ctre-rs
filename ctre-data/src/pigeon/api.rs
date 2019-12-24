@@ -4,7 +4,8 @@ use core::fmt;
 
 /// Data object for holding fusion information.
 #[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "miniserde", derive(miniserde::Serialize, miniserde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FusionStatus {
     pub is_fusing: bool, // int
     pub is_valid: bool,  // int
@@ -15,7 +16,7 @@ pub struct FusionStatus {
 impl fmt::Display for FusionStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.write_str(if self.last_error != 0 {
-            "Could not receive status frame.  Check wiring and web-config."
+            "Could not receive status frame.  Check wiring and Phoenix Tuner."
         } else if !self.is_valid {
             "Fused Heading is not valid."
         } else if !self.is_fusing {
@@ -29,7 +30,7 @@ impl fmt::Display for FusionStatus {
 #[repr(i32)]
 /// Various calibration modes supported by Pigeon.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CalibrationMode {
     BootTareGyroAccel = 0,
     Temperature = 1,
@@ -54,7 +55,7 @@ impl From<i32> for CalibrationMode {
 #[repr(i32)]
 /// Overall state of the Pigeon.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum PigeonState {
     NoComm = 0,
     Initializing = 1,
@@ -107,7 +108,7 @@ impl From<i32> for PigeonState {
  * boot-cal to cleanly apply the newly saved calibration data.
  */
 #[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct GeneralStatus {
     /**
      * The current state of the motion driver.  This reflects if the sensor signals are accurate.

@@ -7,12 +7,6 @@
 #[cfg(feature = "num")]
 #[macro_use]
 extern crate num_derive;
-#[cfg(feature = "num")]
-extern crate num_traits;
-
-#[cfg(feature = "serde")]
-#[macro_use]
-extern crate serde;
 
 #[macro_use]
 extern crate smart_default;
@@ -26,5 +20,5 @@ pub mod motion;
 pub mod pigeon;
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CustomParamConfiguration(pub i32, pub i32);

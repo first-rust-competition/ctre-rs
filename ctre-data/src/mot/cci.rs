@@ -81,7 +81,7 @@ impl FeedbackDevice {
 /// Choose the feedback device for a motor controller.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "num", derive(FromPrimitive))]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum FeedbackDevice {
     // NOTE: None removed as it doesn't exist in firmware
     /// Quadrature encoder
@@ -110,7 +110,7 @@ pub enum FeedbackDevice {
 /// Choose the remote feedback device for a motor controller
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "num", derive(FromPrimitive))]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum RemoteFeedbackDevice {
     // NOTE: None removed as it doesn't exist in firmware
     /// Factory default setting for non-enhanced motor controllers
@@ -150,7 +150,7 @@ pub enum FollowerType {
 /// Limit switch source enum
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "num", derive(FromPrimitive))]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum LimitSwitchSource {
     /// Limit switch directly connected to motor controller
     FeedbackConnector = 0,
@@ -165,7 +165,7 @@ pub enum LimitSwitchSource {
 /// Remote Limit switch source enum
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "num", derive(FromPrimitive))]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum RemoteLimitSwitchSource {
     /// Don't use limit switch, this is the factory default value
     FactoryDefaultOff = 0,
@@ -183,7 +183,7 @@ pub enum RemoteLimitSwitchSource {
  */
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "num", derive(FromPrimitive))]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum LimitSwitchNormal {
     /// Limit Switch is tripped when the circuit is closed
     NormallyOpen = 0,
@@ -197,7 +197,7 @@ pub enum LimitSwitchNormal {
 /// Choose the neutral mode for a motor controller
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "num", derive(FromPrimitive))]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum NeutralMode {
     /// Use the NeutralMode that is set in the MC's persistent storage.
     EEPROMSetting = 0,
@@ -211,7 +211,7 @@ pub enum NeutralMode {
 /// Choose the remote sensor source for a motor controller
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "num", derive(FromPrimitive))]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum RemoteSensorSource {
     /// Don't use a sensor
     Off = 0,

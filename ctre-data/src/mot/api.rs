@@ -24,7 +24,7 @@ enum_defaults! {
  * See `MotorController::config_aux_pid_polarity`.
  */
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum AuxPIDPolarity {
     Standard = 0,
     Inverted = 1,

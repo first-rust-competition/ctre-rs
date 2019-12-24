@@ -15,7 +15,7 @@ impl From<i32> for SetValueMotionProfile {
 
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SetValueMotionProfile {
     Invalid = -1,
     Disable = 0,
@@ -26,7 +26,7 @@ pub enum SetValueMotionProfile {
 /// Motion Profile Trajectory Point
 /// This is simply a data transfer object.
 #[derive(Default, Debug, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct TrajectoryPoint {
     /// The position to servo to (in sensor units).
@@ -85,7 +85,7 @@ pub struct TrajectoryPoint {
 /// Motion Profile Status
 /// This is simply a data transer object.
 #[derive(Debug, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MotionProfileStatus {
     /// The available empty slots in the trajectory buffer.
     ///

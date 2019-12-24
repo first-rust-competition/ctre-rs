@@ -1,6 +1,8 @@
 [package]
 name = "ctre-data"
-version = "0.5.14"
+version = "0.5.15"
+edition = "2018"
+
 authors = ["David Vo <david@vovo.id.au>"]
 categories = ["embedded", "hardware-support", "no-std"]
 keywords = ["frc", "ctre"]
@@ -13,6 +15,7 @@ description = "Enums and structs for CTR Electronics' Phoenix libraries"
 features = ["serde", "num"]
 
 [dependencies]
+miniserde = { version = "0.1", optional = true }
 num-derive = { version = "0.2", optional = true }
 num-traits = { version = "0.2", optional = true, default-features = false }
 smart-default = "0.2"
