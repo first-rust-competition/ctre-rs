@@ -1,9 +1,10 @@
 //! Low-level enums common to all CTRE Phoenix devices.
 #![allow(non_camel_case_types, non_upper_case_globals)]
 
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ErrorCode {
+#[repr(transparent)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+pub struct ErrorCode(pub i32);
+newtype_consts!(ErrorCode {
     /// No Error - Function executed as expected
     OK = 0,
 
@@ -91,7 +92,7 @@ pub enum ErrorCode {
     RemoteSensorsNotSupportedYet = 108,
     MotProfFirmThreshold = 109,
     MotProfFirmThreshold2 = 110,
-}
+});
 impl ErrorCode {
     pub const TalonFeatureRequiresHigherFirm: ErrorCode =
         ErrorCode::MotorControllerFeatureRequiresHigherFirm;

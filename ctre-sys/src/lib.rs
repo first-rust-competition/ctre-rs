@@ -2,11 +2,11 @@
 
 #![allow(clippy::unreadable_literal)]
 
-mod enums;
-pub use self::enums::*;
-
 #[macro_use]
 mod macros;
+
+mod enums;
+pub use self::enums::*;
 
 pub mod buff_traj;
 pub mod canifier;
