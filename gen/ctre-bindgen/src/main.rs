@@ -61,6 +61,7 @@ fn generate_bindings(
         .disable_name_namespacing()
         .ignore_methods()
         .ctypes_prefix("raw")
+        .array_pointers_in_arguments(true)
         .parse_callbacks(Box::new(BindgenCallbacks))
         /*
         .rustfmt_configuration_file(Some(
