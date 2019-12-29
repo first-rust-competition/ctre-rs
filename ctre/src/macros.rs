@@ -1,35 +1,23 @@
 /// Convenience wrapper for making simple get calls.
 macro_rules! cci_get {
-    ($function:ident($($arg0:expr,)+ _: $type:ty $(, $arg1:expr)*$(,)*)) => ({
-        let mut value: $type = unsafe { ::std::mem::uninitialized() };
-        let error = unsafe { $function($($arg0,)* &mut value, $($arg1),* ) };
-        if error == ErrorCode::OK { Ok(value) } else { Err(error) }
+    ($function:ident($($arg0:expr,)+ _: $type:ty $(, $arg1:expr)*$(,)?)) => ({
+        let mut value = std::mem::MaybeUninit::<$type>::uninit();
+        let error = unsafe { $function($($arg0,)* value.as_mut_ptr(), $($arg1),* ) };
+        if error.is_ok() {
+            Ok(unsafe { value.assume_init() })
+        } else {
+            Err(error)
+        }
     });
-    /*
-    ($function:ident($($arg0:expr,)+ _: $type:ty, $($arg1:expr,)*)) => (
-        cci_get!($function($($arg0,)* _: $type, $($arg1),*))
-    );
-    ($function:ident($($arg0:expr,)+ _: $type:ty)) => (
-        cci_get!($function($($arg0,)* _: $type,))
-    );
-    */
 }
 
 /// Convenience wrapper for making simple get calls, ignoring the ErrorCode.
 macro_rules! cci_get_only {
-    ($function:ident($($arg0:expr,)+ _: $type:ty $(, $arg1:expr)*$(,)*)) => ({
+    ($function:ident($($arg0:expr,)+ _: $type:ty $(, $arg1:expr)*$(,)?)) => ({
         let mut value: $type = Default::default();
         unsafe { $function($($arg0,)* &mut value, $($arg1,)*) };
         value
     });
-    /*
-    ($function:ident($($arg0:expr,)+ _: $type:ty, $($arg1:expr,)*)) => (
-        cci_get_only!($function($($arg0,)* _: $type, $($arg1),*))
-    );
-    ($function:ident($($arg0:expr,)+ _: $type:ty)) => (
-        cci_get_only!($function($($arg0,)* _: $type,))
-    );
-    */
 }
 
 /*
@@ -52,8 +40,8 @@ macro_rules! make_cci_getter {
 /// Implement a `std::fmt` trait for a tuple newtype.
 macro_rules! impl_fmt {
     ($trait:ident, $type:ty) => {
-        impl ::std::fmt::$trait for $type {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        impl std::fmt::$trait for $type {
+            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
                 self.0.fmt(f)
             }
         }
@@ -74,6 +62,6 @@ macro_rules! impl_binary_fmt {
 /// default if there is no corresponding variant.
 macro_rules! f64_to_enum {
     ($expr:expr => $enum:ty) => {
-        <$enum as ::num_traits::FromPrimitive>::from_f64($expr).unwrap_or(Default::default())
+        <$enum as num_traits::FromPrimitive>::from_f64($expr).unwrap_or(Default::default())
     };
 }

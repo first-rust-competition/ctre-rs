@@ -19,9 +19,9 @@ use super::{motion::*, ConfigAll, CustomParam, ErrorCode, ParamEnum, Result};
 /// The purpose of this module is to alleviate imports
 /// of the most commonly used CTRE motor controller types and traits.
 pub mod prelude {
+    pub use super::MotorController as __ctre_MotorController;
     #[doc(no_inline)]
     pub use super::{ControlMode, Demand, TalonSRX, VictorSPX};
-    pub use super::MotorController as __ctre_MotorController;
 }
 
 bitflags! {
@@ -228,29 +228,30 @@ fn _set(handle: Handle, mode: ControlMode, demand0: f64, demand1: Demand) {
 
 /// Get motion profile status information.
 /// This is split from the trait to reduce compiled size under monomorphization.
-fn _motion_profile_status(handle: Handle, status_to_fill: &mut MotionProfileStatus) -> ErrorCode {
+unsafe fn _motion_profile_status(
+    handle: Handle,
+    status_to_fill: *mut MotionProfileStatus,
+) -> ErrorCode {
     let mut output_enable = 0;
     let mut profile_slot_select_0 = 0;
     let mut profile_slot_select_1 = 0;
-    let code = unsafe {
-        c_MotController_GetMotionProfileStatus_2(
-            handle,
-            &mut status_to_fill.top_buffer_rem,
-            &mut status_to_fill.top_buffer_cnt,
-            &mut status_to_fill.btm_buffer_cnt,
-            &mut status_to_fill.has_underrun,
-            &mut status_to_fill.is_underrun,
-            &mut status_to_fill.active_point_valid,
-            &mut status_to_fill.is_last,
-            &mut profile_slot_select_0,
-            &mut output_enable,
-            &mut status_to_fill.time_dur_ms,
-            &mut profile_slot_select_1,
-        )
-    };
-    status_to_fill.output_enable = output_enable.into();
-    status_to_fill.profile_slot_select_0 = profile_slot_select_0;
-    status_to_fill.profile_slot_select_1 = profile_slot_select_1;
+    let code = c_MotController_GetMotionProfileStatus_2(
+        handle,
+        &mut (*status_to_fill).top_buffer_rem,
+        &mut (*status_to_fill).top_buffer_cnt,
+        &mut (*status_to_fill).btm_buffer_cnt,
+        &mut (*status_to_fill).has_underrun,
+        &mut (*status_to_fill).is_underrun,
+        &mut (*status_to_fill).active_point_valid,
+        &mut (*status_to_fill).is_last,
+        &mut profile_slot_select_0,
+        &mut output_enable,
+        &mut (*status_to_fill).time_dur_ms,
+        &mut profile_slot_select_1,
+    );
+    (*status_to_fill).output_enable = output_enable.into();
+    (*status_to_fill).profile_slot_select_0 = profile_slot_select_0;
+    (*status_to_fill).profile_slot_select_1 = profile_slot_select_1;
     code
 }
 
@@ -1122,14 +1123,14 @@ pub trait MotorController: private::Sealed {
      * regarding the motion profile executer.
      */
     fn motion_profile_status_into(&self, status_to_fill: &mut MotionProfileStatus) -> ErrorCode {
-        _motion_profile_status(self.handle(), status_to_fill)
+        unsafe { _motion_profile_status(self.handle(), status_to_fill) }
     }
     /// Get all motion profile status information.  This returns a new MotionProfileStatus.
     fn motion_profile_status(&self) -> Result<MotionProfileStatus> {
-        let mut status_to_fill: MotionProfileStatus = unsafe { mem::uninitialized() };
-        let code = self.motion_profile_status_into(&mut status_to_fill);
+        let mut status_to_fill = mem::MaybeUninit::uninit();
+        let code = unsafe { _motion_profile_status(self.handle(), status_to_fill.as_mut_ptr()) };
         match code {
-            ErrorCode::OK => Ok(status_to_fill),
+            ErrorCode::OK => Ok(unsafe { status_to_fill.assume_init() }),
             _ => Err(code),
         }
     }
@@ -1648,7 +1649,7 @@ pub trait MotorController: private::Sealed {
         // ...
     }
     #[doc(hidden)]
-    fn base_get_all_configs(&self, timeout_ms: i32) -> Result<BaseMotorControllerConfiguration> {
+    fn base_get_all_configs(&self, _timeout_ms: i32) -> Result<BaseMotorControllerConfiguration> {
         unimplemented!();
     }
 }

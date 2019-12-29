@@ -7,9 +7,6 @@
 
 #[macro_use]
 extern crate bitflags;
-extern crate ctre_data;
-extern crate ctre_sys;
-extern crate num_traits;
 #[macro_use]
 extern crate smart_default;
 

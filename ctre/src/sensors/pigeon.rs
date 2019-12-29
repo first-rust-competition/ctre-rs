@@ -3,7 +3,6 @@
 pub use ctre_data::pigeon::*;
 use ctre_sys::pigeon::*;
 pub use ctre_sys::pigeon::{PigeonIMU_ControlFrame, PigeonIMU_StatusFrame};
-use std::mem;
 
 use super::super::{
     motor_control::{MotorController, TalonSRX},
@@ -62,7 +61,7 @@ impl PigeonIMU {
      *
      * # Parameters
      *
-     * - `angle`: Degree of Yaw [+/- 23040 degrees]
+     * - `angle`: New yaw in degrees [+/- 368,640 degrees]
      * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
@@ -84,7 +83,7 @@ impl PigeonIMU {
      *
      * # Parameters
      *
-     * - `angle`: Degree of heading [+/- 23040 degrees]
+     * - `angle`: New fused heading in degrees [+/- 23,040 degrees]
      * - `timeout_ms`: Timeout value in ms.
      *   If nonzero, function will wait for config success and report an error if it times out.
      *   If zero, no blocking or checking is performed.
@@ -138,35 +137,56 @@ impl PigeonIMU {
         unsafe { c_PigeonIMU_SetCompassAngle(self.handle, angle_deg, timeout_ms) }
     }
 
+    /**
+     * Enters the Calbration mode.  See the Pigeon IMU documentation for More
+     * information on Calibration.
+     *
+     * Note that you can instead use Phoenix Tuner to accomplish this.
+     * Note you should NOT be calling this during normal robot operation.
+     */
     pub fn enter_calibration_mode(&self, cal_mode: CalibrationMode, timeout_ms: i32) -> ErrorCode {
         unsafe { c_PigeonIMU_EnterCalibrationMode(self.handle, cal_mode as _, timeout_ms) }
     }
 
     /// Get the status of the current (or previousley complete) calibration.
     pub fn general_status(&self) -> Result<GeneralStatus> {
-        let mut status: GeneralStatus = unsafe { mem::uninitialized() };
         let mut state = 0;
         let mut current_mode = 0;
+        let mut calibration_error = 0;
         let mut b_cal_is_booting = 0;
+        let mut temp_c = 0.0;
+        let mut up_time_sec = 0;
+        let mut no_motion_bias_count = 0;
+        let mut temp_compensation_count = 0;
+        let mut last_error = 0;
+
         let err = unsafe {
             c_PigeonIMU_GetGeneralStatus(
                 self.handle,
                 &mut state,
                 &mut current_mode,
-                &mut status.calibration_error,
+                &mut calibration_error,
                 &mut b_cal_is_booting,
-                &mut status.temp_c,
-                &mut status.up_time_sec,
-                &mut status.no_motion_bias_count,
-                &mut status.temp_compensation_count,
-                &mut status.last_error,
+                &mut temp_c,
+                &mut up_time_sec,
+                &mut no_motion_bias_count,
+                &mut temp_compensation_count,
+                &mut last_error,
             )
         };
+
         if err == ErrorCode::OK {
-            status.state = state.into();
-            status.current_mode = current_mode.into();
-            status.cal_is_booting = b_cal_is_booting != 0;
-            Ok(status)
+            Ok(GeneralStatus {
+                state: state.into(),
+                current_mode: current_mode.into(),
+                calibration_error,
+                cal_is_booting: b_cal_is_booting != 0,
+                temp_c,
+                up_time_sec,
+                no_motion_bias_count,
+                temp_compensation_count,
+                last_error,
+            })
         } else {
             Err(err)
         }

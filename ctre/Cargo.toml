@@ -1,6 +1,8 @@
 [package]
 name = "ctre"
 version = "0.8.0"
+edition = "2018"
+
 authors = ["David Vo <david@vovo.id.au>"]
 categories = ["api-bindings", "embedded", "hardware-support"]
 keywords = ["frc", "ctre"]

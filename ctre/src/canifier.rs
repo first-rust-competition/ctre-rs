@@ -3,7 +3,7 @@
 pub use ctre_data::canifier::*;
 use ctre_sys::canifier::*;
 pub use ctre_sys::canifier::{CANifierControlFrame, CANifierStatusFrame, GeneralPin};
-use std::mem;
+use std::mem::{self, MaybeUninit};
 
 use super::{CustomParam, ErrorCode, ParamEnum, Result};
 
@@ -139,29 +139,36 @@ impl CANifier {
     }
 
     /// Read pin states into an array.
-    pub fn general_inputs_into(&self, all_pins: &mut [bool]) -> ErrorCode {
+    pub fn general_inputs_into(&self, all_pins: &mut [MaybeUninit<bool>]) -> ErrorCode {
         unsafe {
-            c_CANifier_GetGeneralInputs(self.handle, all_pins.as_mut_ptr(), all_pins.len() as _)
+            c_CANifier_GetGeneralInputs(
+                self.handle,
+                all_pins.as_mut_ptr() as *mut bool,
+                all_pins.len() as _,
+            )
         }
     }
     /// Gets the state of all General Pins
     pub fn general_inputs(&self) -> Result<PinValues> {
-        let mut temp_pins: [bool; 11] = unsafe { mem::uninitialized() };
+        let mut temp_pins: [MaybeUninit<bool>; 11] = unsafe { MaybeUninit::uninit().assume_init() };
         let err = self.general_inputs_into(&mut temp_pins);
         match err {
-            ErrorCode::OK => Ok(PinValues {
-                LIMF: temp_pins[GeneralPin::LIMF as usize],
-                LIMR: temp_pins[GeneralPin::LIMR as usize],
-                QUAD_A: temp_pins[GeneralPin::QUAD_A as usize],
-                QUAD_B: temp_pins[GeneralPin::QUAD_B as usize],
-                QUAD_IDX: temp_pins[GeneralPin::QUAD_IDX as usize],
-                SCL: temp_pins[GeneralPin::SCL as usize],
-                SDA: temp_pins[GeneralPin::SDA as usize],
-                SPI_CLK_PWM0: temp_pins[GeneralPin::SPI_CLK_PWM0P as usize],
-                SPI_MOSI_PWM1: temp_pins[GeneralPin::SPI_MOSI_PWM1P as usize],
-                SPI_MISO_PWM2: temp_pins[GeneralPin::SPI_MISO_PWM2P as usize],
-                SPI_CS_PWM3: temp_pins[GeneralPin::SPI_CS as usize],
-            }),
+            ErrorCode::OK => {
+                let temp_pins: [bool; 11] = unsafe { mem::transmute(temp_pins) };
+                Ok(PinValues {
+                    LIMF: temp_pins[GeneralPin::LIMF as usize],
+                    LIMR: temp_pins[GeneralPin::LIMR as usize],
+                    QUAD_A: temp_pins[GeneralPin::QUAD_A as usize],
+                    QUAD_B: temp_pins[GeneralPin::QUAD_B as usize],
+                    QUAD_IDX: temp_pins[GeneralPin::QUAD_IDX as usize],
+                    SCL: temp_pins[GeneralPin::SCL as usize],
+                    SDA: temp_pins[GeneralPin::SDA as usize],
+                    SPI_CLK_PWM0: temp_pins[GeneralPin::SPI_CLK_PWM0P as usize],
+                    SPI_MOSI_PWM1: temp_pins[GeneralPin::SPI_MOSI_PWM1P as usize],
+                    SPI_MISO_PWM2: temp_pins[GeneralPin::SPI_MISO_PWM2P as usize],
+                    SPI_CS_PWM3: temp_pins[GeneralPin::SPI_CS as usize],
+                })
+            }
             _ => Err(err),
         }
     }
