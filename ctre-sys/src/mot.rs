@@ -124,7 +124,7 @@ pub enum StatusFrame {
 #[repr(transparent)]
 /// Choose the control mode for a motor controller
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
-pub struct ControlMode(pub i32);
+pub struct ControlMode(i32);
 
 newtype_consts!(ControlMode {
     /// Percent output [-1,1]
