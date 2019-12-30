@@ -22,6 +22,13 @@ impl From<bool> for InvertType {
     }
 }
 
+
+impl From<ControlMode> for raw::c_int {
+    fn from(mode: ControlMode) -> Self {
+        mode.0
+    }
+}
+
 #[repr(C)]
 pub struct Device {
     _private: [u8; 0],

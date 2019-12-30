@@ -210,7 +210,7 @@ fn _set(handle: Handle, mode: ControlMode, demand0: f64, demand1: Demand) {
         | ControlMode::MotionProfileArc => unsafe {
             c_MotController_Set_4(
                 handle,
-                mode.0,
+                mode.into(),
                 demand0,
                 demand1.value(),
                 demand1.type_() as _,
@@ -218,10 +218,10 @@ fn _set(handle: Handle, mode: ControlMode, demand0: f64, demand1: Demand) {
         },
         ControlMode::Current => unsafe {
             // milliamps
-            c_MotController_SetDemand(handle, mode.0, (1000.0 * demand0) as _, 0)
+            c_MotController_SetDemand(handle, mode.into(), (1000.0 * demand0) as _, 0)
         },
         ControlMode::Disabled => unsafe {
-            c_MotController_SetDemand(handle, mode.0, 0, 0)
+            c_MotController_SetDemand(handle, mode.into(), 0, 0)
         },
         _ => panic!("Unknown {:?} in ctre::mot::MotorController::set", mode),
     };
