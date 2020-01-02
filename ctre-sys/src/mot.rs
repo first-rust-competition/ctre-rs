@@ -1,5 +1,5 @@
 //! Low-level enums and functions related to motor controllers.
-#![allow(non_camel_case_types, non_upper_case_globals)]
+#![allow(non_camel_case_types)]
 
 use std::os::raw;
 
@@ -19,13 +19,6 @@ impl From<bool> for InvertType {
         } else {
             InvertType::InvertMotorOutput
         }
-    }
-}
-
-
-impl From<ControlMode> for raw::c_int {
-    fn from(mode: ControlMode) -> Self {
-        mode.0
     }
 }
 
@@ -128,12 +121,10 @@ pub enum StatusFrame {
     Status_17_Targets1 = 0x1C00,
 }
 
-#[repr(transparent)]
+#[repr(i32)]
 /// Choose the control mode for a motor controller
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
-pub struct ControlMode(i32);
-
-newtype_consts!(ControlMode {
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum ControlMode {
     /// Percent output [-1,1]
     PercentOutput = 0,
     /// Position closed loop
@@ -152,7 +143,7 @@ newtype_consts!(ControlMode {
     MotionProfileArc = 10,
     /// Disable Motor Controller
     Disabled = 15,
-});
+}
 
 #[repr(i32)]
 /// Choose the invert type of the motor controller.
