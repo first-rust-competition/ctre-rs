@@ -13,6 +13,6 @@ links = "CTRE_PhoenixCCI"
 
 description = "FFI bindings to CTR Electronics' Phoenix FRC libraries"
 
-include = ["src/**/*", "Cargo.toml", "build.rs", "lib/**/*"]
+include = ["src/**/*", "Cargo.toml", "build.rs", "lib/**/*", "include/**/*"]
 
 [dependencies]
