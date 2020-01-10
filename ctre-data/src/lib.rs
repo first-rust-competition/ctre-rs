@@ -19,6 +19,6 @@ pub mod mot;
 pub mod motion;
 pub mod pigeon;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CustomParamConfiguration(pub i32, pub i32);
