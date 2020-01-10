@@ -7,8 +7,6 @@
 
 #[macro_use]
 extern crate bitflags;
-#[macro_use]
-extern crate smart_default;
 
 pub use ctre_data::CustomParamConfiguration;
 pub use ctre_sys::{ErrorCode, ParamEnum};

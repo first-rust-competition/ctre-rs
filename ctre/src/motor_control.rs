@@ -136,14 +136,21 @@ bitflags! {
 
 /// Which PID loop a config call should refer to.
 /// Used in place of a `pidIdx` parameter in the C++/Java API.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, SmartDefault)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[repr(i32)]
 pub enum PIDLoop {
-    #[default]
     /// The primary PID loop (PID index 0).
     Primary = 0,
     /// The auxiliary PID loop (PID index 1).
     Auxiliary = 1,
+}
+
+impl Default for PIDLoop {
+    #[inline]
+    /// Returns PIDLoop::Primary.
+    fn default() -> Self {
+        Self::Primary
+    }
 }
 
 /// Remote sensor/filter ordinal.
@@ -157,9 +164,8 @@ pub enum RemoteFilter {
 }
 
 /// Demand 1.
-#[derive(Debug, Copy, Clone, PartialEq, SmartDefault)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Demand {
-    #[default]
     /// Apply no change to the demand0 output.
     Neutral,
     /**
@@ -174,6 +180,14 @@ pub enum Demand {
     /// In PercentOutput the demand0 output is the motor output,
     /// and in closed-loop modes the demand0 output is the output of PID0.
     ArbitraryFeedForward(f64),
+}
+
+impl Default for Demand {
+    #[inline]
+    /// Returns Demand::Neutral.
+    fn default() -> Self {
+        Self::Neutral
+    }
 }
 
 impl Demand {
