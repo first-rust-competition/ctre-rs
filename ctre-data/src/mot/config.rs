@@ -7,7 +7,7 @@ use super::cci::*;
 #[cfg_attr(feature = "miniserde", derive(miniserde::Serialize, miniserde::Deserialize))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct BasePIDSetConfiguration {
-    #[default = "1.0"]
+    #[default(1.0)]
     pub selected_feedback_coefficient: f64,
 }
 
@@ -29,9 +29,9 @@ pub struct SlotConfiguration {
     pub integral_zone: i32,
     pub allowable_closed_loop_error: i32,
     pub max_integral_accumulator: f64,
-    #[default = "1.0"]
+    #[default(1.0)]
     pub closed_loop_peak_output: f64,
-    #[default = "1"]
+    #[default(1)]
     pub closed_loop_period: i32,
 }
 
@@ -42,19 +42,19 @@ pub struct BaseMotorControllerConfiguration {
     pub custom_param: CustomParamConfiguration,
     pub open_loop_ramp: f64,
     pub closed_loop_ramp: f64,
-    #[default = "1.0"]
+    #[default(1.0)]
     pub peak_output_forward: f64,
-    #[default = "-1.0"]
+    #[default(-1.0)]
     pub peak_output_reverse: f64,
     pub nominal_output_forward: f64,
     pub nominal_output_reverse: f64,
-    #[default = "0.04"]
+    #[default(0.04)]
     pub neutral_deadband: f64,
     pub voltage_comp_saturation: f64,
-    #[default = "32"]
+    #[default(32)]
     pub voltage_measurement_filter: i32,
     pub velocity_measurement_period: VelocityMeasPeriod,
-    #[default = "64"]
+    #[default(64)]
     pub velocity_measurement_window: i32,
     /// Limit Switch device id isn't used unless device is a remote
     pub forward_limit_switch_device_id: i32,
@@ -83,9 +83,9 @@ pub struct BaseMotorControllerConfiguration {
     pub clear_position_on_quad_idx: bool,
     pub limit_switch_disable_neutral_on_los: bool,
     pub soft_limit_disable_neutral_on_los: bool,
-    #[default = "1"]
+    #[default(1)]
     pub pulse_width_period_edges_per_rot: i32,
-    #[default = "1"]
+    #[default(1)]
     pub pulse_width_period_filter_window_sz: i32,
 }
 
@@ -110,11 +110,11 @@ pub struct TalonSRXConfiguration {
     pub sum_1: FeedbackDevice,
     pub diff_0: FeedbackDevice,
     pub diff_1: FeedbackDevice,
-    #[default = "1"]
+    #[default(1)]
     pub peak_current_limit: i32,
-    #[default = "1"]
+    #[default(1)]
     pub peak_current_duration: i32,
-    #[default = "1"]
+    #[default(1)]
     pub continuous_current_limit: i32,
 }
 

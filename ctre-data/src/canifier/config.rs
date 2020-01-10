@@ -9,7 +9,7 @@ use super::cci::CANifierVelocityMeasPeriod;
 pub struct CANifierConfiguration {
     pub custom_param: CustomParamConfiguration,
     pub velocity_measurement_period: CANifierVelocityMeasPeriod,
-    #[default = "64"]
+    #[default(64)]
     pub velocity_measurement_window: i32,
     /// Whether to clear sensor position on forward limit
     pub clear_position_on_limit_f: bool,
