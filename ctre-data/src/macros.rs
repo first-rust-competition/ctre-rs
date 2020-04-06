@@ -22,8 +22,15 @@ macro_rules! enum_defaults {
 
 /// Macro to create a data-less enum that uses its primitive
 /// values as its serialisation.  Appropriated from the serde docs.
+///
+/// This assumes that all values are non-negative.
 macro_rules! enum_number {
-    ($(#[$attr:meta])* $vis:vis enum $name:ident { $($(#[$var_attr:meta])* $variant:ident = $value:expr,)* }) => {
+    (
+        $(#[$attr:meta])*
+        $vis:vis enum $name:ident {
+            $($(#[$var_attr:meta])* $variant:ident = $value:expr,)*
+        }
+    ) => {
         #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, PartialOrd, Ord)]
         $(#[$attr])*
         $vis enum $name {
@@ -31,18 +38,18 @@ macro_rules! enum_number {
         }
 
         #[cfg(feature = "serde")]
-        impl ::serde::Serialize for $name {
-            fn serialize<S: ::serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        impl serde::Serialize for $name {
+            fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
                 // Serialize the enum as a u64.
                 serializer.serialize_u64(*self as u64)
             }
         }
 
         #[cfg(feature = "serde")]
-        impl<'de> ::serde::Deserialize<'de> for $name {
+        impl<'de> serde::Deserialize<'de> for $name {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
             where
-                D: ::serde::Deserializer<'de>,
+                D: serde::Deserializer<'de>,
             {
                 use {core::fmt, serde::de};
 
