@@ -21,6 +21,7 @@ pub struct FilterConfiguration {
 #[derive(Debug, SmartDefault, Clone, PartialEq)]
 #[cfg_attr(feature = "miniserde", derive(miniserde::Serialize, miniserde::Deserialize))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(default))]
 pub struct SlotConfiguration {
     pub kp: f64,
     pub ki: f64,
@@ -99,6 +100,7 @@ pub struct TalonSRXPIDSetConfiguration {
 /// CTRE Talon SRX Motor Configuration settings.
 #[derive(Debug, SmartDefault, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(default))]
 pub struct TalonSRXConfiguration {
     // #[cfg_attr(feature = "serde", serde(flatten))]
     pub _base: BaseMotorControllerConfiguration,
@@ -128,6 +130,7 @@ pub struct VictorSPXPIDSetConfiguration {
 /// VEX Victor SPX Motor Configuration settings.
 #[derive(Debug, Default, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(default))]
 pub struct VictorSPXConfiguration {
     // #[cfg_attr(feature = "serde", serde(flatten))]
     pub _base: BaseMotorControllerConfiguration,
