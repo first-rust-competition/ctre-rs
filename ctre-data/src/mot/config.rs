@@ -93,7 +93,10 @@ pub struct BaseMotorControllerConfiguration {
 #[derive(Debug, Default, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TalonSRXPIDSetConfiguration {
-    // #[cfg_attr(feature = "serde", serde(flatten))]
+    #[cfg_attr(
+        feature = "serde-flatten",
+        serde(flatten, deserialize_with = "base_pid")
+    )]
     pub _base: BasePIDSetConfiguration,
     pub selected_feedback_sensor: FeedbackDevice,
 }
@@ -102,7 +105,10 @@ pub struct TalonSRXPIDSetConfiguration {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct TalonSRXConfiguration {
-    // #[cfg_attr(feature = "serde", serde(flatten))]
+    #[cfg_attr(
+        feature = "serde-flatten",
+        serde(flatten, deserialize_with = "base")
+    )]
     pub _base: BaseMotorControllerConfiguration,
     pub primary_pid: TalonSRXPIDSetConfiguration,
     pub auxiliary_pid: TalonSRXPIDSetConfiguration,
@@ -123,7 +129,10 @@ pub struct TalonSRXConfiguration {
 #[derive(Debug, Default, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct VictorSPXPIDSetConfiguration {
-    // #[cfg_attr(feature = "serde", serde(flatten))]
+    #[cfg_attr(
+        feature = "serde-flatten",
+        serde(flatten, deserialize_with = "base_pid")
+    )]
     pub _base: BasePIDSetConfiguration,
     pub selected_feedback_sensor: RemoteFeedbackDevice,
 }
@@ -132,7 +141,10 @@ pub struct VictorSPXPIDSetConfiguration {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct VictorSPXConfiguration {
-    // #[cfg_attr(feature = "serde", serde(flatten))]
+    #[cfg_attr(
+        feature = "serde-flatten",
+        serde(flatten, deserialize_with = "base")
+    )]
     pub _base: BaseMotorControllerConfiguration,
     pub primary_pid: VictorSPXPIDSetConfiguration,
     pub auxiliary_pid: VictorSPXPIDSetConfiguration,
@@ -143,3 +155,8 @@ pub struct VictorSPXConfiguration {
     pub diff_0: RemoteFeedbackDevice,
     pub diff_1: RemoteFeedbackDevice,
 }
+
+#[cfg(feature = "serde-flatten")]
+serde_with::flattened_maybe!(base, "_base");
+#[cfg(feature = "serde-flatten")]
+serde_with::flattened_maybe!(base_pid, "_base");

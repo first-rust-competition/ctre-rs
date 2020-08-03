@@ -19,6 +19,7 @@ miniserde = { version = "0.1", optional = true }
 num-derive = { version = "0.2", optional = true }
 num-traits = { version = "0.2", optional = true, default-features = false }
 smart-default = "0.6"
+serde_with = { version = "1.4.0", optional = true, default-features = false }
 
 [dependencies.serde]
 version = "1.0"
@@ -28,3 +29,4 @@ features = ["derive"]
 
 [features]
 num = ["num-derive", "num-traits"]
+serde-flatten = ["serde/std", "serde_with"]

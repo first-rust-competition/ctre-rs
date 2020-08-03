@@ -1,6 +1,13 @@
 //! Various enums and structs in CTRE Phoenix CCI and API.
 //!
 //! Anything with serde support or that are required for configuration will go here.
+//!
+//! This crate has a number of optional features, none of which are enabled by default:
+//!
+//! - `num` - Implements `FromPrimitive` for various numeric enums.
+//! - `serde` - Provides serde support for all configuration enums and structs.
+//! - `serde-flatten` - Flattens motor controller configuration structs
+//!   when serialising.  Implies `serde`.
 
 #![no_std]
 
