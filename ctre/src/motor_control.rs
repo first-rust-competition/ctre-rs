@@ -669,6 +669,9 @@ pub trait MotorController: private::Sealed {
         }
     }
     /// Sets the number of velocity samples used in the rolling average velocity measurement.
+    ///
+    /// Valid window sizes are 1, 2, 4, 8, 16 and 32.
+    /// If an invalid value is specified, it will truncate to the nearest supported.
     fn config_velocity_measurement_window(
         &mut self,
         window_size: i32,
