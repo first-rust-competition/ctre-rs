@@ -6,22 +6,6 @@ use std::os::raw;
 use super::buff_traj;
 use super::ErrorCode;
 
-transmute_from! {
-    ControlFrame => ControlFrameEnhanced,
-    StatusFrame => StatusFrameEnhanced,
-}
-
-impl From<bool> for InvertType {
-    #[inline]
-    fn from(value: bool) -> InvertType {
-        if value {
-            InvertType::None
-        } else {
-            InvertType::InvertMotorOutput
-        }
-    }
-}
-
 #[repr(C)]
 pub struct Device {
     _private: [u8; 0],

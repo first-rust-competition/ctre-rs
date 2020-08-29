@@ -79,3 +79,28 @@ impl std::ops::Try for ErrorCode {
         ErrorCode::OK
     }
 }
+
+impl From<mot::ControlFrame> for mot::ControlFrameEnhanced {
+    #[inline]
+    fn from(v: mot::ControlFrame) -> Self {
+        unsafe { std::mem::transmute(v) }
+    }
+}
+
+impl From<mot::StatusFrame> for mot::StatusFrameEnhanced {
+    #[inline]
+    fn from(v: mot::StatusFrame) -> Self {
+        unsafe { std::mem::transmute(v) }
+    }
+}
+
+impl From<bool> for mot::InvertType {
+    #[inline]
+    fn from(value: bool) -> Self {
+        if value {
+            Self::None
+        } else {
+            Self::InvertMotorOutput
+        }
+    }
+}
