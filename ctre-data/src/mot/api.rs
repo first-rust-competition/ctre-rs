@@ -41,3 +41,9 @@ enum_number! {
         S3 = 3,
     }
 }
+
+unsafe impl bytemuck::Contiguous for PIDSlot {
+    type Int = i32;
+    const MIN_VALUE: Self::Int = 0;
+    const MAX_VALUE: Self::Int = 3;
+}
