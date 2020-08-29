@@ -10,9 +10,9 @@ macro_rules! newtype_consts {
 
         impl std::fmt::Debug for $type {
             fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                match self {
+                match *self {
                     $(
-                        &Self::$name => f.write_str(stringify!($name)),
+                        Self::$name => f.write_str(stringify!($name)),
                     )*
                     _ => {
                         f.debug_tuple(stringify!($type))
