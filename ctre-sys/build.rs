@@ -17,6 +17,8 @@ fn main() {
     println!("cargo:rustc-link-lib=stdc++");
 
     let path = env::current_dir().unwrap();
+    println!("cargo:include={}/include", path.display());
+
     let target = env::var("TARGET").unwrap();
 
     if target == "arm-unknown-linux-gnueabi" || target == "armv7-unknown-linux-gnueabi" {
