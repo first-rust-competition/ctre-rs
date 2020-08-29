@@ -14,7 +14,7 @@ fn main() {
     foo(&mut talon);
 }
 
-fn foo(mot: &mut MotorController) {
+fn foo(mot: &mut dyn MotorController) {
     let delay = time::Duration::from_millis(20);
     loop {
         mot.set(ControlMode::PercentOutput, 0.5, Demand::Neutral);
