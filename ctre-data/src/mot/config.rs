@@ -4,7 +4,10 @@ use super::api::AuxPIDPolarity;
 use super::cci::*;
 
 #[derive(Debug, Clone, SmartDefault, PartialEq)]
-#[cfg_attr(feature = "miniserde", derive(miniserde::Serialize, miniserde::Deserialize))]
+#[cfg_attr(
+    feature = "miniserde",
+    derive(miniserde::Serialize, miniserde::Deserialize)
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct BasePIDSetConfiguration {
     #[default(1.0)]
@@ -19,7 +22,10 @@ pub struct FilterConfiguration {
 }
 
 #[derive(Debug, SmartDefault, Clone, PartialEq)]
-#[cfg_attr(feature = "miniserde", derive(miniserde::Serialize, miniserde::Deserialize))]
+#[cfg_attr(
+    feature = "miniserde",
+    derive(miniserde::Serialize, miniserde::Deserialize)
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct SlotConfiguration {

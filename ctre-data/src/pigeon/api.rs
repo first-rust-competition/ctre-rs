@@ -4,7 +4,10 @@ use core::fmt;
 
 /// Data object for holding fusion information.
 #[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature = "miniserde", derive(miniserde::Serialize, miniserde::Deserialize))]
+#[cfg_attr(
+    feature = "miniserde",
+    derive(miniserde::Serialize, miniserde::Deserialize)
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FusionStatus {
     pub is_fusing: bool, // int

@@ -1,9 +1,13 @@
 //! Structs for the CANifier defined by the Phoenix API.
 
-#[allow(non_snake_case)]
+#![allow(non_snake_case)]
+
 /// Structure to hold the pin values.
 #[derive(Default, Debug, Copy, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "miniserde", derive(miniserde::Serialize, miniserde::Deserialize))]
+#[cfg_attr(
+    feature = "miniserde",
+    derive(miniserde::Serialize, miniserde::Deserialize)
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PinValues {
     pub QUAD_IDX: bool,
