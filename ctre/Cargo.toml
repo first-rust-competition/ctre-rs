@@ -18,6 +18,7 @@ serde = ["ctre-data/serde"]
 bitflags = "1.0"
 ctre-data = { path = "../ctre-data", version = "0.5.14", features = ["num"] }
 ctre-sys = { path = "../ctre-sys", version = "5.15.0" }
+memoffset = "0.5.5"
 num-traits = "0.2"
 
 [dev-dependencies]

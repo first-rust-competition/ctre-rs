@@ -10,6 +10,7 @@ use ctre_sys::mot::*;
 pub use ctre_sys::mot::{
     ControlFrame, ControlFrameEnhanced, ControlMode, InvertType, StatusFrame, StatusFrameEnhanced,
 };
+use memoffset::raw_field;
 use std::mem;
 
 use super::{motion::*, ConfigAll, CustomParam, ErrorCode, ParamEnum, Result};
@@ -251,16 +252,16 @@ unsafe fn _motion_profile_status(
     let mut profile_slot_select_1 = 0;
     let code = c_MotController_GetMotionProfileStatus_2(
         handle,
-        &mut (*status_to_fill).top_buffer_rem,
-        &mut (*status_to_fill).top_buffer_cnt,
-        &mut (*status_to_fill).btm_buffer_cnt,
-        &mut (*status_to_fill).has_underrun,
-        &mut (*status_to_fill).is_underrun,
-        &mut (*status_to_fill).active_point_valid,
-        &mut (*status_to_fill).is_last,
+        raw_field!(status_to_fill, MotionProfileStatus, top_buffer_rem) as *mut _,
+        raw_field!(status_to_fill, MotionProfileStatus, top_buffer_cnt) as *mut _,
+        raw_field!(status_to_fill, MotionProfileStatus, btm_buffer_cnt) as *mut _,
+        raw_field!(status_to_fill, MotionProfileStatus, has_underrun) as *mut _,
+        raw_field!(status_to_fill, MotionProfileStatus, is_underrun) as *mut _,
+        raw_field!(status_to_fill, MotionProfileStatus, active_point_valid) as *mut _,
+        raw_field!(status_to_fill, MotionProfileStatus, is_last) as *mut _,
         &mut profile_slot_select_0,
         &mut output_enable,
-        &mut (*status_to_fill).time_dur_ms,
+        raw_field!(status_to_fill, MotionProfileStatus, time_dur_ms) as *mut _,
         &mut profile_slot_select_1,
     );
     (*status_to_fill).output_enable = output_enable.into();
@@ -1667,7 +1668,7 @@ pub trait MotorController: private::Sealed {
     }
     #[doc(hidden)]
     fn base_get_all_configs(&self, _timeout_ms: i32) -> Result<BaseMotorControllerConfiguration> {
-        unimplemented!();
+        todo!();
     }
 }
 
@@ -1883,7 +1884,7 @@ impl ConfigAll for TalonSRX {
 
     fn get_all_configs(&self, timeout_ms: i32) -> Result<TalonSRXConfiguration> {
         let _base = self.base_get_all_configs(timeout_ms)?;
-        unimplemented!()
+        todo!()
     }
 }
 
@@ -2202,7 +2203,7 @@ impl ConfigAll for VictorSPX {
 
     fn get_all_configs(&self, timeout_ms: i32) -> Result<VictorSPXConfiguration> {
         let _base = self.base_get_all_configs(timeout_ms)?;
-        unimplemented!()
+        todo!()
     }
 }
 
